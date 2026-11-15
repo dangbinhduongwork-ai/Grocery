@@ -47,6 +47,24 @@ public class GroceryHubDbContext : DbContext
 
     public DbSet<IdempotencyRecord> IdempotencyKeys => Set<IdempotencyRecord>();
 
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<Role> Roles => Set<Role>();
+
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+
+    public DbSet<Permission> Permissions => Set<Permission>();
+
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+
+    public DbSet<UserPermission> UserPermissions => Set<UserPermission>();
+
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<StaffProfile> StaffProfiles => Set<StaffProfile>();
+
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);

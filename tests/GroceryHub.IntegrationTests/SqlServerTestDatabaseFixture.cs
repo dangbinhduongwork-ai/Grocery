@@ -1,7 +1,10 @@
 using System.Diagnostics;
 using GroceryHub.Persistence;
+using GroceryHub.Persistence.Seeding;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Respawn;
 using Respawn.Graph;
 using Testcontainers.MsSql;
@@ -17,6 +20,11 @@ public sealed class SqlServerIntegrationCollection : ICollectionFixture<SqlServe
 
 public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
 {
+    static SqlServerTestDatabaseFixture()
+    {
+        AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.UseManagedNetworkingOnWindows", true);
+    }
+
     private MsSqlContainer? _msSqlContainer;
     private Respawner? _respawner;
     private string? _localDbMasterConnectionString;
@@ -55,8 +63,12 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
             ConnectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={DatabaseName};Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;";
         }
 
-        await using GroceryHubDbContext dbContext = CreateDbContext();
-        await dbContext.Database.MigrateAsync();
+        await using (GroceryHubDbContext dbContext = CreateDbContext())
+        {
+            await dbContext.Database.MigrateAsync();
+            IConfiguration config = new ConfigurationBuilder().Build();
+            await IdentitySeeder.SeedIdentityAsync(dbContext, config, TimeProvider.System, NullLogger.Instance);
+        }
 
         await using SqlConnection connection = new(ConnectionString);
         await connection.OpenAsync();
@@ -111,6 +123,10 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
         await using SqlConnection connection = new(ConnectionString);
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
+
+        await using GroceryHubDbContext dbContext = CreateDbContext();
+        IConfiguration config = new ConfigurationBuilder().Build();
+        await IdentitySeeder.SeedIdentityAsync(dbContext, config, TimeProvider.System, NullLogger.Instance);
     }
 
     public async Task DisposeAsync()

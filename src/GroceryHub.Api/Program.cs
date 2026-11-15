@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,6 +13,9 @@ using GroceryHub.Modules.Cart.Api;
 using GroceryHub.Modules.Catalog.Api;
 using GroceryHub.Modules.Customers.Api;
 using GroceryHub.Modules.Identity.Api;
+using GroceryHub.Modules.Identity.Application;
+using GroceryHub.Modules.Identity.Configuration;
+using GroceryHub.Modules.Identity.Contracts;
 using GroceryHub.Modules.Inventory.Api;
 using GroceryHub.Modules.Ordering.Api;
 using GroceryHub.Modules.Payments.Api;
@@ -21,8 +25,11 @@ using GroceryHub.Modules.Reporting.Api;
 using GroceryHub.Modules.Reviews.Api;
 using GroceryHub.Persistence;
 using GroceryHub.SharedKernel;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -73,8 +80,51 @@ builder.Services.AddProblemDetails(options =>
 });
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+JwtOptions jwtOptions = builder.Configuration
+    .GetSection(JwtOptions.SectionName)
+    .Get<JwtOptions>() ?? new JwtOptions();
+
+if (builder.Environment.IsProduction() &&
+    string.Equals(jwtOptions.SecretKey, "groceryhub-dev-jwt-super-secret-signing-key-minimum-256-bits-length!", StringComparison.Ordinal))
+{
+    throw new InvalidOperationException("Production environment must override default development JWT signing key via Jwt__SecretKey configuration.");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtOptions.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30),
+            NameClaimType = "name",
+            RoleClaimType = ClaimTypes.Role
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("auth", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy(
+        DynamicPermissionPolicyProvider.StaffCreateOrManagePolicy,
+        policy => policy.RequireAuthenticatedUser().AddRequirements(
+            new AnyPermissionRequirement(Permissions.StaffCreate, Permissions.StaffManage)));
+
+    foreach (string permission in Permissions.All)
+    {
+        options.AddPolicy(permission, policy =>
+            policy.RequireAuthenticatedUser().AddRequirements(new PermissionRequirement(permission)));
+    }
+});
 
 builder.Services.AddGroceryHubRateLimiting(builder.Configuration, TimeProvider.System);
 
@@ -90,6 +140,17 @@ builder.Services.AddOpenApi("v1", options =>
         document.Info.Version = "1.0.0";
         document.Info.Description = "GroceryHub Vietnamese Online Grocery Platform REST API (v1)";
         document.Servers = [new() { Url = "/" }];
+
+        document.Components ??= new();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Enter JWT access token"
+        };
+
         return Task.CompletedTask;
     });
 });

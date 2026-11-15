@@ -1,0 +1,44 @@
+# Gitleaks configuration for GroceryHub
+# Baseline: Detect committed API keys, secrets, private keys, and tokens
+
+title = "GroceryHub Secret Scanner Configuration"
+
+[extend]
+# Extends default gitleaks rules when running with official ruleset
+
+[allowlist]
+description = "Global allowlists for test fixtures, example files, and mock tokens"
+paths = [
+    '''\.env\.example$''',
+    '''docs/.*\.md$''',
+    '''tests/.*Fixtures.*\.cs$''',
+    '''tests/.*Tests.*\.cs$'''
+]
+regexes = [
+    '''(?i)CHANGE_ME.*''',
+    '''(?i)groceryhub-dev-jwt-super-secret-signing-key-minimum-256-bits-length!''',
+    '''(?i)EXAMPLE_.*'''
+]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key or Secret"
+regex = '''(?i)(?:key|api_key|apikey|secret|token|password|auth)[\s]*[=:]+[\s]*["']([0-9a-zA-Z\-_]{20,})["']'''
+secretGroup = 1
+keywords = [
+    "key",
+    "api_key",
+    "apikey",
+    "secret",
+    "token",
+    "password"
+]
+
+[[rules]]
+id = "sepay-webhook-secret"
+description = "SePay Webhook HMAC Secret or API Token"
+regex = '''(?i)(?:sepay.*secret|sepay.*token|sepay.*key)[\s]*[=:]+[\s]*["']([0-9a-zA-Z\-_]{16,})["']'''
+secretGroup = 1
+keywords = [
+    "sepay"
+]

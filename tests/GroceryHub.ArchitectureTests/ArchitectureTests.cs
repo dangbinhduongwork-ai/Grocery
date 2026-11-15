@@ -107,6 +107,7 @@ public sealed class ArchitectureTests
 
                 bool allowedReference =
                     string.Equals(refName, "GroceryHub.SharedKernel", StringComparison.Ordinal) ||
+                    string.Equals(refName, "GroceryHub.Persistence", StringComparison.Ordinal) ||
                     refName.EndsWith(".Contracts", StringComparison.Ordinal);
 
                 if (!allowedReference)
@@ -137,6 +138,8 @@ public sealed class ArchitectureTests
                 bool isAllowed =
                     normalized.EndsWith("/GroceryHub.SharedKernel.csproj", StringComparison.Ordinal) ||
                     normalized.Equals("GroceryHub.SharedKernel.csproj", StringComparison.Ordinal) ||
+                    normalized.EndsWith("/GroceryHub.Persistence.csproj", StringComparison.Ordinal) ||
+                    normalized.Equals("GroceryHub.Persistence.csproj", StringComparison.Ordinal) ||
                     normalized.EndsWith(".Contracts.csproj", StringComparison.Ordinal);
 
                 if (!isAllowed)
@@ -185,9 +188,20 @@ public sealed class ArchitectureTests
     }
 
     [Fact]
+    public void Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous()
+    {
+        All_Mapped_Endpoints_Must_Have_Authorization_Policy_Or_AllowAnonymous();
+    }
+
+    [Fact]
     public void All_Mapped_Endpoints_Must_Have_Authorization_Policy_Or_AllowAnonymous()
     {
         using WebApplicationFactory<Program> factory = new();
+        AssertEndpointsProtected(factory);
+    }
+
+    private static void AssertEndpointsProtected(WebApplicationFactory<Program> factory)
+    {
         IEnumerable<EndpointDataSource> dataSources = factory.Services.GetRequiredService<IEnumerable<EndpointDataSource>>();
 
         RouteEndpoint[] routeEndpoints = dataSources

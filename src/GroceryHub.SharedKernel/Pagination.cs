@@ -41,3 +41,26 @@ public sealed record PagedList<T>(
     public static PagedList<T> Empty(int page = PageRequest.DefaultPage, int pageSize = PageRequest.DefaultPageSize) =>
         Create([], page, pageSize, 0);
 }
+
+public sealed record PagedResponse<T>(
+    IReadOnlyList<T> Items,
+    int Page,
+    int PageSize,
+    int TotalItems,
+    int TotalPages)
+{
+    public static PagedResponse<T> Create(IReadOnlyList<T> items, int page, int pageSize, int totalItems)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        PageRequest normalized = new(page, pageSize);
+        int normalizedTotal = Math.Max(0, totalItems);
+        int totalPages = normalizedTotal == 0
+            ? 0
+            : (int)Math.Ceiling(normalizedTotal / (double)normalized.PageSize);
+
+        return new PagedResponse<T>(items, normalized.Page, normalized.PageSize, normalizedTotal, totalPages);
+    }
+
+    public static PagedResponse<T> Empty(int page = PageRequest.DefaultPage, int pageSize = PageRequest.DefaultPageSize) =>
+        Create([], page, pageSize, 0);
+}
