@@ -14,7 +14,7 @@
 | **02** | Agents, Skills, Rules (install & prove) | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-02-plan.md` | `docs/progress/phase-02-report.md` (`docs/evidence/phase-02/`) |
 | **03** | Architecture and Database Design | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-03-plan.md` | `docs/progress/phase-03-report.md` (`docs/evidence/phase-03/`) |
 | **04** | Backend Foundation | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-04-plan.md` | `docs/progress/phase-04-report.md` (`docs/evidence/phase-04/`) |
-| **05** | Authentication and RBAC | NotStarted | — | Pending | — | — | — |
+| **05** | Authentication and RBAC | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-05-plan.md` | `docs/progress/phase-05-report.md` (`docs/evidence/phase-05/`) |
 | **06** | Products, Categories and Inventory | NotStarted | — | Pending | — | — | — |
 | **07** | Cart, Checkout and Order Lifecycle | NotStarted | — | Pending | — | — | — |
 | **08** | Customer Frontend (Storefront) | NotStarted | — | Pending | — | — | — |
