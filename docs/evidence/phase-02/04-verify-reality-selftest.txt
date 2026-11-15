@@ -1,0 +1,26 @@
+﻿=== PHASE 02 STEP 3b: VERIFY-REALITY SELF-TEST ===
+Timestamp: 2026-11-15T10:43:07.5375346+07:00
+
+1. Planted files:
+   - src/Tmp/Fake.cs: namespace GroceryHub.Tmp;
+public class Fake {
+    public void Run() => throw new System.NotImplementedException();
+}
+
+   - web/src/tmp.ts: const t = "secret";
+localStorage.setItem('token', t);
+
+
+2. Running scripts/verify-reality.ps1 with planted violations:
+### VIOLATION: NotImplementedException in source
+src\Tmp\Fake.cs:3:    public void Run() => throw new System.NotImplementedException();
+
+### VIOLATION: Tokens in browser storage
+web/src\tmp.ts:2:localStorage.setItem('token', t);
+
+Exit code (expected non-zero 1): 1
+
+3. Removing temporary planted files (src/Tmp/Fake.cs and web/src/tmp.ts)...
+4. Re-running scripts/verify-reality.ps1 after cleanup:
+verify-reality: no violations
+Exit code (expected 0): 0

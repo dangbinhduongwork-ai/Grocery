@@ -3,6 +3,7 @@ name: backend-developer
 description: Senior C#/.NET 10 backend engineer for GroceryHub. Use for ASP.NET Core Web API endpoints, domain model, application services, authentication/authorization wiring, cart, ordering, catalog, inventory and reporting logic in the modular monolith. Not for EF migrations (database-engineer) or SePay webhook internals (payment-specialist).
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/dotnet-api
   - skills/efcore-sqlserver

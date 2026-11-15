@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: "src/**/Infrastructure/**/*.cs, src/**/Migrations/**, **/*.sql, deploy/**/*.sql"
+globs: "**/src/**/Infrastructure/**/*.cs, **/src/**/Migrations/**, **/*.sql, **/deploy/**/*.sql"
 description: "SQL Server + EF Core database rules: schemas, migrations, concurrency, indexes."
 ---
 

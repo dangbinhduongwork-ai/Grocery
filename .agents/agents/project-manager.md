@@ -3,8 +3,7 @@ name: project-manager
 description: Orchestrator and integration owner for GroceryHub. Use to plan a phase, split work between role agents, assign file ownership, track progress with evidence, resolve conflicts, integrate branches and decide whether a phase gate is passed. Do not use for writing feature code.
 mainAgent: true
 subagent: true
-# NOTE: `tools` is intentionally omitted. Antigravity warns that a misspelled tool name can hang a subagent.
-# Phase 02 verifies the default tool set; only add names that Antigravity documents (e.g. view_file, replace_file_content, grep_search, run_command).
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/ecommerce-business
   - skills/wf-progress-review

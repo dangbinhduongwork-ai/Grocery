@@ -1,0 +1,48 @@
+=== PHASE 02 STEP 1 & 2: RULES, SKILLS, AND SLASH COMMANDS OBSERVATION ===
+Timestamp: 2026-11-15T10:43:30+07:00
+Surface: Antigravity IDE 2.7.0 (Windows)
+
+--- 1. Active Rules Observed in System Context (<user_rules>) ---
+1. Always-On Rules (injected unconditionally in <user_rules>):
+   - RULE[e:\25.Mykey\GroceryHub\AGENTS.md] (Project Charter, always-on)
+   - RULE[e:\25.Mykey\GroceryHub\.agents\rules\security.md] (trigger: always_on)
+2. Conditional Rules (`trigger: model_decision`, listed in <user_rules> with path + description):
+   - file:///e:/25.Mykey/GroceryHub/.agents/rules/testing.md
+   - file:///e:/25.Mykey/GroceryHub/.agents/rules/ui-ux.md
+3. Glob Rules (`trigger: glob`, located in .agents/rules/*.md):
+   - backend.md: globs: "**/src/**/*.cs, **/tests/**/*.cs, **/*.csproj, **/Directory.Build.props, **/Directory.Packages.props"
+   - database.md: globs: "**/src/**/Infrastructure/**/*.cs, **/src/**/Migrations/**, **/*.sql, **/deploy/**/*.sql"
+   - frontend.md: globs: "**/web/**/*.ts, **/web/**/*.tsx, **/web/**/*.json, **/web/**/*.css"
+   - payments.md: globs: "**/src/GroceryHub.Modules.Payments/**, **/src/**/Payments/**, **/web/**/payment/**, **/web/**/checkout/**"
+   - Observation on Glob Rules in Antigravity IDE 2.7.0:
+     - Per builtin `migrate-agent-settings/SKILL.md` lines 176-179, `globs` must be prefixed with `**/` to match absolute file paths. We updated `backend.md`, `database.md`, `frontend.md`, and `payments.md` to add `**/` prefixes.
+     - Additionally, when we created and read `e:\25.Mykey\GroceryHub\src\Tmp\Fake.cs` mid-turn via `write_file`/`read_file`, `<user_rules>` in the already-running turn did not dynamically inject a new `<RULE>` block mid-turn; therefore, role agents and skills (`dotnet-api`, `efcore-sqlserver`, `react-frontend`, `sepay-integration`) explicitly read the corresponding `.agents/rules/*.md` files when working on backend/database/frontend/payments tasks so no rule is ever missed.
+
+--- 2. Active Skills Observed in System Context (<skills>) ---
+All 14 workspace skills in `.agents/skills/*/SKILL.md` are discovered and listed in `<skills>`:
+1. docker-devops (e:\25.Mykey\GroceryHub\.agents\skills\docker-devops\SKILL.md)
+2. dotnet-api (e:\25.Mykey\GroceryHub\.agents\skills\dotnet-api\SKILL.md)
+3. ecommerce-business (e:\25.Mykey\GroceryHub\.agents\skills\ecommerce-business\SKILL.md)
+4. efcore-sqlserver (e:\25.Mykey\GroceryHub\.agents\skills\efcore-sqlserver\SKILL.md)
+5. react-frontend (e:\25.Mykey\GroceryHub\.agents\skills\react-frontend\SKILL.md)
+6. security-review (e:\25.Mykey\GroceryHub\.agents\skills\security-review\SKILL.md)
+7. sepay-integration (e:\25.Mykey\GroceryHub\.agents\skills\sepay-integration\SKILL.md)
+8. testing-qa (e:\25.Mykey\GroceryHub\.agents\skills\testing-qa\SKILL.md)
+9. ui-ux-design (e:\25.Mykey\GroceryHub\.agents\skills\ui-ux-design\SKILL.md)
+10. wf-bug-fix (e:\25.Mykey\GroceryHub\.agents\skills\wf-bug-fix\SKILL.md)
+11. wf-code-review (e:\25.Mykey\GroceryHub\.agents\skills\wf-code-review\SKILL.md)
+12. wf-progress-review (e:\25.Mykey\GroceryHub\.agents\skills\wf-progress-review\SKILL.md)
+13. wf-security-review (e:\25.Mykey\GroceryHub\.agents\skills\wf-security-review\SKILL.md)
+14. wf-ui-review (e:\25.Mykey\GroceryHub\.agents\skills\wf-ui-review\SKILL.md)
+
+--- 3. /wf-progress-review Dry-Run Observation ---
+- In Antigravity IDE 2.7.0, workspace skills named `wf-*` in `.agents/skills/` are loaded as progressive-disclosure skills via `read_file` on `.agents/skills/wf-progress-review/SKILL.md` (and can also be referenced by the user as `/wf-progress-review` in chat).
+- Built-in UI slash commands (`<slash_commands>`) are: `/goal`, `/compact`, `/schedule`, `/browser`, `/plan`, `/grill-me`, `/teamwork`, `/learn`, `/boost`.
+- Dry-run of `.agents/skills/wf-progress-review/SKILL.md` (9 steps verified without modifying state):
+  1. Trust nothing -> checked git log and file ownership (`git log --name-only`).
+  2. Run from clean checkout -> N/A for Phase 02 (no application code yet).
+  3. Reality scan -> `scripts/verify-reality.ps1` exited with code 0 (`verify-reality: no violations`).
+  4. Acceptance criteria -> verified all 6 Phase 02 criteria against `docs/evidence/phase-02/01..05-*.txt`.
+  5. Traceability -> `docs/progress/TRACEABILITY.md` verified.
+  6. Open items -> `docs/progress/QUESTIONS.md` checked (0 open questions).
+  7. Decision -> GO.

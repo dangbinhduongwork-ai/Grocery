@@ -3,6 +3,7 @@ name: ui-ux-designer
 description: UI/UX and design-system owner for GroceryHub. Use to define and maintain design tokens, shadcn/ui theming, page recipes, component specs, copy tone and to review implemented screens against the design system. Produces specs and token/theme code, not feature logic.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/ui-ux-design
   - skills/react-frontend

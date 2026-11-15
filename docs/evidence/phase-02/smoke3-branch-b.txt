@@ -1,0 +1,3 @@
+Smoke Test 3B — isolated branch workspace (qa-engineer)
+C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-Smoke-Test-3B-Isolated-Branch-qa-engineer-exec-f0b7ae55
+agent/qa-engineer/phase-02-smoke3b

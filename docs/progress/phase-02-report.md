@@ -1,0 +1,45 @@
+# Phase 02 Report — Agents, Skills, Rules (Install and Prove They Work)
+
+- **Date:** 2026-11-15
+- **Phase:** `02`
+- **Lead Agent:** `project-manager` (with `backend-developer` and `qa-engineer` subagents)
+- **Antigravity Surface:** Antigravity IDE `2.7.0` (Windows, Electron `39.8.5`, Node `22.22.1`)
+- **Gate Decision:** **GO**
+
+---
+
+## 1. Mechanism Verification Matrix
+
+| Mechanism | Expected | Observed | Evidence | PASS/FAIL |
+|---|---|---|---|---|
+| **1. Rules (`always_on`)** | `AGENTS.md` and `.agents/rules/security.md` (`trigger: always_on`) are loaded unconditionally into `<user_rules>`. | Both `<RULE[e:\25.Mykey\GroceryHub\AGENTS.md]>` and `<RULE[e:\25.Mykey\GroceryHub\.agents\rules\security.md]>` are present unconditionally in `<user_rules>` in every turn. | [01-frontmatter-audit.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/01-frontmatter-audit.txt), [02-rules-skills-active.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/02-rules-skills-active.txt) | **PASS** |
+| **2. Rules (`model_decision`)** | `.agents/rules/testing.md` and `.agents/rules/ui-ux.md` (`trigger: model_decision`) appear in conditional `<user_rules>` with descriptions. | Both `testing.md` and `ui-ux.md` are listed in `<user_rules>` with exact file URIs and trigger descriptions. | [01-frontmatter-audit.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/01-frontmatter-audit.txt), [02-rules-skills-active.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/02-rules-skills-active.txt) | **PASS** |
+| **3. Rules (`glob`)** | `.agents/rules/{backend,database,frontend,payments}.md` have valid `trigger: glob`, `globs`, and `description`. | All 4 files have valid frontmatter. Per builtin `migrate-agent-settings/SKILL.md` lines 176–179, workspace-relative globs must be prefixed with `**/` to match absolute paths; updated all 4 files accordingly (`**/src/**/*.cs`, `**/web/**/*.ts`, etc.). Because mid-turn file reads do not re-inject `<user_rules>` until the next turn, role skills also explicitly reference `.agents/rules/*.md`. | [01-frontmatter-audit.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/01-frontmatter-audit.txt), [02-rules-skills-active.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/02-rules-skills-active.txt) | **PASS** |
+| **4. Skills (`.agents/skills/*/SKILL.md`)** | All 14 workspace skill folders have `SKILL.md` with `name` + `description` and appear in `<skills>`. | All 14 workspace skills (`docker-devops`, `dotnet-api`, `ecommerce-business`, `efcore-sqlserver`, `react-frontend`, `security-review`, `sepay-integration`, `testing-qa`, `ui-ux-design`, `wf-bug-fix`, `wf-code-review`, `wf-progress-review`, `wf-security-review`, `wf-ui-review`) are discovered and listed in `<skills>`. | [01-frontmatter-audit.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/01-frontmatter-audit.txt), [02-rules-skills-active.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/02-rules-skills-active.txt) | **PASS** |
+| **5. Workflow Skill Dry-Run (`/wf-progress-review`)** | `/wf-progress-review` skill loads and executes its 9-step audit checklist in dry-run mode without errors. | Loaded `.agents/skills/wf-progress-review/SKILL.md` and executed a dry-run verification against Phase 02 plan, git log, and `verify-reality.ps1`. Also verified built-in `<slash_commands>` (`/teamwork`, `/plan`, `/goal`, `/boost`, etc.). | [02-rules-skills-active.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/02-rules-skills-active.txt) | **PASS** |
+| **6. Subagents Discovery & Tooling (`.agents/agents/*.md`)** | All 9 custom role agents appear in `<subagents>` and can execute terminal/file tools when invoked. | All 9 agents (`backend-developer`, `database-engineer`, `devops-engineer`, `frontend-developer`, `payment-specialist`, `project-manager`, `qa-engineer`, `security-reviewer`, `ui-ux-designer`) are listed in `<subagents>`. Root cause of missing write tools when `tools:` was omitted was confirmed in builtin `migrate-agent-settings/SKILL.md` lines 154–161: omitted `tools:` grants only a read-only default set. Added `tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]` to all 9 `.agents/agents/*.md` files and verified runtime execution via `define_subagent(..., EnableWriteTools=true)`. | [01-frontmatter-audit.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/01-frontmatter-audit.txt), [03-subagent-smoke-tests.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/03-subagent-smoke-tests.txt) | **PASS** |
+| **7. Subagent Smoke Test 1 (`backend-developer`)** | Invoke `backend-developer` to create `docs/evidence/phase-02/hello-backend.txt` containing `dotnet --version` output and nothing else. | Subagent ran `dotnet --version` and wrote `10.0.404` to `docs/evidence/phase-02/hello-backend.txt`. Verified file content directly. | [hello-backend.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/hello-backend.txt), [03-subagent-smoke-tests.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/03-subagent-smoke-tests.txt) | **PASS** |
+| **8. Subagent Smoke Test 2 (`qa-engineer`)** | Invoke `qa-engineer` to run `scripts/verify-reality.ps1` and report output/exit code. | Subagent executed `powershell -ExecutionPolicy Bypass -File scripts/verify-reality.ps1` and reported stdout `verify-reality: no violations` and exit code `0`. | [03-subagent-smoke-tests.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/03-subagent-smoke-tests.txt) | **PASS** |
+| **9. Subagent Smoke Test 3 (Isolation — `Workspace="branch"`)** | Invoke two subagents in `branch` workspace mode to create different files on different branches (`agent/backend-developer/phase-02-smoke3a` and `agent/qa-engineer/phase-02-smoke3b`), verify no overlap, merge. | Subagent 3A created `docs/evidence/phase-02/smoke3-branch-a.txt` (`ac70b74`); Subagent 3B created `docs/evidence/phase-02/smoke3-branch-b.txt` (`ba836f4`) in separate worktrees. `git diff --name-status` confirmed zero overlap; merged both cleanly into `integration/phase-02` and cleaned up worktrees via `manage_subagents(Action="kill_all")`. | [03-subagent-smoke-tests.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/03-subagent-smoke-tests.txt), [smoke3-branch-a.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/smoke3-branch-a.txt), [smoke3-branch-b.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/smoke3-branch-b.txt) | **PASS** |
+| **10. `verify-reality` Self-Test (Step 3b)** | Plant `src/Tmp/Fake.cs` (`throw new NotImplementedException();`) and `web/src/tmp.ts` (`localStorage.setItem('token', t)`), run `scripts/verify-reality.ps1`, confirm both are caught with exit code `1`, delete temp files and confirm exit code `0`. | Run 1 printed `### VIOLATION: NotImplementedException in source` (`src\Tmp\Fake.cs:3`) and `### VIOLATION: Tokens in browser storage` (`web/src\tmp.ts:2`) and exited with code `1`. After removing temporary files, Run 2 printed `verify-reality: no violations` and exited with code `0`. Also verified `ripgrep 15.2.0` (`+pcre2`) is active in `PATH`. | [04-verify-reality-selftest.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/04-verify-reality-selftest.txt) | **PASS** |
+| **11. Git Worktrees Test (Step 4)** | Create two worktrees (`../wt-backend` on `agent/backend-developer/phase-02-test` and `../wt-qa` on `agent/qa-engineer/phase-02-test`), commit a file in each, merge both into `integration/phase-02`, remove worktrees. | Created both worktrees, committed `worktree-backend.txt` (`a58cb2f`) and `worktree-qa.txt` (`2f9841e`), merged both `--no-ff` into `integration/phase-02`, removed both worktrees and temporary branches. | [05-git-worktrees-test.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/05-git-worktrees-test.txt), [worktree-backend.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/worktree-backend.txt), [worktree-qa.txt](file:///e:/25.Mykey/GroceryHub/docs/evidence/phase-02/worktree-qa.txt) | **PASS** |
+
+---
+
+## 2. Recorded Execution Mode (`DEC-012`)
+
+- **Selected Execution Mode:** **Mode A (`invoke_subagent`)** with isolated `branch`/`share` worktrees (with Mode C single-conversation role-adoption available as fallback).
+- **Multi-Agent / Slash Surface Capabilities:**
+  - `/teamwork` is available in `<slash_commands>`.
+  - Native `swarm` tool and `run_workflow` tool are available in the IDE toolset.
+- **Fixes Applied to `.agents/**`:**
+  1. Added `tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]` to all 9 `.agents/agents/*.md` files.
+  2. Prefixed workspace-relative globs in `.agents/rules/{backend,database,frontend,payments}.md` with `**/` so they match absolute file paths per Antigravity's `migrate-agent-settings/SKILL.md`.
+
+---
+
+## 3. Gate Review (`/wf-progress-review`)
+
+- `scripts/verify-reality.ps1` status: `verify-reality: no violations` (exit code `0`).
+- Open questions in `docs/progress/QUESTIONS.md`: `0`.
+- **Phase 02 Gate Decision:** **GO** — Ready to proceed to **Phase 03 — Architecture and Database Design**.

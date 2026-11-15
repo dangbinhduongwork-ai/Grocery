@@ -1,0 +1,43 @@
+﻿=== PHASE 02 SUBAGENT SMOKE TESTS (1, 2, 3) ===
+Timestamp: 2026-11-15T10:42:35.2539476+07:00
+
+--- Smoke Test 1: backend-developer -> docs/evidence/phase-02/hello-backend.txt ---
+Content of docs/evidence/phase-02/hello-backend.txt:
+10.0.404
+
+--- Smoke Test 2: qa-engineer -> scripts/verify-reality.ps1 ---
+Subagent conversationId: adf064ac-1f9f-446e-8183-46335dd8bc2f
+Command: powershell -ExecutionPolicy Bypass -File scripts/verify-reality.ps1
+Stdout: verify-reality: no violations | Exit code: 0
+
+--- Smoke Test 3: Parallel Isolated Branch Subagents ---
+Worktree list before cleanup:
+E:/25.Mykey/GroceryHub                                                                                                                                   98fb92e [integration/phase-02]
+C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-Smoke-Test-3A-Isolated-Branch-backend-developer-exec-9ff97f3b ac70b74 [agent/backend-developer/phase-02-smoke3a]
+C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-Smoke-Test-3B-Isolated-Branch-qa-engineer-exec-f0b7ae55       ba836f4 [agent/qa-engineer/phase-02-smoke3b]
+
+Diff of agent/backend-developer/phase-02-smoke3a vs integration/phase-02:
+A	docs/evidence/phase-02/smoke3-branch-a.txt
+Diff of agent/qa-engineer/phase-02-smoke3b vs integration/phase-02:
+A	docs/evidence/phase-02/smoke3-branch-b.txt
+
+Merging agent/backend-developer/phase-02-smoke3a:
+Merge made by the 'ort' strategy.
+ docs/evidence/phase-02/smoke3-branch-a.txt | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 docs/evidence/phase-02/smoke3-branch-a.txt
+Merging agent/qa-engineer/phase-02-smoke3b:
+Merge made by the 'ort' strategy.
+ docs/evidence/phase-02/smoke3-branch-b.txt | 3 +++
+ 1 file changed, 3 insertions(+)
+ create mode 100644 docs/evidence/phase-02/smoke3-branch-b.txt
+
+Content of smoke3-branch-a.txt after merge:
+Smoke Test 3A â€” isolated branch workspace (backend-developer)
+git rev-parse --show-toplevel: C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-Smoke-Test-3A-Isolated-Branch-backend-developer-exec-9ff97f3b
+git branch --show-current: agent/backend-developer/phase-02-smoke3a
+
+Content of smoke3-branch-b.txt after merge:
+Smoke Test 3B â€” isolated branch workspace (qa-engineer)
+C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-Smoke-Test-3B-Isolated-Branch-qa-engineer-exec-f0b7ae55
+agent/qa-engineer/phase-02-smoke3b

@@ -1,0 +1,3 @@
+Smoke Test 3A — isolated branch workspace (backend-developer)
+git rev-parse --show-toplevel: C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-Smoke-Test-3A-Isolated-Branch-backend-developer-exec-9ff97f3b
+git branch --show-current: agent/backend-developer/phase-02-smoke3a
