@@ -1,0 +1,83 @@
+﻿=== PHASE 03 CONSISTENCY & ACCEPTANCE VERIFICATION ===
+Timestamp: 2026-11-15T11:03:27.0917293+07:00
+
+--- 1. Seven ADRs Check (docs/spec/adr/ADR-001..007) ---
+ADR: ADR-001-modular-monolith.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+ADR: ADR-002-single-dbcontext-schemas.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+ADR: ADR-003-auth-tokens-cookies.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+ADR: ADR-004-no-mediator-mapper-libs.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+ADR: ADR-005-contract-first-openapi.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+ADR: ADR-006-error-model.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+ADR: ADR-007-time-money-id-conventions.md | Context=True | Decision=True | Alternatives=True | Consequences=True
+
+--- 2. Module Contracts Check (12 modules + acyclic dependency matrix) ---
+Module Contract: Identity | Found in module-contracts.md = True
+Module Contract: Customers | Found in module-contracts.md = True
+Module Contract: Catalog | Found in module-contracts.md = True
+Module Contract: Inventory | Found in module-contracts.md = True
+Module Contract: Purchasing | Found in module-contracts.md = True
+Module Contract: Promotions | Found in module-contracts.md = True
+Module Contract: Cart | Found in module-contracts.md = True
+Module Contract: Ordering | Found in module-contracts.md = True
+Module Contract: Payments | Found in module-contracts.md = True
+Module Contract: Reviews | Found in module-contracts.md = True
+Module Contract: Reporting | Found in module-contracts.md = True
+Module Contract: Audit | Found in module-contracts.md = True
+
+--- 3. State Machines Check (5 lifecycles in docs/spec/state-machines.md) ---
+State Machine: Order | Present = True
+State Machine: Payment | Present = True
+State Machine: PurchaseOrder | Present = True
+State Machine: Refund | Present = True
+State Machine: Review | Present = True
+
+--- 4. Permissions Consistency Check (29 permissions across permissions-seed.md and 07-API-SPECIFICATION.md) ---
+Permission: catalog.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: catalog.write | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: catalog.price.write | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: catalog.cost.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: inventory.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: inventory.adjust | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: purchasing.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: purchasing.write | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: purchasing.receive | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: orders.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: orders.process | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: orders.ship | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: orders.cancel | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: customers.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: customers.lock | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: staff.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: staff.create | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: staff.manage | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: roles.manage | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: payments.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: payments.review | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: refunds.request | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: refunds.approve | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: promotions.manage | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: reviews.moderate | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: reports.revenue | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: reports.profit | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: audit.read | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+Permission: settings.manage | in permissions-seed.md=True | in 07-API-SPECIFICATION.md=True
+
+--- 5. Git Diff Stat vs main (must show ONLY docs/** and zero source code files) ---
+ docs/progress/TRACEABILITY.md                      |  160 +-
+ docs/progress/phase-03-plan.md                     |   20 +
+ docs/spec/05-SYSTEM-ARCHITECTURE.md                |  298 ++--
+ docs/spec/06-DATABASE-ERD.md                       | 1612 ++++++++++++++++++--
+ docs/spec/07-API-SPECIFICATION.md                  |  563 +++++--
+ docs/spec/11-SEPAY-INTEGRATION.md                  |  651 ++++++--
+ docs/spec/adr/ADR-001-modular-monolith.md          |   78 +
+ docs/spec/adr/ADR-002-single-dbcontext-schemas.md  |   69 +
+ docs/spec/adr/ADR-003-auth-tokens-cookies.md       |   80 +
+ docs/spec/adr/ADR-004-no-mediator-mapper-libs.md   |   64 +
+ docs/spec/adr/ADR-005-contract-first-openapi.md    |   57 +
+ docs/spec/adr/ADR-006-error-model.md               |   94 ++
+ docs/spec/adr/ADR-007-time-money-id-conventions.md |   71 +
+ docs/spec/events.md                                |  386 +++++
+ docs/spec/module-contracts.md                      |  815 ++++++++++
+ docs/spec/permissions-seed.md                      |   73 +
+ docs/spec/state-machines.md                        |  261 ++++
+ 17 files changed, 4747 insertions(+), 605 deletions(-)

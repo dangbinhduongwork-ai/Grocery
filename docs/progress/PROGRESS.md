@@ -12,7 +12,7 @@
 | **00** | Audit repository and environment | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-00-plan.md` | `docs/progress/phase-00-report.md` (`docs/evidence/phase-00/`) |
 | **01** | Research and Requirements | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-01-plan.md` | `docs/progress/phase-01-report.md` (`docs/evidence/phase-01/`) |
 | **02** | Agents, Skills, Rules (install & prove) | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-02-plan.md` | `docs/progress/phase-02-report.md` (`docs/evidence/phase-02/`) |
-| **03** | Architecture and Database Design | NotStarted | — | Pending | — | — | — |
+| **03** | Architecture and Database Design | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-03-plan.md` | `docs/progress/phase-03-report.md` (`docs/evidence/phase-03/`) |
 | **04** | Backend Foundation | NotStarted | — | Pending | — | — | — |
 | **05** | Authentication and RBAC | NotStarted | — | Pending | — | — | — |
 | **06** | Products, Categories and Inventory | NotStarted | — | Pending | — | — | — |

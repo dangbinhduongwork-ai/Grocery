@@ -214,7 +214,7 @@ Malformed JSON or missing required fields (`id`, `gateway`, `transactionDate`, `
 | **5. Late After Expiry (`T-PAY-11`):** `Order.Status == Cancelled` or `Payment.Status == Expired` or `UtcNow > Attempt.ExpiresAt + ExpiryGraceMinutes` | Record `PaymentTransaction` linked to `PaymentAttemptId`; order remains `Cancelled`/`Expired` | `LateAfterExpiry` | `NeedsReview` |
 | **6. Underpaid (`T-PAY-08`):** `dto.TransferAmount < Payment.Amount` | Record `PaymentTransaction` linked to `PaymentAttemptId`; order stays `PendingPayment` | `Underpaid` | `NeedsReview` |
 | **7. Overpaid (`T-PAY-08`):** `dto.TransferAmount > Payment.Amount` | Record `PaymentTransaction` linked to `PaymentAttemptId`; order stays `PendingPayment` | `Overpaid` | `NeedsReview` |
-| **8. Exact Match (`T-PAY-01`, `T-PAY-12`, `T-PAY-13`):** Attempt is `Open` or `Superseded`, `Order.Status == PendingPayment`, within `ExpiresAt + ExpiryGraceMinutes`, and `dto.TransferAmount == Payment.Amount` | - `PaymentAttempt.Status = Paid` (and any other `Open`/`Superseded` attempts on same payment $\rightarrow$ `Expired`)<br>- `Payment.Status = Paid`, `Payment.PaidAt = TransactionTime`<br>- `Order.Status = Confirmed`, `Order.PaymentStatus = Paid`, `Order.ConfirmedAt = UtcNow`<br>- `StockReservations.Status = Committed`<br>- Insert `OrderStatusHistory(PendingPayment -> Confirmed)` + `audit.AuditLogs` + `shared.OutboxMessages(OrderConfirmed)` | `Matched` | `None` |
+| **8. Exact Match (`T-PAY-01`, `T-PAY-12`, `T-PAY-13`):** Attempt is `Open` or `Superseded`, `Order.Status == PendingPayment`, within `ExpiresAt + ExpiryGraceMinutes`, and `dto.TransferAmount == Payment.Amount` | - `PaymentAttempt.Status = Paid` (and any other `Open`/`Superseded` attempts on same payment $\rightarrow$ `Expired`)<br>- `Payment.Status = Paid`, `Payment.PaidAt = TransactionTime`<br>- `Order.Status = Confirmed`, `Order.PaymentStatus = Paid`, `Order.ConfirmedAt = UtcNow`<br>- `StockReservations.Status = Active` (`ExpiresAt = NULL`; committed later at `Packed -> Shipping` per `BR-02`)<br>- Insert `OrderStatusHistory(PendingPayment -> Confirmed)` + `audit.AuditLogs` + `shared.OutboxMessages(OrderConfirmed)` | `Matched` | `None` |
 
 ### 5.4 Response Contract & SePay Retry Schedule (`DIFF-01`)
 - **Success Response Contract:** Must return **HTTP `200 OK` (or `201 Created`)** with exact JSON body **`{"success": true}`** (`Content-Type: application/json`) within **`< 5 seconds` target** (hard SePay timeout is **30 seconds**: 15s connect + 30s total).
@@ -308,7 +308,7 @@ sequenceDiagram
     SePay->>API: POST /api/v1/payments/sepay/webhook<br/>Headers: X-SePay-Timestamp, X-SePay-Signature (sha256=...)<br/>Raw JSON: { id: 92704, transferType: "in", transferAmount: 190000, code: "GH1000000123", ... }
     API->>API: Verify body <= 64KB, |now - timestamp| <= 300s,<br/>FixedTimeEquals HMAC-SHA256("{timestamp}.{rawBody}")
     API->>DB: INSERT payments.WebhookEvents(Provider='SEPAY', ProviderTransactionId='92704', Status='Received')
-    API->>DB: BEGIN TRAN (RowVersion check):<br/>INSERT PaymentTransaction(Matched, None),<br/>UPDATE PaymentAttempt(Paid), Payment(Paid, PaidAt),<br/>UPDATE Order(Confirmed), StockReservations(Committed),<br/>INSERT OrderStatusHistory, AuditLog, OutboxMessage,<br/>UPDATE WebhookEvent(Processed)
+    API->>DB: BEGIN TRAN (RowVersion check):<br/>INSERT PaymentTransaction(Matched, None),<br/>UPDATE PaymentAttempt(Paid), Payment(Paid, PaidAt),<br/>UPDATE Order(Confirmed), StockReservations(Active, ExpiresAt=NULL),<br/>INSERT OrderStatusHistory, AuditLog, OutboxMessage,<br/>UPDATE WebhookEvent(Processed)
     DB-->>API: COMMIT
     API-->>SePay: 200 OK {"success": true} (< 5s)
 
@@ -513,7 +513,7 @@ Every test below runs against a real SQL Server container (`Testcontainers`) usi
 
 | ID | Threat / Diff Ref | Scenario | Expected Result |
 |---|---|---|---|
-| `T-PAY-01` | `TM-PAY-01` | Valid signed webhook (`transferType="in"`), exact amount, active attempt | `Payment=Paid`, `PaymentAttempt=Paid`, `Order=Confirmed`, `StockReservations=Committed`, 1 `OrderStatusHistory` row, 1 `AuditLog` entry, HTTP `200 {"success":true}` |
+| `T-PAY-01` | `TM-PAY-01` | Valid signed webhook (`transferType="in"`), exact amount, active attempt | `Payment=Paid`, `PaymentAttempt=Paid`, `Order=Confirmed`, `StockReservations=Active (ExpiresAt=NULL)`, 1 `OrderStatusHistory` row, 1 `AuditLog` entry, HTTP `200 {"success":true}` |
 | `T-PAY-02` | `TM-PAY-02` | Same webhook `id` delivered twice sequentially | Second call hits `UQ(Provider, ProviderTransactionId)`, increments `DeliveryCount`, returns `200 {"success":true}`, zero extra state/audit rows |
 | `T-PAY-03` | `TM-PAY-03` | Same webhook `id` delivered $\times 10$ concurrently | Exactly one state transition to `Paid`/`Confirmed`; all 10 requests return `200 {"success":true}` |
 | `T-PAY-04` | `TM-PAY-01` | Tampered raw JSON body after signing | HTTP `401 Unauthorized` `{"success":false}`, zero rows in `WebhookEvents` / `PaymentTransactions` |
