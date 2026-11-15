@@ -1,0 +1,102 @@
+﻿=== STEP 1: MUTATION APPLIED (Ordering references Catalog.Api & Catalog.csproj) ===
+Command: git diff src/GroceryHub.Modules.Ordering
+diff --git a/src/GroceryHub.Modules.Ordering/Api/OrderingModuleExtensions.cs b/src/GroceryHub.Modules.Ordering/Api/OrderingModuleExtensions.cs
+index 4a6e037..f4256ef 100644
+--- a/src/GroceryHub.Modules.Ordering/Api/OrderingModuleExtensions.cs
++++ b/src/GroceryHub.Modules.Ordering/Api/OrderingModuleExtensions.cs
+@@ -1,9 +1,15 @@
++using GroceryHub.Modules.Catalog.Api;
+ using Microsoft.AspNetCore.Routing;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ 
+ namespace GroceryHub.Modules.Ordering.Api;
+ 
++internal static class OrderingToCatalogForbiddenProbe
++{
++    public static Type ForbiddenReference => typeof(CatalogModuleExtensions);
++}
++
+ public static class OrderingModuleExtensions
+ {
+     public static IServiceCollection AddOrderingModule(
+diff --git a/src/GroceryHub.Modules.Ordering/GroceryHub.Modules.Ordering.csproj b/src/GroceryHub.Modules.Ordering/GroceryHub.Modules.Ordering.csproj
+index 00f2631..f7dc938 100644
+--- a/src/GroceryHub.Modules.Ordering/GroceryHub.Modules.Ordering.csproj
++++ b/src/GroceryHub.Modules.Ordering/GroceryHub.Modules.Ordering.csproj
+@@ -7,6 +7,7 @@
+   </ItemGroup>
+   <ItemGroup>
+     <ProjectReference Include="..\GroceryHub.SharedKernel\GroceryHub.SharedKernel.csproj" />
++    <ProjectReference Include="..\GroceryHub.Modules.Catalog\GroceryHub.Modules.Catalog.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="FluentValidation" />
+
+Command: dotnet test tests/GroceryHub.ArchitectureTests/GroceryHub.ArchitectureTests.csproj
+ExitCode: 1
+  Determining projects to restore...
+  Restored C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Ordering\GroceryHub.Modules.Ordering.csproj (in 335 ms).
+  Restored C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\GroceryHub.ArchitectureTests.csproj (in 390 ms).
+  Restored C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Api\GroceryHub.Api.csproj (in 407 ms).
+  13 of 16 projects are up-to-date for restore.
+  GroceryHub.SharedKernel -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.SharedKernel\bin\Debug\net10.0\GroceryHub.SharedKernel.dll
+  GroceryHub.Modules.Reporting -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Reporting\bin\Debug\net10.0\GroceryHub.Modules.Reporting.dll
+  GroceryHub.Modules.Promotions -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Promotions\bin\Debug\net10.0\GroceryHub.Modules.Promotions.dll
+  GroceryHub.Modules.Audit -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Audit\bin\Debug\net10.0\GroceryHub.Modules.Audit.dll
+  GroceryHub.Modules.Inventory -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Inventory\bin\Debug\net10.0\GroceryHub.Modules.Inventory.dll
+  GroceryHub.Modules.Cart -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Cart\bin\Debug\net10.0\GroceryHub.Modules.Cart.dll
+  GroceryHub.Modules.Customers -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Customers\bin\Debug\net10.0\GroceryHub.Modules.Customers.dll
+  GroceryHub.Modules.Payments -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Payments\bin\Debug\net10.0\GroceryHub.Modules.Payments.dll
+  GroceryHub.Modules.Identity -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Identity\bin\Debug\net10.0\GroceryHub.Modules.Identity.dll
+  GroceryHub.Modules.Reviews -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Reviews\bin\Debug\net10.0\GroceryHub.Modules.Reviews.dll
+  GroceryHub.Modules.Catalog -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Catalog\bin\Debug\net10.0\GroceryHub.Modules.Catalog.dll
+  GroceryHub.Modules.Purchasing -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Purchasing\bin\Debug\net10.0\GroceryHub.Modules.Purchasing.dll
+  GroceryHub.Persistence -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Persistence\bin\Debug\net10.0\GroceryHub.Persistence.dll
+  GroceryHub.Modules.Ordering -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Ordering\bin\Debug\net10.0\GroceryHub.Modules.Ordering.dll
+  GroceryHub.Api -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Api\bin\Debug\net10.0\GroceryHub.Api.dll
+  GroceryHub.ArchitectureTests -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll
+Test run for C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.67]     GroceryHub.ArchitectureTests.ArchitectureTests.Modules_Must_Only_Depend_On_SharedKernel_And_Other_Module_Contracts [FAIL]
+  Failed GroceryHub.ArchitectureTests.ArchitectureTests.Modules_Must_Only_Depend_On_SharedKernel_And_Other_Module_Contracts [26 ms]
+  Error Message:
+   Module boundary violations detected:
+GroceryHub.Modules.Ordering has forbidden namespace dependencies in types: [GroceryHub.Modules.Ordering.Api.OrderingToCatalogForbiddenProbe]
+GroceryHub.Modules.Ordering assembly references forbidden internal assembly 'GroceryHub.Modules.Catalog'.
+GroceryHub.Modules.Ordering.csproj contains forbidden <ProjectReference Include="..\GroceryHub.Modules.Catalog\GroceryHub.Modules.Catalog.csproj" />.
+  Stack Trace:
+     at GroceryHub.ArchitectureTests.ArchitectureTests.Modules_Must_Only_Depend_On_SharedKernel_And_Other_Module_Contracts() in C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\ArchitectureTests.cs:line 149
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 565 ms - GroceryHub.ArchitectureTests.dll (net10.0)
+
+=== STEP 2: REVERT MUTATION & RE-RUN ARCHITECTURE TESTS ===
+Command: dotnet test tests/GroceryHub.ArchitectureTests/GroceryHub.ArchitectureTests.csproj
+ExitCode: 0
+  Determining projects to restore...
+  Restored C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Ordering\GroceryHub.Modules.Ordering.csproj (in 303 ms).
+  Restored C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\GroceryHub.ArchitectureTests.csproj (in 345 ms).
+  Restored C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Api\GroceryHub.Api.csproj (in 351 ms).
+  13 of 16 projects are up-to-date for restore.
+  GroceryHub.SharedKernel -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.SharedKernel\bin\Debug\net10.0\GroceryHub.SharedKernel.dll
+  GroceryHub.Modules.Audit -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Audit\bin\Debug\net10.0\GroceryHub.Modules.Audit.dll
+  GroceryHub.Modules.Catalog -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Catalog\bin\Debug\net10.0\GroceryHub.Modules.Catalog.dll
+  GroceryHub.Modules.Reporting -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Reporting\bin\Debug\net10.0\GroceryHub.Modules.Reporting.dll
+  GroceryHub.Persistence -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Persistence\bin\Debug\net10.0\GroceryHub.Persistence.dll
+  GroceryHub.Modules.Cart -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Cart\bin\Debug\net10.0\GroceryHub.Modules.Cart.dll
+  GroceryHub.Modules.Promotions -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Promotions\bin\Debug\net10.0\GroceryHub.Modules.Promotions.dll
+  GroceryHub.Modules.Identity -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Identity\bin\Debug\net10.0\GroceryHub.Modules.Identity.dll
+  GroceryHub.Modules.Purchasing -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Purchasing\bin\Debug\net10.0\GroceryHub.Modules.Purchasing.dll
+  GroceryHub.Modules.Inventory -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Inventory\bin\Debug\net10.0\GroceryHub.Modules.Inventory.dll
+  GroceryHub.Modules.Customers -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Customers\bin\Debug\net10.0\GroceryHub.Modules.Customers.dll
+  GroceryHub.Modules.Reviews -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Reviews\bin\Debug\net10.0\GroceryHub.Modules.Reviews.dll
+  GroceryHub.Modules.Payments -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Payments\bin\Debug\net10.0\GroceryHub.Modules.Payments.dll
+  GroceryHub.Modules.Ordering -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Modules.Ordering\bin\Debug\net10.0\GroceryHub.Modules.Ordering.dll
+  GroceryHub.Api -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\src\GroceryHub.Api\bin\Debug\net10.0\GroceryHub.Api.dll
+  GroceryHub.ArchitectureTests -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll
+Test run for C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-04-Unit--Architecture---Integration-Tests-qa-engineer-exec-bf67bade\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 711 ms - GroceryHub.ArchitectureTests.dll (net10.0)
