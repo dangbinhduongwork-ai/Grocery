@@ -26,6 +26,7 @@ public static class AuditModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+        AuditEndpoints.MapAuditApiEndpoints(endpoints);
         return endpoints;
     }
 }

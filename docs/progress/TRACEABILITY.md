@@ -31,34 +31,34 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 
 | ID | Pri | Requirement Summary | Owning Module(s) | Target Phase | Code Path | Test Name | Evidence File | Status |
 |---|---|---|---|---|---|---|---|---|
-| FR-ADM-001 | M | Dashboard: today/7d/30d revenue, orders by status, low stock, pending reviews, payment anomalies, top products | `Reporting`, `web/admin` | 09 | — | — | — | NotStarted |
-| FR-ADM-002 | M | Product management: CRUD, images, SKU, barcode, unit, brand, category, prices, publish/hide | `Catalog`, `Audit`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-ADM-003 | M | Category (tree) and brand management | `Catalog`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-ADM-004 | M | Price management with history and audit; scheduled promo price (S) | `Catalog`, `Audit`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-ADM-005 | M | Inventory: stock list, movements ledger, manual adjustment with reason, low-stock, near-expiry | `Inventory`, `Audit`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-ADM-006 | M | Purchasing: suppliers CRUD, POs, goods receipt, moving-average cost update | `Purchasing`, `Inventory`, `Catalog`, `Audit`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-ADM-007 | M | Order management: list/filter/search, detail, status transitions, internal notes, cancel, print pick/delivery | `Ordering`, `Inventory`, `Payments`, `Audit`, `web/admin` | 07, 09 | — | — | — | NotStarted |
-| FR-ADM-008 | M | Customer management: list/detail/orders, lock/unlock | `Customers`, `Identity`, `Ordering`, `Audit`, `web/admin` | 05, 09 | — | — | — | NotStarted |
-| FR-ADM-009 | M | Staff management: create/disable staff & managers, assign role and extra permissions | `Identity`, `Audit`, `web/admin` | 05, 09 | — | — | — | NotStarted |
-| FR-ADM-010 | M | Role and permission management (matrix editor) with audit | `Identity`, `Audit`, `web/admin` | 05, 09 | — | — | — | NotStarted |
+| FR-ADM-001 | M | Dashboard: today/7d/30d revenue, orders by status, low stock, pending reviews, payment anomalies, top products | `Reporting`, `web/admin` | 09 | `ReportingService.cs`, `AdminDashboardPage.tsx` | `ReportingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-002 | M | Product management: CRUD, images, SKU, barcode, unit, brand, category, prices, publish/hide | `Catalog`, `Audit`, `web/admin` | 06, 09 | `CatalogEndpoints.cs`, `AdminProductsPage.tsx`, `AdminProductFormPage.tsx` | `CatalogTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-003 | M | Category (tree) and brand management | `Catalog`, `web/admin` | 06, 09 | `CatalogEndpoints.cs`, `AdminCategoriesPage.tsx` | `CatalogTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-004 | M | Price management with history and audit; scheduled promo price (S) | `Catalog`, `Audit`, `web/admin` | 06, 09 | `CatalogEndpoints.cs`, `AdminProductFormPage.tsx` | `CatalogTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-005 | M | Inventory: stock list, movements ledger, manual adjustment with reason, low-stock, near-expiry | `Inventory`, `Audit`, `web/admin` | 06, 09 | `InventoryEndpoints.cs`, `AdminInventoryPage.tsx` | `InventoryTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-006 | M | Purchasing: suppliers CRUD, POs, goods receipt, moving-average cost update | `Purchasing`, `Inventory`, `Catalog`, `Audit`, `web/admin` | 06, 09 | `PurchasingEndpoints.cs`, `AdminSuppliersPage.tsx`, `AdminPurchasingPage.tsx` | `PurchasingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-007 | M | Order management: list/filter/search, detail, status transitions, internal notes, cancel, print pick/delivery | `Ordering`, `Inventory`, `Payments`, `Audit`, `web/admin` | 07, 09 | `OrderingEndpoints.cs`, `AdminOrdersPage.tsx`, `AdminOrderDetailPage.tsx` | `OrderingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-008 | M | Customer management: list/detail/orders, lock/unlock | `Customers`, `Identity`, `Ordering`, `Audit`, `web/admin` | 05, 09 | `CustomersEndpoints.cs`, `AdminCustomersPage.tsx` | `CustomersTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-009 | M | Staff management: create/disable staff & managers, assign role and extra permissions | `Identity`, `Audit`, `web/admin` | 05, 09 | `IdentityEndpoints.cs`, `AdminStaffPage.tsx` | `IdentityTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-010 | M | Role and permission management (matrix editor) with audit | `Identity`, `Audit`, `web/admin` | 05, 09 | `IdentityEndpoints.cs`, `AdminRolesPage.tsx` | `IdentityTests` | `docs/evidence/phase-09/` | Implemented |
 | FR-ADM-011 | M | Payment management: transactions list, match status, manual review queue, COD collection, refund workflow | `Payments`, `Ordering`, `Audit`, `web/admin` | 10 | — | — | — | NotStarted |
-| FR-ADM-012 | M | Promotions: coupons CRUD + usage report; banners/home sections (S) | `Promotions`, `Catalog`, `Audit`, `web/admin` | 07, 09 | — | — | — | NotStarted |
-| FR-ADM-013 | M | Review moderation (approve/reject/reply) | `Reviews`, `Catalog`, `Audit`, `web/admin` | 08, 09 | — | — | — | NotStarted |
-| FR-ADM-014 | M | Revenue report (day/week/month, by category/product/payment method) | `Reporting`, `web/admin` | 09 | — | — | — | NotStarted |
-| FR-ADM-015 | M | Profit report (net revenue − COGS), stock valuation, export CSV | `Reporting`, `web/admin` | 09 | — | — | — | NotStarted |
-| FR-ADM-016 | M | Audit log viewer with filters (actor, entity, action, date) | `Audit`, `web/admin` | 09 | — | — | — | NotStarted |
-| FR-ADM-017 | M | Settings: store info, bank account, shipping zones/rates, free-ship threshold, COD limit, QR expiry, low-stock | `Ordering` (shipping zones/rates), `Persistence/Shared` (`Settings`), `Audit`, `web/admin` | 07, 09, 10 | — | — | — | NotStarted |
+| FR-ADM-012 | M | Promotions: coupons CRUD + usage report; banners/home sections (S) | `Promotions`, `Catalog`, `Audit`, `web/admin` | 07, 09 | `PromotionsEndpoints.cs`, `AdminCouponsPage.tsx` | `PromotionsTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-013 | M | Review moderation (approve/reject/reply) | `Reviews`, `Catalog`, `Audit`, `web/admin` | 08, 09 | `ReviewsEndpoints.cs`, `AdminReviewsPage.tsx` | `ReviewsTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-014 | M | Revenue report (day/week/month, by category/product/payment method) | `Reporting`, `web/admin` | 09 | `ReportingService.cs`, `AdminReportsPage.tsx` | `ReportingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-015 | M | Profit report (net revenue − COGS), stock valuation, export CSV | `Reporting`, `web/admin` | 09 | `ReportingService.cs`, `CsvExporter.cs`, `AdminReportsPage.tsx` | `ReportingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-016 | M | Audit log viewer with filters (actor, entity, action, date) | `Audit`, `web/admin` | 09 | `AuditEndpoints.cs`, `AdminAuditLogsPage.tsx` | `AuditTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-ADM-017 | M | Settings: store info, bank account, shipping zones/rates, free-ship threshold, COD limit, QR expiry, low-stock | `Ordering` (shipping zones/rates), `Persistence/Shared` (`Settings`), `Audit`, `web/admin` | 07, 09, 10 | `SettingsEndpoints.cs`, `AdminSettingsPage.tsx` | `SettingsTests` | `docs/evidence/phase-09/` | Implemented |
 
 ## 3. Staff Functional Requirements (`FR-STF-*`)
 
 | ID | Pri | Requirement Summary | Owning Module(s) | Target Phase | Code Path | Test Name | Evidence File | Status |
 |---|---|---|---|---|---|---|---|---|
-| FR-STF-001 | M | Order queue with filters (status, payment, date), assigned-to-me view | `Ordering`, `web/admin` | 07, 09 | — | — | — | NotStarted |
-| FR-STF-002 | M | Confirm order, mark Preparing, generate pick list (grouped by aisle/category), mark Packed | `Ordering`, `Catalog`, `web/admin` | 07, 09 | — | — | — | NotStarted |
-| FR-STF-003 | M | Update delivery: Shipping, Delivered (record COD cash collected), DeliveryFailed with reason | `Ordering`, `Inventory`, `Payments`, `web/admin` | 07, 09 | — | — | — | NotStarted |
-| FR-STF-004 | M | Check stock for a product (search/barcode); see reserved vs on-hand | `Inventory`, `Catalog`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-STF-005 | M | Goods receipt entry when granted `purchasing.receive` | `Purchasing`, `Inventory`, `Catalog`, `web/admin` | 06, 09 | — | — | — | NotStarted |
-| FR-STF-006 | S | Mobile/tablet-friendly "picking mode" | `Ordering`, `web/admin` | 09 | — | — | — | NotStarted |
+| FR-STF-001 | M | Order queue with filters (status, payment, date), assigned-to-me view | `Ordering`, `web/admin` | 07, 09 | `OrderingEndpoints.cs`, `AdminOrdersPage.tsx` | `OrderingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-STF-002 | M | Confirm order, mark Preparing, generate pick list (grouped by aisle/category), mark Packed | `Ordering`, `Catalog`, `web/admin` | 07, 09 | `OrderingEndpoints.cs`, `AdminPickingModePage.tsx`, `AdminOrderDetailPage.tsx` | `OrderingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-STF-003 | M | Update delivery: Shipping, Delivered (record COD cash collected), DeliveryFailed with reason | `Ordering`, `Inventory`, `Payments`, `web/admin` | 07, 09 | `OrderingEndpoints.cs`, `AdminOrderDetailPage.tsx` | `OrderingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-STF-004 | M | Check stock for a product (search/barcode); see reserved vs on-hand | `Inventory`, `Catalog`, `web/admin` | 06, 09 | `InventoryEndpoints.cs`, `AdminInventoryPage.tsx` | `InventoryTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-STF-005 | M | Goods receipt entry when granted `purchasing.receive` | `Purchasing`, `Inventory`, `Catalog`, `web/admin` | 06, 09 | `PurchasingEndpoints.cs`, `AdminPurchasingPage.tsx` | `PurchasingTests` | `docs/evidence/phase-09/` | Implemented |
+| FR-STF-006 | S | Mobile/tablet-friendly "picking mode" | `Ordering`, `web/admin` | 09 | `AdminPickingModePage.tsx` | `FrontendBuild` | `docs/evidence/phase-09/` | Implemented |
 
 ## 4. Business Rules (`BR-*`)
 

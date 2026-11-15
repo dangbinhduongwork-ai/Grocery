@@ -1,3 +1,4 @@
+using GroceryHub.Modules.Reporting.Application;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,9 @@ public static class ReportingModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddScoped<ReportingService>();
+
         return services;
     }
 
@@ -19,6 +23,9 @@ public static class ReportingModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+
+        ReportingEndpoints.MapReportingApiEndpoints(endpoints);
+
         return endpoints;
     }
 }

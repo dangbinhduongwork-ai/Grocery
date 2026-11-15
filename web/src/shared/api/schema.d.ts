@@ -3736,6 +3736,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get admin dashboard overview KPIs */
+        get: operations["GetDashboardKpis"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/revenue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get net sales revenue report */
+        get: operations["GetRevenueReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/top-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get top selling products report */
+        get: operations["GetTopProductsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/profit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get gross profit and COGS report */
+        get: operations["GetProfitReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/stock-valuation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get current inventory stock valuation */
+        get: operations["GetStockValuationReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Query security and business audit logs */
+        get: operations["GetAuditLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4037,6 +4139,22 @@ export interface components {
             /** Format: uuid */
             assignedToUserId: null | string;
             assignedToName: string;
+        };
+        AuditLogDto: {
+            /** Format: int64 */
+            id: number | string;
+            /** Format: date-time */
+            at: string;
+            /** Format: uuid */
+            actorUserId: null | string;
+            actorRole: null | string;
+            action: string;
+            entityType: string;
+            entityId: string;
+            beforeJson: null | string;
+            afterJson: null | string;
+            ip: null | string;
+            correlationId: null | string;
         };
         AuthTokenResponse: {
             accessToken: string;
@@ -4483,6 +4601,24 @@ export interface components {
             /** Format: date-time */
             replyAt: null | string;
         };
+        DashboardKpiDto: {
+            /** Format: int64 */
+            todayRevenue: number | string;
+            /** Format: int64 */
+            last7DaysRevenue: number | string;
+            /** Format: int64 */
+            last30DaysRevenue: number | string;
+            ordersByStatus: {
+                [key: string]: number | string;
+            };
+            /** Format: int32 */
+            lowStockCount: number | string;
+            /** Format: int32 */
+            pendingReviewsCount: number | string;
+            /** Format: int32 */
+            paymentAnomaliesCount: number | string;
+            topProducts: components["schemas"]["TopProductReportItemDto"][];
+        };
         DeliveryNoteDto: {
             /** Format: uuid */
             orderId: string;
@@ -4727,6 +4863,17 @@ export interface components {
         };
         PagedResponseOfAdminStockItemDto: {
             items: components["schemas"]["AdminStockItemDto"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalItems: number | string;
+            /** Format: int32 */
+            totalPages: number | string;
+        };
+        PagedResponseOfAuditLogDto: {
+            items: components["schemas"]["AuditLogDto"][];
             /** Format: int32 */
             page: number | string;
             /** Format: int32 */
@@ -5326,6 +5473,17 @@ export interface components {
             environment: string;
             /** Format: date-time */
             timestampUtc: string;
+        };
+        TopProductReportItemDto: {
+            /** Format: uuid */
+            productId: string;
+            sku: string;
+            productName: string;
+            categoryName: string;
+            /** Format: int32 */
+            unitsSold: number | string;
+            /** Format: int64 */
+            netRevenue: number | string;
         };
         TransitionOrderRequest: {
             to: string;
@@ -10361,6 +10519,145 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetDashboardKpis: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardKpiDto"];
+                };
+            };
+        };
+    };
+    GetRevenueReport: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                granularity?: string;
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetTopProductsReport: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                limit?: number | string;
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetProfitReport: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                granularity?: string;
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetStockValuationReport: {
+        parameters: {
+            query?: {
+                categoryId?: string;
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetAuditLogs: {
+        parameters: {
+            query?: {
+                actorUserId?: string;
+                entityType?: string;
+                entityId?: string;
+                action?: string;
+                from?: string;
+                to?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfAuditLogDto"];
                 };
             };
         };

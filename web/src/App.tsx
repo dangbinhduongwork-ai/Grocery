@@ -8,7 +8,7 @@ import { Skeleton } from '@/shared/ui/Skeleton'
 import { Button } from '@/shared/ui/Button'
 import { AlertCircle } from 'lucide-react'
 
-// Code-split route pages
+// Code-split Storefront route pages
 const HomePage = lazy(() => import('@/storefront/pages/HomePage').then((m) => ({ default: m.HomePage })))
 const CategoryPage = lazy(() => import('@/storefront/pages/CategoryPage').then((m) => ({ default: m.CategoryPage })))
 const SearchPage = lazy(() => import('@/storefront/pages/SearchPage').then((m) => ({ default: m.SearchPage })))
@@ -22,6 +22,28 @@ const AccountPage = lazy(() => import('@/storefront/pages/AccountPage').then((m)
 const LoginPage = lazy(() => import('@/storefront/pages/LoginPage').then((m) => ({ default: m.LoginPage })))
 const RegisterPage = lazy(() => import('@/storefront/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })))
 const DesignRoute = lazy(() => import('@/app/routes/DesignRoute').then((m) => ({ default: m.DesignRoute })))
+
+// Code-split Admin Back-Office route pages
+const AdminLayout = lazy(() => import('@/admin/layout/AdminLayout').then((m) => ({ default: m.AdminLayout })))
+const AdminRouteGuard = lazy(() => import('@/admin/components/AdminRouteGuard').then((m) => ({ default: m.AdminRouteGuard })))
+const AdminDashboardPage = lazy(() => import('@/admin/pages/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })))
+const AdminOrdersPage = lazy(() => import('@/admin/pages/AdminOrdersPage').then((m) => ({ default: m.AdminOrdersPage })))
+const AdminOrderDetailPage = lazy(() => import('@/admin/pages/AdminOrderDetailPage').then((m) => ({ default: m.AdminOrderDetailPage })))
+const AdminPickingModePage = lazy(() => import('@/admin/pages/AdminPickingModePage').then((m) => ({ default: m.AdminPickingModePage })))
+const AdminProductsPage = lazy(() => import('@/admin/pages/AdminProductsPage').then((m) => ({ default: m.AdminProductsPage })))
+const AdminProductFormPage = lazy(() => import('@/admin/pages/AdminProductFormPage').then((m) => ({ default: m.AdminProductFormPage })))
+const AdminCategoriesPage = lazy(() => import('@/admin/pages/AdminCategoriesPage').then((m) => ({ default: m.AdminCategoriesPage })))
+const AdminInventoryPage = lazy(() => import('@/admin/pages/AdminInventoryPage').then((m) => ({ default: m.AdminInventoryPage })))
+const AdminSuppliersPage = lazy(() => import('@/admin/pages/AdminSuppliersPage').then((m) => ({ default: m.AdminSuppliersPage })))
+const AdminPurchasingPage = lazy(() => import('@/admin/pages/AdminPurchasingPage').then((m) => ({ default: m.AdminPurchasingPage })))
+const AdminCustomersPage = lazy(() => import('@/admin/pages/AdminCustomersPage').then((m) => ({ default: m.AdminCustomersPage })))
+const AdminStaffPage = lazy(() => import('@/admin/pages/AdminStaffPage').then((m) => ({ default: m.AdminStaffPage })))
+const AdminRolesPage = lazy(() => import('@/admin/pages/AdminRolesPage').then((m) => ({ default: m.AdminRolesPage })))
+const AdminCouponsPage = lazy(() => import('@/admin/pages/AdminCouponsPage').then((m) => ({ default: m.AdminCouponsPage })))
+const AdminReviewsPage = lazy(() => import('@/admin/pages/AdminReviewsPage').then((m) => ({ default: m.AdminReviewsPage })))
+const AdminReportsPage = lazy(() => import('@/admin/pages/AdminReportsPage').then((m) => ({ default: m.AdminReportsPage })))
+const AdminAuditLogsPage = lazy(() => import('@/admin/pages/AdminAuditLogsPage').then((m) => ({ default: m.AdminAuditLogsPage })))
+const AdminSettingsPage = lazy(() => import('@/admin/pages/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })))
 
 const RouteLoading: React.FC = () => (
   <div className="py-12 space-y-6 max-w-4xl mx-auto animate-pulse">
@@ -42,6 +64,195 @@ const queryClient = new QueryClient({
 const AppContent: React.FC = () => {
   const { pathname, navigate } = useRouter()
 
+  // Admin routes matching
+  if (pathname.startsWith('/admin')) {
+    const renderAdminRoute = () => {
+      if (pathname === '/admin' || pathname === '/admin/') {
+        return (
+          <AdminRouteGuard>
+            <AdminDashboardPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/orders') {
+        return (
+          <AdminRouteGuard requiredPermission="orders.read">
+            <AdminOrdersPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      const adminOrderMatch = matchPath('/admin/orders/:id', pathname)
+      if (adminOrderMatch.matched && adminOrderMatch.params.id) {
+        return (
+          <AdminRouteGuard requiredPermission="orders.read">
+            <AdminOrderDetailPage id={adminOrderMatch.params.id} />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/picking') {
+        return (
+          <AdminRouteGuard requiredPermission="orders.read">
+            <AdminPickingModePage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/products') {
+        return (
+          <AdminRouteGuard requiredPermission="catalog.read">
+            <AdminProductsPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/products/new') {
+        return (
+          <AdminRouteGuard requiredPermission="catalog.write">
+            <AdminProductFormPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      const adminProductEditMatch = matchPath('/admin/products/:id/edit', pathname)
+      if (adminProductEditMatch.matched && adminProductEditMatch.params.id) {
+        return (
+          <AdminRouteGuard requiredPermission="catalog.write">
+            <AdminProductFormPage id={adminProductEditMatch.params.id} />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/categories') {
+        return (
+          <AdminRouteGuard requiredPermission="catalog.read">
+            <AdminCategoriesPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/inventory') {
+        return (
+          <AdminRouteGuard requiredPermission="inventory.read">
+            <AdminInventoryPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/suppliers') {
+        return (
+          <AdminRouteGuard requiredPermission="purchasing.read">
+            <AdminSuppliersPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/purchasing') {
+        return (
+          <AdminRouteGuard requiredPermission="purchasing.read">
+            <AdminPurchasingPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/customers') {
+        return (
+          <AdminRouteGuard requiredPermission="customers.read">
+            <AdminCustomersPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/staff') {
+        return (
+          <AdminRouteGuard requiredPermission="staff.read">
+            <AdminStaffPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/roles') {
+        return (
+          <AdminRouteGuard requiredPermission="roles.manage">
+            <AdminRolesPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/coupons') {
+        return (
+          <AdminRouteGuard requiredPermission="promotions.manage">
+            <AdminCouponsPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/reviews') {
+        return (
+          <AdminRouteGuard requiredPermission="reviews.moderate">
+            <AdminReviewsPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/reports/revenue') {
+        return (
+          <AdminRouteGuard requiredPermission="reports.revenue">
+            <AdminReportsPage defaultTab="revenue" />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/reports/profit') {
+        return (
+          <AdminRouteGuard requiredPermission="reports.profit">
+            <AdminReportsPage defaultTab="profit" />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/audit-logs') {
+        return (
+          <AdminRouteGuard requiredPermission="audit.read">
+            <AdminAuditLogsPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/settings') {
+        return (
+          <AdminRouteGuard requiredPermission="settings.manage">
+            <AdminSettingsPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      return (
+        <div className="p-12 text-center text-slate-500">
+          <h2 className="text-lg font-bold text-slate-800">404 - Không tìm thấy trang quản trị</h2>
+          <button
+            type="button"
+            onClick={() => navigate('/admin')}
+            className="mt-3 text-xs text-leaf font-semibold hover:underline"
+          >
+            Về Dashboard quản trị
+          </button>
+        </div>
+      )
+    }
+
+    return (
+      <Suspense fallback={<RouteLoading />}>
+        <AdminLayout>
+          {renderAdminRoute()}
+        </AdminLayout>
+      </Suspense>
+    )
+  }
+
+  // Storefront routes rendering
   const renderCurrentRoute = () => {
     if (pathname === '/') {
       return <HomePage />

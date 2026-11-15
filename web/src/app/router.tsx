@@ -5,6 +5,7 @@ interface RouterContextValue {
   pathname: string
   searchParams: URLSearchParams
   navigate: (to: string, options?: { replace?: boolean }) => void
+  push: (to: string, options?: { replace?: boolean }) => void
 }
 
 const RouterContext = createContext<RouterContextValue | undefined>(undefined)
@@ -44,6 +45,7 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       pathname,
       searchParams,
       navigate,
+      push: navigate,
     }),
     [currentUrl, pathname, searchParams, navigate],
   )
