@@ -1,0 +1,63 @@
+================================================================================
+GROCERYHUB PHASE 07 — SCRIPTED E2E PURCHASING FLOW EXECUTION TRACE
+Executed At: 2026-11-15T12:23:38.1969579+00:00
+Flow: Customer Register/Login -> Add Cart -> Quote -> Checkout COD -> Staff Confirm
+      -> Preparing -> Packed -> Shipping (Commit Stock) -> Delivered (COD Cash)
+================================================================================
+
+[Step 0] Seeded Product ID: 9348c81c-92c8-4002-8237-f9c7f7b4a8a6, Price: 160,000đ, Cost: 130,000đ, Initial OnHand: 10
+
+[Step 1] Customer Registered & Logged In: customer.scripted.ae709aae82ee465ca07fa373778424ba@groceryhub.vn (ID: e106bdeb-27b7-4d59-b3a5-1cafa722b758)
+         Token acquired: Bearer eyJhbGciOiJIUzI...
+
+[Step 2] POST /api/v1/cart/items
+         Request: {"ProductId":"9348c81c-92c8-4002-8237-f9c7f7b4a8a6","Quantity":2}
+         Response: OK - {"id":"cbc4b3fd-958e-4af8-a750-46db29c7e710","items":[{"id":"17163044-4e82-4cf6-8fb2-273e0e3d9c79","productId":"9348c81c-92c8-4002-8237-f9c7f7b4a8a6","sku":"SKU-ST25-A15DA5","name":"Gạo ST25 Ông Cua 5kg","unit":"Gói","unitPrice":160000,"listPrice":180000,"quantity":2,"lineSubtotal":320000,"inStock":true,"lowStock":false,"availableQuantity":10}],"subtotal":320000,"couponDiscount":0,"estimatedTotal":320000,"maxQuantityPerLine":20,"warnings":[]}
+
+[Step 3] GET /api/v1/cart
+         Response: OK - Subtotal: 320,000đ, Items Count: 1
+
+[Step 4] POST /api/v1/me/addresses -> Created Address ID: 59e0f37a-17c5-4018-bbd2-95e1d599ef27 (Province: 79 - TP.HCM)
+
+[Step 5] POST /api/v1/checkout/quote
+         Request: {"AddressId":"59e0f37a-17c5-4018-bbd2-95e1d599ef27","CouponCode":null,"PaymentMethod":"COD"}
+         Response: OK - Subtotal: 320,000đ, Shipping: 0đ, Total: 320,000đ, Available: [COD]
+
+[Step 6] POST /api/v1/checkout/orders (with Idempotency-Key)
+         Idempotency-Key: c213272e70c54b3a832350e59121f04a
+         Request: {"AddressId":"59e0f37a-17c5-4018-bbd2-95e1d599ef27","CouponCode":null,"PaymentMethod":"COD","Note":"Giao gio hanh chinh toa nha Sunwah"}
+         Response: Created - OrderNumber: ORD-20261115-000014, Status: Placed, PaymentStatus: Unpaid
+
+         [DB State Verification] StockItems: OnHand = 10, Reserved = 2; StockReservations: Status = Active
+
+[Step 7] Operations Staff Logged In: staff.scripted.31d31fe23ff34be99eb22847c7a1a2a0@groceryhub.vn (ID: 06d11860-5191-4987-9a2b-81d03f86b874) with orders.process + orders.ship
+
+[Step 8] POST /api/v1/admin/orders/5806ab5b-9b7b-423a-826f-7d69844bce57/transition -> Confirmed
+         Response: OK
+
+[Step 9] POST /api/v1/admin/orders/5806ab5b-9b7b-423a-826f-7d69844bce57/transition -> Preparing
+         Response: OK
+
+[Step 10] POST /api/v1/admin/orders/5806ab5b-9b7b-423a-826f-7d69844bce57/transition -> Packed
+          Response: OK
+
+[Step 11] POST /api/v1/admin/orders/5806ab5b-9b7b-423a-826f-7d69844bce57/transition -> Shipping
+          Response: OK
+
+         [DB State Verification on Shipping]
+         StockItems: OnHand = 8, Reserved = 0 (Stock committed)
+         StockReservations: Status = Committed
+         StockMovements: Type = Sale, Qty = -2, UnitCost = 130,000đ
+         OrderItem: UnitCostSnapshot = 130,000đ
+
+[Step 12] POST /api/v1/admin/orders/5806ab5b-9b7b-423a-826f-7d69844bce57/transition -> Delivered (COD Collection)
+          Collected COD Amount: 320,000đ
+          Response: OK
+
+         [DB State Verification on Delivered]
+         Order Status: Delivered, PaymentStatus: Paid
+         Payment Status: Paid
+         payments.CodCollections: Amount = 320,000đ, CollectedBy = 06d11860-5191-4987-9a2b-81d03f86b874
+================================================================================
+PURCHASING LIFECYCLE COMPLETED SUCCESSFULLY WITH ZERO INVARIANT VIOLATIONS.
+================================================================================

@@ -387,6 +387,7 @@ public sealed class CustomersService
         if (address.IsDefault)
         {
             address.IsDefault = false;
+            await _dbContext.SaveChangesAsync(ct);
 
             Address? nextDefault = await _dbContext.Addresses
                 .Where(a => a.UserId == userId && a.Id != addressId && a.DeletedAt == null)
@@ -397,10 +398,14 @@ public sealed class CustomersService
             {
                 nextDefault.IsDefault = true;
                 nextDefault.UpdatedAt = now;
+                await _dbContext.SaveChangesAsync(ct);
             }
         }
+        else
+        {
+            await _dbContext.SaveChangesAsync(ct);
+        }
 
-        await _dbContext.SaveChangesAsync(ct);
         return Result.Success();
     }
 

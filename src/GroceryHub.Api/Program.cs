@@ -206,9 +206,9 @@ app.UseStatusCodePages(async statusCodeContext =>
 });
 
 app.UseSerilogRequestLogging();
-app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapOpenApi("/openapi/v1.json")
     .AllowAnonymous();

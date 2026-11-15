@@ -1,3 +1,5 @@
+using System.Data;
+using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +10,7 @@ using GroceryHub.Persistence.Entities;
 using GroceryHub.Persistence.Services;
 using GroceryHub.SharedKernel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GroceryHub.Modules.Ordering.Application.Services;
 
@@ -461,14 +464,10 @@ public sealed class OrderingService
             }
 
             // 3. Sequence numbers
-            long orderSeq = await _dbContext.Database
-                .SqlQueryRaw<long>("SELECT NEXT VALUE FOR [ordering].[OrderNumberSeq]")
-                .SingleAsync(ct);
+            long orderSeq = await GetNextSequenceValueAsync("[ordering].[OrderNumberSeq]", ct);
             string orderNumber = $"ORD-{now:yyyyMMdd}-{orderSeq:D6}";
 
-            long paymentSeq = await _dbContext.Database
-                .SqlQueryRaw<long>("SELECT NEXT VALUE FOR [payments].[PaymentCodeSeq]")
-                .SingleAsync(ct);
+            long paymentSeq = await GetNextSequenceValueAsync("[payments].[PaymentCodeSeq]", ct);
             string paymentCode = $"GH{paymentSeq:D10}";
 
             // 4. Create Order
@@ -622,7 +621,15 @@ public sealed class OrderingService
                 eventItems,
                 now));
 
-            await _dbContext.SaveChangesAsync(ct);
+            try
+            {
+                await _dbContext.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entries = string.Join(", ", ex.Entries.Select(e => $"{e.Entity.GetType().Name} (State: {e.State})"));
+                throw new InvalidOperationException($"Concurrency failure on entries: {entries}", ex);
+            }
             await transaction.CommitAsync(ct);
 
             return Result.Success(responseDto);
@@ -797,7 +804,7 @@ public sealed class OrderingService
             order.PaymentStatus = OrderPaymentStatusConstants.Expired;
         }
 
-        order.StatusHistory.Add(new OrderStatusHistory
+        var cancelHistory = new OrderStatusHistory
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,
@@ -807,7 +814,9 @@ public sealed class OrderingService
             ActorUserId = userId,
             ActorRole = "Customer",
             CreatedAt = now
-        });
+        };
+        _dbContext.OrderStatusHistories.Add(cancelHistory);
+        order.StatusHistory.Add(cancelHistory);
 
         _outboxPublisher.Enqueue(new OrderCancelledEvent(
             Guid.NewGuid(),
@@ -987,11 +996,32 @@ public sealed class OrderingService
             return Result.Failure<AdminOrderDetailDto>(DomainError.NotFound("Order not found."));
         }
 
+        HashSet<string> effectivePermissions = new(permissions, StringComparer.OrdinalIgnoreCase);
+        if (effectivePermissions.Count == 0 && actorId != Guid.Empty)
+        {
+            var rolePerms = await _dbContext.UserRoles
+                .AsNoTracking()
+                .Where(ur => ur.UserId == actorId)
+                .SelectMany(ur => ur.Role.RolePermissions.Select(rp => rp.PermissionCode))
+                .ToListAsync(ct);
+
+            var userPerms = await _dbContext.UserPermissions
+                .AsNoTracking()
+                .Where(up => up.UserId == actorId)
+                .Select(up => up.PermissionCode)
+                .ToListAsync(ct);
+
+            foreach (var p in rolePerms.Concat(userPerms))
+            {
+                effectivePermissions.Add(p);
+            }
+        }
+
         var validationResult = OrderStateMachine.ValidateStaffTransition(
             order.Status,
             request.To,
             order.PaymentStatus,
-            permissions,
+            effectivePermissions,
             request.Reason,
             request.CodAmount,
             order.Total);
@@ -1031,7 +1061,7 @@ public sealed class OrderingService
             order.Status = OrderStatusConstants.Shipping;
             order.UpdatedAt = now;
 
-            order.StatusHistory.Add(new OrderStatusHistory
+            var shippingHistory = new OrderStatusHistory
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
@@ -1041,7 +1071,9 @@ public sealed class OrderingService
                 ActorUserId = actorId,
                 ActorRole = "Staff",
                 CreatedAt = now
-            });
+            };
+            _dbContext.OrderStatusHistories.Add(shippingHistory);
+            order.StatusHistory.Add(shippingHistory);
 
             var shippedCostItems = order.Items.Select(i => new OrderShippedCostSnapshotItem(
                 i.Id,
@@ -1087,7 +1119,7 @@ public sealed class OrderingService
             order.Status = OrderStatusConstants.Delivered;
             order.UpdatedAt = now;
 
-            order.StatusHistory.Add(new OrderStatusHistory
+            var deliveredHistory = new OrderStatusHistory
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
@@ -1097,7 +1129,9 @@ public sealed class OrderingService
                 ActorUserId = actorId,
                 ActorRole = "Staff",
                 CreatedAt = now
-            });
+            };
+            _dbContext.OrderStatusHistories.Add(deliveredHistory);
+            order.StatusHistory.Add(deliveredHistory);
 
             var soldItems = order.Items.Select(i => new ProductSoldItem(i.ProductId, i.Quantity)).ToList();
 
@@ -1183,7 +1217,7 @@ public sealed class OrderingService
             order.CancellationReason = request.Reason;
             order.UpdatedAt = now;
 
-            order.StatusHistory.Add(new OrderStatusHistory
+            var cancelStaffHistory = new OrderStatusHistory
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
@@ -1193,7 +1227,9 @@ public sealed class OrderingService
                 ActorUserId = actorId,
                 ActorRole = permissions.Contains("orders.cancel") ? "Manager" : "Staff",
                 CreatedAt = now
-            });
+            };
+            _dbContext.OrderStatusHistories.Add(cancelStaffHistory);
+            order.StatusHistory.Add(cancelStaffHistory);
 
             _outboxPublisher.Enqueue(new OrderCancelledEvent(
                 Guid.NewGuid(),
@@ -1216,7 +1252,7 @@ public sealed class OrderingService
             order.Status = targetStatus;
             order.UpdatedAt = now;
 
-            order.StatusHistory.Add(new OrderStatusHistory
+            var normalHistory = new OrderStatusHistory
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
@@ -1226,7 +1262,9 @@ public sealed class OrderingService
                 ActorUserId = actorId,
                 ActorRole = "Staff",
                 CreatedAt = now
-            });
+            };
+            _dbContext.OrderStatusHistories.Add(normalHistory);
+            order.StatusHistory.Add(normalHistory);
 
             if (string.Equals(targetStatus, OrderStatusConstants.Confirmed, StringComparison.OrdinalIgnoreCase))
             {
@@ -1449,7 +1487,15 @@ public sealed class OrderingService
                     order.PaymentStatus = OrderPaymentStatusConstants.Expired;
                 }
 
-                await _dbContext.SaveChangesAsync(ct);
+                try
+                {
+                    await _dbContext.SaveChangesAsync(ct);
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    var entries = string.Join(", ", ex.Entries.Select(e => $"{e.Entity.GetType().Name} (State: {e.State})"));
+                    throw new InvalidOperationException($"Concurrency failure on entries: {entries}", ex);
+                }
                 count++;
             }
         }
@@ -1896,5 +1942,24 @@ public sealed class OrderingService
             order.CreatedAt,
             order.CancelledAt,
             order.CancellationReason);
+    }
+
+    private async Task<long> GetNextSequenceValueAsync(string sequenceName, CancellationToken ct)
+    {
+        DbConnection dbConnection = _dbContext.Database.GetDbConnection();
+        if (dbConnection.State != ConnectionState.Open)
+        {
+            await dbConnection.OpenAsync(ct);
+        }
+
+        await using DbCommand cmd = dbConnection.CreateCommand();
+        cmd.CommandText = $"SELECT NEXT VALUE FOR {sequenceName}";
+        if (_dbContext.Database.CurrentTransaction is not null)
+        {
+            cmd.Transaction = _dbContext.Database.CurrentTransaction.GetDbTransaction();
+        }
+
+        object? result = await cmd.ExecuteScalarAsync(ct);
+        return Convert.ToInt64(result);
     }
 }

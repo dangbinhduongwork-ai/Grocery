@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 using GroceryHub.Api.Configuration;
 using GroceryHub.Api.ErrorHandling;
@@ -63,7 +64,8 @@ public static class RateLimitingExtensions
 
             limiterOptions.AddPolicy(RateLimitingOptions.CheckoutPolicyName, httpContext =>
             {
-                string userOrIpKey = httpContext.User.FindFirst("sub")?.Value
+                string userOrIpKey = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? httpContext.User.FindFirst("sub")?.Value
                     ?? httpContext.User.Identity?.Name
                     ?? GetClientIpPartitionKey(httpContext);
 

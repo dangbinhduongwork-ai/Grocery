@@ -317,7 +317,14 @@ public sealed class OrderLifecycleScriptedIntegrationTests(SqlServerTestDatabase
         trace.AppendLine("================================================================================");
 
         // Save execution trace to docs/evidence/phase-07/01-scripted-e2e-run.txt
-        string evidenceDir = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "docs", "evidence", "phase-07");
+        string baseDir = AppContext.BaseDirectory;
+        DirectoryInfo? dir = new(baseDir);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "GroceryHub.sln")))
+        {
+            dir = dir.Parent;
+        }
+        string rootDir = dir?.FullName ?? Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", ".."));
+        string evidenceDir = Path.Combine(rootDir, "docs", "evidence", "phase-07");
         Directory.CreateDirectory(evidenceDir);
         string evidenceFilePath = Path.Combine(evidenceDir, "01-scripted-e2e-run.txt");
         await File.WriteAllTextAsync(evidenceFilePath, trace.ToString());
