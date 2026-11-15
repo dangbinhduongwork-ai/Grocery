@@ -137,8 +137,11 @@ app.UseStatusCodePages(async statusCodeContext =>
 
     ProblemDetails problem = ResultProblemExtensions.CreateProblemDetails(httpContext, domainError);
     problem.Status = statusCode;
-    httpContext.Response.ContentType = "application/problem+json";
-    await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken: httpContext.RequestAborted);
+    await httpContext.Response.WriteAsJsonAsync(
+        problem,
+        options: null,
+        contentType: "application/problem+json",
+        cancellationToken: httpContext.RequestAborted);
 });
 
 app.UseSerilogRequestLogging();

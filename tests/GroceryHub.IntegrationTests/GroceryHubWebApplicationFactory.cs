@@ -128,24 +128,6 @@ public sealed class GroceryHubWebApplicationFactory(string connectionString) : W
         {
             return app =>
             {
-                app.Use(async (context, middlewareNext) =>
-                {
-                    context.Response.OnStarting(() =>
-                    {
-                        if (context.Response.StatusCode >= StatusCodes.Status400BadRequest &&
-                            context.Response.StatusCode != StatusCodes.Status503ServiceUnavailable &&
-                            context.Response.ContentType is not null &&
-                            context.Response.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
-                        {
-                            context.Response.ContentType = "application/problem+json; charset=utf-8";
-                        }
-
-                        return Task.CompletedTask;
-                    });
-
-                    await middlewareNext();
-                });
-
                 next(app);
 
                 if (app.Properties.TryGetValue("__EndpointRouteBuilder", out object? routeBuilderObj) &&

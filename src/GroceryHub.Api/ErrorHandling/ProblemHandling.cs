@@ -135,8 +135,11 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
                 "The request payload or parameters could not be parsed.");
             ProblemDetails badProblem = ResultProblemExtensions.CreateProblemDetails(httpContext, badRequestError);
             httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            httpContext.Response.ContentType = "application/problem+json";
-            await httpContext.Response.WriteAsJsonAsync(badProblem, cancellationToken: cancellationToken);
+            await httpContext.Response.WriteAsJsonAsync(
+                badProblem,
+                options: null,
+                contentType: "application/problem+json",
+                cancellationToken: cancellationToken);
             return true;
         }
 
@@ -153,8 +156,11 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         ProblemDetails problem = ResultProblemExtensions.CreateProblemDetails(httpContext, unexpected);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        httpContext.Response.ContentType = "application/problem+json";
-        await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken: cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(
+            problem,
+            options: null,
+            contentType: "application/problem+json",
+            cancellationToken: cancellationToken);
         return true;
     }
 }

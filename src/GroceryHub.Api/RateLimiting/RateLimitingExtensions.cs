@@ -36,11 +36,14 @@ public static class RateLimitingExtensions
 
                 context.HttpContext.Response.Headers.RetryAfter = retryAfterSeconds.ToString(CultureInfo.InvariantCulture);
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.HttpContext.Response.ContentType = "application/problem+json";
 
                 DomainError error = DomainError.RateLimited();
                 ProblemDetails problem = ResultProblemExtensions.CreateProblemDetails(context.HttpContext, error);
-                await context.HttpContext.Response.WriteAsJsonAsync(problem, cancellationToken: cancellationToken);
+                await context.HttpContext.Response.WriteAsJsonAsync(
+                    problem,
+                    options: null,
+                    contentType: "application/problem+json",
+                    cancellationToken: cancellationToken);
             };
 
             limiterOptions.AddPolicy(RateLimitingOptions.AuthPolicyName, httpContext =>
