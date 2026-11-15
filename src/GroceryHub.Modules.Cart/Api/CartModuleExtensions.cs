@@ -1,3 +1,7 @@
+using FluentValidation;
+using GroceryHub.Modules.Cart.Application.Services;
+using GroceryHub.Modules.Cart.Application.Validators;
+using GroceryHub.SharedKernel;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +16,13 @@ public static class CartModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddMemoryCache();
+        services.AddValidatorsFromAssemblyContaining<AddCartItemValidator>();
+        services.AddScoped<CartService>();
+        services.AddScoped<ICartService>(sp => sp.GetRequiredService<CartService>());
+        services.AddScoped<ICartMergeService>(sp => sp.GetRequiredService<CartService>());
+
         return services;
     }
 
@@ -19,6 +30,7 @@ public static class CartModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+        CartEndpoints.MapCartEndpoints(endpoints);
         return endpoints;
     }
 }
