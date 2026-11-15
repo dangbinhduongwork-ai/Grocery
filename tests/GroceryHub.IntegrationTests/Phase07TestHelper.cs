@@ -5,6 +5,7 @@ using GroceryHub.Modules.Customers.Application.DTOs;
 using GroceryHub.Modules.Identity.Contracts;
 using GroceryHub.Persistence;
 using GroceryHub.Persistence.Entities;
+using GroceryHub.SharedKernel;
 using Xunit;
 
 namespace GroceryHub.IntegrationTests;
@@ -17,7 +18,8 @@ public static class Phase07TestHelper
         string email,
         string fullName,
         string phone,
-        string password = "Password@123456")
+        string password = "Password@123456",
+        string? guestCartToken = null)
     {
         RegisterRequest registerReq = new(email, password, fullName, phone);
         using HttpResponseMessage regRes = await client.PostAsJsonAsync("/api/v1/auth/register", registerReq);
@@ -32,8 +34,15 @@ public static class Phase07TestHelper
         using HttpResponseMessage verRes = await client.PostAsJsonAsync("/api/v1/auth/verify-email", verifyReq);
         Assert.Equal(HttpStatusCode.OK, verRes.StatusCode);
 
-        LoginRequest loginReq = new(email, password);
-        using HttpResponseMessage loginRes = await client.PostAsJsonAsync("/api/v1/auth/login", loginReq);
+        using HttpRequestMessage loginMsg = new(HttpMethod.Post, "/api/v1/auth/login")
+        {
+            Content = JsonContent.Create(new LoginRequest(email, password))
+        };
+        if (!string.IsNullOrWhiteSpace(guestCartToken))
+        {
+            loginMsg.Headers.Add("Cookie", $"gh_cart={guestCartToken}");
+        }
+        using HttpResponseMessage loginRes = await client.SendAsync(loginMsg);
         Assert.Equal(HttpStatusCode.OK, loginRes.StatusCode);
         AuthTokenResponse? auth = await loginRes.Content.ReadFromJsonAsync<AuthTokenResponse>();
         Assert.NotNull(auth);
@@ -118,7 +127,7 @@ public static class Phase07TestHelper
             Sku = sku,
             Name = productName,
             Slug = "prod-" + Guid.NewGuid().ToString("N")[..8],
-            SearchText = productName.ToLowerInvariant(),
+            SearchText = VietnameseTextNormalizer.NormalizeForSearch(productName, sku),
             CategoryId = categoryId,
             Unit = "Gói",
             ListPrice = sellingPrice + 20_000,

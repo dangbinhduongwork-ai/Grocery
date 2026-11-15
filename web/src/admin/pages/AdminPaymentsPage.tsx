@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
+  X,
 } from 'lucide-react'
 import { api } from '@/shared/api'
 import { formatVnd } from '@/shared/utils/formatVnd'
@@ -377,9 +378,10 @@ export const AdminPaymentsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedTx(null)}
-                className="text-ink-2 hover:text-ink text-sm font-bold"
+                className="text-ink-2 hover:text-ink text-sm font-bold p-1 rounded hover:bg-paper-2"
+                aria-label="Đóng"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

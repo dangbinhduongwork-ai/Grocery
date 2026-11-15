@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
+  X,
 } from 'lucide-react'
 import { api } from '@/shared/api'
 import { useAuth } from '@/shared/auth'
@@ -501,9 +502,10 @@ export const AdminRefundsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-ink-2 hover:text-ink text-sm font-bold"
+                className="text-ink-2 hover:text-ink text-sm font-bold p-1 rounded hover:bg-paper-2"
+                aria-label="Đóng"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -594,9 +596,10 @@ export const AdminRefundsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActionModal(null)}
-                className="text-ink-2 hover:text-ink text-sm font-bold"
+                className="text-ink-2 hover:text-ink text-sm font-bold p-1 rounded hover:bg-paper-2"
+                aria-label="Đóng"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

@@ -20,6 +20,6 @@
 | **08** | Customer Frontend (Storefront) | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/phase-prompts/phase-08-customer-frontend.md` | `docs/progress/phase-08-report.md` (`docs/evidence/phase-08/`) |
 | **09** | Admin, Manager and Staff Dashboard | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/phase-prompts/phase-09-admin-dashboard.md` | `docs/progress/phase-09-report.md` (`docs/evidence/phase-09/`) |
 | **10** | SePay VietQR + Webhook | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/phase-prompts/phase-10-sepay.md` | `docs/progress/phase-10-report.md` (`docs/evidence/phase-10/`) |
-| **11** | Testing and Security Hardening | NotStarted | — | Pending | — | — | — |
+| **11** | Testing and Security Hardening | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/phase-prompts/phase-11-testing-security.md` | `docs/progress/phase-11-report.md` (`docs/evidence/phase-11/`) |
 | **12** | Docker and Deployment | NotStarted | — | Pending | — | — | — |
 | **13** | Final Review and Handover | NotStarted | — | Pending | — | — | — |
