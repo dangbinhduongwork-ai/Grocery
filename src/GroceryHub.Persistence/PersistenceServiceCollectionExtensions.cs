@@ -1,5 +1,6 @@
 using GroceryHub.Persistence.Outbox;
 using GroceryHub.Persistence.Seeding;
+using GroceryHub.Persistence.Services;
 using GroceryHub.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -45,6 +46,9 @@ public static class PersistenceServiceCollectionExtensions
                     sql => sql.MigrationsHistoryTable(MigrationsHistoryTableName, DatabaseSchemas.Shared))
                 .AddInterceptors(sp.GetRequiredService<AuditableEntitySaveChangesInterceptor>());
         });
+
+        services.TryAddScoped<IStockPersistenceService, StockPersistenceService>();
+        services.TryAddScoped<IPurchasingPersistenceService, PurchasingPersistenceService>();
 
         services.TryAddScoped<IOutboxPublisher, EfOutboxPublisher>();
         services.TryAddScoped<OutboxDispatcherProcessor>(sp =>
