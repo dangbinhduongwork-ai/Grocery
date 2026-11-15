@@ -17,6 +17,8 @@ import {
   Building2,
   ExternalLink,
   Truck,
+  CreditCard,
+  RotateCcw,
 } from 'lucide-react'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/shared/auth'
@@ -84,6 +86,14 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
         items: [
           { id: 'reports-revenue', title: 'Báo cáo doanh thu', path: '/admin/reports/revenue', icon: BarChart3, permission: 'reports.revenue' },
           { id: 'reports-profit', title: 'Lợi nhuận & COGS', path: '/admin/reports/profit', icon: BarChart3, permission: 'reports.profit' },
+        ],
+      },
+      {
+        id: 'finance',
+        title: 'Thanh toán & Thu chi',
+        items: [
+          { id: 'payments', title: 'Giao dịch SePay', path: '/admin/payments', icon: CreditCard, permission: 'payments.review' },
+          { id: 'refunds', title: 'Yêu cầu hoàn tiền', path: '/admin/refunds', icon: RotateCcw, permission: 'refunds.request' },
         ],
       },
       {

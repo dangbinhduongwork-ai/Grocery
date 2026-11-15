@@ -11,6 +11,7 @@ using GroceryHub.Persistence.Services;
 using GroceryHub.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
 
 namespace GroceryHub.Modules.Ordering.Application.Services;
 
@@ -26,6 +27,7 @@ public sealed class OrderingService
     private readonly TimeProvider _timeProvider;
     private readonly IAuditLogPort _auditLogPort;
     private readonly ICartService _cartService;
+    private readonly IConfiguration? _configuration;
 
     public OrderingService(
         GroceryHubDbContext dbContext,
@@ -33,7 +35,8 @@ public sealed class OrderingService
         IOutboxPublisher outboxPublisher,
         TimeProvider timeProvider,
         IAuditLogPort auditLogPort,
-        ICartService cartService)
+        ICartService cartService,
+        IConfiguration? configuration = null)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _stockPersistenceService = stockPersistenceService ?? throw new ArgumentNullException(nameof(stockPersistenceService));
@@ -41,6 +44,7 @@ public sealed class OrderingService
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         _auditLogPort = auditLogPort ?? throw new ArgumentNullException(nameof(auditLogPort));
         _cartService = cartService ?? throw new ArgumentNullException(nameof(cartService));
+        _configuration = configuration;
     }
 
     #region Shipping Quotes
@@ -275,7 +279,7 @@ public sealed class OrderingService
 
         // 6. Payment methods check
         long codMaxAmount = DefaultCodMaxAmount;
-        List<string> availablePaymentMethods = [];
+        List<string> availablePaymentMethods = ["SEPAY_QR"];
         if (total <= codMaxAmount)
         {
             availablePaymentMethods.Add("COD");
@@ -285,11 +289,12 @@ public sealed class OrderingService
             warnings.Add($"Order total exceeds maximum COD limit ({codMaxAmount:N0} ₫).");
         }
 
-        if (string.Equals(request.PaymentMethod, "SEPAY_QR", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(request.PaymentMethod, "COD", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(request.PaymentMethod, "SEPAY_QR", StringComparison.OrdinalIgnoreCase))
         {
-            return Result.Failure<CheckoutQuoteDto>(DomainError.Conflict(
+            return Result.Failure<CheckoutQuoteDto>(DomainError.Validation(
                 ErrorCodes.PaymentMethodUnavailable,
-                "VietQR (SePay) payment method is temporarily unavailable. Please choose COD."));
+                $"Payment method '{request.PaymentMethod}' is not supported."));
         }
 
         if (string.Equals(request.PaymentMethod, "COD", StringComparison.OrdinalIgnoreCase) && total > codMaxAmount)
@@ -378,14 +383,8 @@ public sealed class OrderingService
             }
         }
 
-        if (string.Equals(request.PaymentMethod, "SEPAY_QR", StringComparison.OrdinalIgnoreCase))
-        {
-            return Result.Failure<PlaceOrderResponseDto>(DomainError.Conflict(
-                ErrorCodes.PaymentMethodUnavailable,
-                "VietQR (SePay) payment method is temporarily unavailable. Please choose COD."));
-        }
-
-        if (!string.Equals(request.PaymentMethod, "COD", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(request.PaymentMethod, "COD", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(request.PaymentMethod, "SEPAY_QR", StringComparison.OrdinalIgnoreCase))
         {
             return Result.Failure<PlaceOrderResponseDto>(DomainError.Validation(
                 ErrorCodes.PaymentMethodUnavailable,
@@ -404,7 +403,7 @@ public sealed class OrderingService
         }
 
         var quote = quoteResult.Value;
-        if (quote.Total > quote.CodMaxAmount)
+        if (string.Equals(request.PaymentMethod, "COD", StringComparison.OrdinalIgnoreCase) && quote.Total > quote.CodMaxAmount)
         {
             return Result.Failure<PlaceOrderResponseDto>(DomainError.Validation(
                 ErrorCodes.CodLimitExceeded,
@@ -470,19 +469,26 @@ public sealed class OrderingService
             long paymentSeq = await GetNextSequenceValueAsync("[payments].[PaymentCodeSeq]", ct);
             string paymentCode = $"GH{paymentSeq:D10}";
 
+            bool isSepay = string.Equals(request.PaymentMethod, "SEPAY_QR", StringComparison.OrdinalIgnoreCase);
+            string orderStatus = isSepay ? OrderStatusConstants.PendingPayment : OrderStatusConstants.Placed;
+            string orderPaymentMethod = isSepay ? OrderPaymentMethodConstants.SepayQr : OrderPaymentMethodConstants.COD;
+            string orderPaymentStatus = isSepay ? OrderPaymentStatusConstants.Pending : OrderPaymentStatusConstants.Unpaid;
+            string paymentStatus = isSepay ? PaymentStatusConstants.Pending : PaymentStatusConstants.Unpaid;
+            DateTimeOffset? expiresAt = isSepay ? now.AddMinutes(30) : null;
+
             // 4. Create Order
             Order order = new()
             {
                 Id = orderId,
                 OrderNumber = orderNumber,
                 UserId = userId,
-                Status = OrderStatusConstants.Placed,
+                Status = orderStatus,
                 Subtotal = quote.Subtotal,
                 CouponDiscount = quote.CouponDiscount,
                 ShippingFee = quote.ShippingFee,
                 Total = quote.Total,
-                PaymentMethod = OrderPaymentMethodConstants.COD,
-                PaymentStatus = OrderPaymentStatusConstants.Unpaid,
+                PaymentMethod = orderPaymentMethod,
+                PaymentStatus = orderPaymentStatus,
                 ShippingRecipientName = address.RecipientName,
                 ShippingPhone = address.Phone,
                 ShippingProvinceCode = address.ProvinceCode,
@@ -519,8 +525,10 @@ public sealed class OrderingService
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
                 FromStatus = null,
-                ToStatus = OrderStatusConstants.Placed,
-                Reason = "Order placed by customer",
+                ToStatus = orderStatus,
+                Reason = isSepay
+                    ? "Order placed with SePay VietQR payment method; pending customer transfer"
+                    : "Order placed by customer",
                 ActorUserId = userId,
                 ActorRole = "Customer",
                 CreatedAt = now
@@ -534,14 +542,41 @@ public sealed class OrderingService
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
                 PaymentCode = paymentCode,
-                Method = PaymentMethodConstants.COD,
-                Status = PaymentStatusConstants.Unpaid,
+                Method = isSepay ? PaymentMethodConstants.SepayQr : PaymentMethodConstants.COD,
+                Status = paymentStatus,
                 Amount = quote.Total,
                 CreatedAt = now,
                 UpdatedAt = now
             };
 
             _dbContext.Payments.Add(payment);
+
+            QrPaymentDetailsDto? qrDetails = null;
+            if (isSepay)
+            {
+                var attempt = new PaymentAttempt
+                {
+                    Id = Guid.NewGuid(),
+                    PaymentId = payment.Id,
+                    PaymentCode = paymentCode,
+                    AttemptNumber = 1,
+                    Amount = quote.Total,
+                    Status = PaymentAttemptStatusConstants.Open,
+                    ExpiresAt = expiresAt!.Value,
+                    CreatedAt = now
+                };
+
+                _dbContext.PaymentAttempts.Add(attempt);
+
+                string bank = _configuration?["SePay:BankShortName"] ?? "MB";
+                string acc = _configuration?["SePay:AccountNumber"] ?? "0000000000";
+                string accName = _configuration?["SePay:AccountName"] ?? "GROCERYHUB";
+                string prefix = _configuration?["SePay:TransferContentPrefix"] ?? "";
+                string content = $"{prefix}{paymentCode}";
+                string qrUrl = $"https://qr.sepay.vn/img?acc={Uri.EscapeDataString(acc)}&bank={Uri.EscapeDataString(bank)}&amount={quote.Total}&des={Uri.EscapeDataString(content)}&template=compact&download=false";
+
+                qrDetails = new QrPaymentDetailsDto(qrUrl, bank, acc, accName, quote.Total, content);
+            }
 
             // 6. Clear user cart
             var userCart = await _dbContext.Carts
@@ -568,7 +603,7 @@ public sealed class OrderingService
                 order.ShippingFee,
                 order.Total,
                 order.CreatedAt,
-                null);
+                expiresAt);
 
             OrderPaymentViewDto paymentView = new(
                 payment.Id,
@@ -576,9 +611,9 @@ public sealed class OrderingService
                 payment.Method,
                 payment.PaymentCode,
                 AttemptNumber: 1,
-                MaxAttempts: 1,
-                ExpiresAt: null,
-                Qr: null);
+                MaxAttempts: isSepay ? 5 : 1,
+                ExpiresAt: expiresAt,
+                Qr: qrDetails);
 
             PlaceOrderResponseDto responseDto = new(orderSummary, paymentView);
 
@@ -731,6 +766,7 @@ public sealed class OrderingService
 
         var payment = await _dbContext.Payments
             .AsNoTracking()
+            .Include(p => p.Attempts)
             .FirstOrDefaultAsync(p => p.OrderId == orderId, ct);
 
         return Result.Success(MapToCustomerOrderDetailDto(order, payment));
@@ -1823,7 +1859,7 @@ public sealed class OrderingService
             coupon.Scopes.Select(s => new CouponScopeRuleDto(s.ScopeType, s.ScopeId)).ToList());
     }
 
-    private static CustomerOrderDetailDto MapToCustomerOrderDetailDto(Order order, Payment? payment)
+    private CustomerOrderDetailDto MapToCustomerOrderDetailDto(Order order, Payment? payment)
     {
         var address = new AddressSnapshotDto(
             order.ShippingRecipientName,
@@ -1856,17 +1892,40 @@ public sealed class OrderingService
                 h.ActorRole,
                 h.CreatedAt)).ToList();
 
+        bool isSepay = string.Equals(order.PaymentMethod, OrderPaymentMethodConstants.SepayQr, StringComparison.OrdinalIgnoreCase);
+        var latestAttempt = payment?.Attempts?.OrderByDescending(a => a.AttemptNumber).FirstOrDefault();
+        DateTimeOffset? expiresAt = latestAttempt?.ExpiresAt;
+        QrPaymentDetailsDto? qrDetails = null;
+
+        if (isSepay &&
+            string.Equals(order.Status, OrderStatusConstants.PendingPayment, StringComparison.OrdinalIgnoreCase) &&
+            latestAttempt is not null &&
+            string.Equals(latestAttempt.Status, PaymentAttemptStatusConstants.Open, StringComparison.OrdinalIgnoreCase))
+        {
+            string bank = _configuration?["SePay:BankShortName"] ?? "MB";
+            string acc = _configuration?["SePay:AccountNumber"] ?? "0000000000";
+            string accName = _configuration?["SePay:AccountName"] ?? "GROCERYHUB";
+            string prefix = _configuration?["SePay:TransferContentPrefix"] ?? "";
+            string content = $"{prefix}{latestAttempt.PaymentCode}";
+            string qrUrl = $"https://qr.sepay.vn/img?acc={Uri.EscapeDataString(acc)}&bank={Uri.EscapeDataString(bank)}&amount={order.Total}&des={Uri.EscapeDataString(content)}&template=compact&download=false";
+
+            qrDetails = new QrPaymentDetailsDto(qrUrl, bank, acc, accName, order.Total, content);
+        }
+
         var paymentView = new OrderPaymentViewDto(
             payment?.Id ?? Guid.Empty,
             payment?.Status ?? order.PaymentStatus,
             payment?.Method ?? order.PaymentMethod,
-            payment?.PaymentCode ?? string.Empty,
-            AttemptNumber: 1,
-            MaxAttempts: 1,
-            ExpiresAt: null,
-            Qr: null);
+            latestAttempt?.PaymentCode ?? payment?.PaymentCode ?? string.Empty,
+            AttemptNumber: latestAttempt?.AttemptNumber ?? 1,
+            MaxAttempts: isSepay ? 5 : 1,
+            ExpiresAt: expiresAt,
+            Qr: qrDetails);
 
         bool canCancel = OrderStateMachine.CanCustomerCancel(order.Status);
+        bool canRetryPayment = isSepay &&
+                               string.Equals(order.Status, OrderStatusConstants.PendingPayment, StringComparison.OrdinalIgnoreCase) &&
+                               (payment?.Attempts?.Count ?? 0) < 5;
 
         return new CustomerOrderDetailDto(
             order.Id,
@@ -1885,9 +1944,9 @@ public sealed class OrderingService
             timeline,
             paymentView,
             canCancel,
-            CanRetryPayment: false,
+            canRetryPayment,
             order.CreatedAt,
-            null);
+            expiresAt);
     }
 
     private static AdminOrderDetailDto MapToAdminOrderDetailDto(Order order)

@@ -61,4 +61,6 @@ public class Payment : IAuditableEntity
     public ICollection<PaymentAttempt> Attempts { get; set; } = new List<PaymentAttempt>();
 
     public ICollection<CodCollection> CodCollections { get; set; } = new List<CodCollection>();
+
+    public ICollection<Refund> Refunds { get; set; } = new List<Refund>();
 }

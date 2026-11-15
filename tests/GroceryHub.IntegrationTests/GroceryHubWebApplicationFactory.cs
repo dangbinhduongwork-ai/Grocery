@@ -131,6 +131,14 @@ public sealed class GroceryHubWebApplicationFactory(string connectionString) : W
                 ["GroceryHub:EnvironmentName"] = "Testing",
                 ["GroceryHub:Version"] = "1.0.0",
                 ["RateLimiting:AuthPermitLimitPerMinute"] = "1000",
+                ["SePay:Environment"] = "Testing",
+                ["SePay:AccountNumber"] = "0123456789",
+                ["SePay:BankShortName"] = "MBBank",
+                ["SePay:AccountName"] = "CONG TY TNHH GROCERYHUB",
+                ["SePay:PaymentCodePrefix"] = "GH",
+                ["SePay:Webhook:AuthMode"] = "Hmac",
+                ["SePay:Webhook:HmacSecret"] = "sepay_integration_secret_test_1234567890",
+                ["SePay:Api:Token"] = "test_api_token",
             });
         });
 

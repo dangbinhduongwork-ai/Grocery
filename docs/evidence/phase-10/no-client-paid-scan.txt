@@ -1,0 +1,31 @@
+================================================================================
+GroceryHub — Static Codebase Verification: Zero Client-Side Paid Confirmation
+Scan executed: 2026-11-15 23:01:00 UTC+7
+Rule: T-PAY-21 / TM-PAY-05 / BR-06 / AGENTS.md Security Invariant
+================================================================================
+
+1. Frontend Search (web/src) for any client-side payment confirmation mutations:
+Command: Get-ChildItem -Path web/src -Recurse -File | Select-String -Pattern "payment.*paid|mark.*paid|status.*=.*Paid" -CaseSensitive:$false
+
+Results:
+- web\src\admin\pages\AdminPaymentsPage.tsx:106: setActionType(tx.matchStatus === 'Underpaid' || tx.matchStatus === 'Overpaid' ? 'Refund' : 'AttachToOrder') [Read check on matchStatus]
+- web\src\storefront\pages\OrderDetailPage.tsx:269: {order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chờ thanh toán khi nhận hàng'} [Read-only display badge]
+- web\src\storefront\pages\OrdersPage.tsx:219: {order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chờ thanh toán khi nhận'} [Read-only display badge]
+- web\src\storefront\pages\PaymentPage.tsx:96: data.status === 'Paid' [Polling termination condition]
+- web\src\storefront\pages\PaymentPage.tsx:193: return paymentData?.status === 'Paid' || paymentData?.orderStatus === 'Confirmed' [Read-only view rendering condition]
+
+VERDICT: ZERO client-side status mutation found in web/src. Frontend only renders server status.
+
+2. Backend Search (src/) for any client-callable "mark as paid" endpoint:
+Command: Get-ChildItem -Path src -Recurse -File -Include "*.cs" | Select-String -Pattern "PaymentStatusConstants\.Paid|OrderStatusConstants\.Confirmed"
+
+Results:
+- src\GroceryHub.Modules.Payments\Application\PaymentService.cs:599: attempt.Payment.Status = PaymentStatusConstants.Paid;
+  Context: ProcessWebhookAsync, strictly triggered by verified SePay webhook (HMAC-SHA256 signature and timestamp validated).
+- src\GroceryHub.Modules.Payments\Application\PaymentService.cs:903: payment.Status = PaymentStatusConstants.Paid;
+  Context: ResolveAnomalyAsync with action "AttachToOrder", protected by policy "Permissions.Payments.Review" (Staff/Manager/Admin only).
+- src\GroceryHub.Modules.Ordering\Application\Services\OrderingService.cs:1136: payment.Status = PaymentStatusConstants.Paid;
+  Context: TransitionOrderStatusAsync when transitioning COD orders to "Delivered", protected by policy "Permissions.Orders.Update" with server-side COD amount check.
+
+VERDICT: ZERO client-callable endpoints exist to mark orders or payments as Paid. Status changes strictly occur via validated SePay webhooks or authorized Staff operations.
+Unit Test T-PAY-21 (PaymentSecurityAndContractTests.T_PAY_21_StaticCodebaseScan_ProvesZeroClientCallableMarkPaidEndpoints) ran and PASSED.

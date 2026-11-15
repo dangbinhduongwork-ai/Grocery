@@ -231,6 +231,20 @@ apiV1Group
     .MapReportingEndpoints()
     .MapAuditEndpoints();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapPost("/dev/sepay/simulate", async (
+        [FromBody] GroceryHub.Modules.Payments.Contracts.SimulateWebhookRequest req,
+        GroceryHub.Modules.Payments.Application.IPaymentService paymentService,
+        CancellationToken ct) =>
+    {
+        var result = await paymentService.SimulateWebhookPayloadAsync(req, ct);
+        return result.IsSuccess
+            ? Results.Ok(new { payload = result.Value })
+            : Results.BadRequest(new { error = result.Error.Message });
+    }).AllowAnonymous().WithTags("Development");
+}
+
 int exportArgIndex = Array.IndexOf(args, "--export-openapi");
 if (exportArgIndex >= 0)
 {

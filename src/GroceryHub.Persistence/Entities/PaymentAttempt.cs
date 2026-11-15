@@ -22,13 +22,19 @@ public class PaymentAttempt
 
     public Guid PaymentId { get; set; }
 
+    public string PaymentCode { get; set; } = string.Empty;
+
     public int AttemptNumber { get; set; }
 
     public long Amount { get; set; }
 
     public string Status { get; set; } = PaymentAttemptStatusConstants.Open;
 
+    public DateTimeOffset ExpiresAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public Payment? Payment { get; set; }
+
+    public ICollection<PaymentTransaction> Transactions { get; set; } = new List<PaymentTransaction>();
 }

@@ -61,6 +61,28 @@
         }
       }
     },
+    "/dev/sepay/simulate": {
+      "post": {
+        "tags": [
+          "Development"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/system/info": {
       "get": {
         "tags": [
@@ -77,6 +99,30 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/dev/sepay/simulate": {
+      "post": {
+        "tags": [
+          "GroceryHub.Api"
+        ],
+        "summary": "Development only: simulate a signed SePay webhook payload",
+        "operationId": "SimulateSePayWebhook",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateWebhookRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -8449,6 +8495,342 @@
         }
       }
     },
+    "/api/v1/payments/sepay/webhook": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Receive SePay VietQR payment webhook notifications",
+        "operationId": "ProcessSePayWebhook",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/payments/{paymentCode}/status": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Get read-only payment attempt and order status by payment code",
+        "operationId": "GetPaymentStatusByCode",
+        "parameters": [
+          {
+            "name": "paymentCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/me/orders/{id}/payment-attempts": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Generate a new VietQR payment attempt for an order in PendingPayment status",
+        "operationId": "CreateNewPaymentAttempt",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/payment-transactions": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "List all webhook payment transactions with optional filter by review and match status",
+        "operationId": "GetPaymentTransactions",
+        "parameters": [
+          {
+            "name": "reviewStatus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "matchStatus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/payment-transactions/{id}/resolve": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Resolve a payment transaction anomaly (AttachToOrder, Refund, Dismiss)",
+        "operationId": "ResolvePaymentTransaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolvePaymentTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/refunds": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "List all refunds with optional status filter",
+        "operationId": "GetRefunds",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Request a refund for a paid or partially refunded order",
+        "operationId": "RequestRefund",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRefundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/refunds/{id}/approve": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Approve a requested refund (must not be the same person who requested)",
+        "operationId": "ApproveRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ApproveRefundRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/refunds/{id}/reject": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Reject a requested refund",
+        "operationId": "RejectRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectRefundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/refunds/{id}/complete": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Mark an approved refund as completed with bank transfer reference",
+        "operationId": "CompleteRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteRefundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/products/{id}/reviews": {
       "get": {
         "tags": [
@@ -10572,6 +10954,17 @@
           }
         }
       },
+      "ApproveRefundRequest": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "AssignOrderRequest": {
         "required": [
           "assignedToUserId"
@@ -11348,6 +11741,23 @@
           }
         }
       },
+      "CompleteRefundRequest": {
+        "required": [
+          "bankReference"
+        ],
+        "type": "object",
+        "properties": {
+          "bankReference": {
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "CouponDto": {
         "required": [
           "id",
@@ -12057,6 +12467,31 @@
             "items": {
               "$ref": "#/components/schemas/PurchaseOrderItemRequest"
             }
+          }
+        }
+      },
+      "CreateRefundRequest": {
+        "required": [
+          "orderId",
+          "amount",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "reason": {
+            "type": "string"
           }
         }
       },
@@ -15255,6 +15690,17 @@
           }
         }
       },
+      "RejectRefundRequest": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
       "RejectReviewRequest": {
         "required": [
           "reason"
@@ -15369,6 +15815,30 @@
         "properties": {
           "reset": {
             "type": "boolean"
+          }
+        }
+      },
+      "ResolvePaymentTransactionRequest": {
+        "required": [
+          "action"
+        ],
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -15604,6 +16074,52 @@
             "items": {
               "$ref": "#/components/schemas/ShippingRateDto"
             }
+          }
+        }
+      },
+      "SimulateWebhookRequest": {
+        "type": "object",
+        "properties": {
+          "paymentCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "transferAmount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "transferType": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": "in"
+          },
+          "accountNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gateway": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": "MBBank"
+          },
+          "content": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -17007,7 +17523,13 @@
       "name": "Health"
     },
     {
+      "name": "Development"
+    },
+    {
       "name": "System"
+    },
+    {
+      "name": "GroceryHub.Api"
     },
     {
       "name": "Authentication"
@@ -17053,6 +17575,9 @@
     },
     {
       "name": "Admin Ordering \u0026 Operations"
+    },
+    {
+      "name": "Payments"
     },
     {
       "name": "Storefront Reviews"

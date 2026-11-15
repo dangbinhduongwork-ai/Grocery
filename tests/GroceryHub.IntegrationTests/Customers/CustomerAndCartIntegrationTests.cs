@@ -323,7 +323,7 @@ public sealed class CustomerAndCartIntegrationTests(SqlServerTestDatabaseFixture
     }
 
     [Fact]
-    public async Task PaymentMethodSepayQr_Returns409PaymentMethodUnavailable()
+    public async Task PaymentMethodSepayQr_PlacesOrderWithPendingPaymentAndQrDetails()
     {
         Guid productId;
         await using (GroceryHubDbContext db = _dbFixture.CreateDbContext())
@@ -339,18 +339,18 @@ public sealed class CustomerAndCartIntegrationTests(SqlServerTestDatabaseFixture
             productId = pId;
         }
 
-        string email = $"sepay.unavail.{Guid.NewGuid():N}@groceryhub.vn";
+        string email = $"sepay.qr.{Guid.NewGuid():N}@groceryhub.vn";
         var (_, token) = await Phase07TestHelper.RegisterVerifyAndLoginCustomerAsync(
             _factory,
             _client,
             email,
-            "Customer QR Unavailable",
+            "Customer QR",
             "0918885566");
 
         Guid addressId = await Phase07TestHelper.CreateAddressAsync(
             _client,
             token,
-            recipientName: "Customer QR Unavailable",
+            recipientName: "Customer QR",
             phone: "0918885566",
             provinceCode: "79",
             wardCode: "79001",
@@ -365,9 +365,9 @@ public sealed class CustomerAndCartIntegrationTests(SqlServerTestDatabaseFixture
         using HttpResponseMessage addCartRes = await _client.SendAsync(addCartMsg);
         Assert.Equal(HttpStatusCode.OK, addCartRes.StatusCode);
 
-        // Attempt checkout with SEPAY_QR
+        // Checkout with SEPAY_QR (Enabled in Phase 10)
         string idempotencyKey = Guid.NewGuid().ToString("N");
-        PlaceOrderRequest orderReq = new(addressId, null, "SEPAY_QR", "Attempting QR payment in Phase 07");
+        PlaceOrderRequest orderReq = new(addressId, null, "SEPAY_QR", "Checkout with VietQR in Phase 10");
 
         using HttpRequestMessage orderMsg = new(HttpMethod.Post, "/api/v1/checkout/orders")
         {
@@ -376,9 +376,28 @@ public sealed class CustomerAndCartIntegrationTests(SqlServerTestDatabaseFixture
         orderMsg.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         orderMsg.Headers.Add("Idempotency-Key", idempotencyKey);
         using HttpResponseMessage orderRes = await _client.SendAsync(orderMsg);
-        string orderBody = await orderRes.Content.ReadAsStringAsync();
 
-        Assert.Equal(HttpStatusCode.Conflict, orderRes.StatusCode);
-        Assert.Contains("PAYMENT_METHOD_UNAVAILABLE", orderBody);
+        Assert.Equal(HttpStatusCode.Created, orderRes.StatusCode);
+        var orderBody = await orderRes.Content.ReadFromJsonAsync<PlaceOrderResponseDto>();
+        Assert.NotNull(orderBody);
+        Assert.Equal("PendingPayment", orderBody.Order.Status);
+        Assert.Equal("Pending", orderBody.Payment.Status);
+        Assert.Equal("SEPAY_QR", orderBody.Payment.Method);
+        Assert.NotNull(orderBody.Payment.Qr);
+        Assert.False(string.IsNullOrWhiteSpace(orderBody.Payment.Qr.Url));
+        Assert.StartsWith("GH", orderBody.Payment.PaymentCode);
+
+        // Also verify unsupported payment method returns error
+        PlaceOrderRequest unsuppReq = new(addressId, null, "UNSUPPORTED_METHOD", "Testing unsupported method");
+        using HttpRequestMessage unsuppMsg = new(HttpMethod.Post, "/api/v1/checkout/orders")
+        {
+            Content = JsonContent.Create(unsuppReq)
+        };
+        unsuppMsg.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        unsuppMsg.Headers.Add("Idempotency-Key", Guid.NewGuid().ToString("N"));
+        using HttpResponseMessage unsuppRes = await _client.SendAsync(unsuppMsg);
+        string unsuppBody = await unsuppRes.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, unsuppRes.StatusCode);
+        Assert.Contains("Payment method must be one of", unsuppBody);
     }
 }

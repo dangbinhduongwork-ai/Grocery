@@ -36,6 +36,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dev/sepay/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SimulateWebhookRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/system/info": {
         parameters: {
             query?: never;
@@ -46,6 +83,23 @@ export interface paths {
         get: operations["GetSystemInfo"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dev/sepay/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Development only: simulate a signed SePay webhook payload */
+        post: operations["SimulateSePayWebhook"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3616,6 +3670,160 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/sepay/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receive SePay VietQR payment webhook notifications */
+        post: operations["ProcessSePayWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/{paymentCode}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get read-only payment attempt and order status by payment code */
+        get: operations["GetPaymentStatusByCode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/orders/{id}/payment-attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate a new VietQR payment attempt for an order in PendingPayment status */
+        post: operations["CreateNewPaymentAttempt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/payment-transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all webhook payment transactions with optional filter by review and match status */
+        get: operations["GetPaymentTransactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/payment-transactions/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve a payment transaction anomaly (AttachToOrder, Refund, Dismiss) */
+        post: operations["ResolvePaymentTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all refunds with optional status filter */
+        get: operations["GetRefunds"];
+        put?: never;
+        /** Request a refund for a paid or partially refunded order */
+        post: operations["RequestRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/refunds/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a requested refund (must not be the same person who requested) */
+        post: operations["ApproveRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/refunds/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a requested refund */
+        post: operations["RejectRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/refunds/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark an approved refund as completed with bank transfer reference */
+        post: operations["CompleteRefund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products/{id}/reviews": {
         parameters: {
             query?: never;
@@ -4129,6 +4337,9 @@ export interface components {
         ApplyCouponRequest: {
             code: string;
         };
+        ApproveRefundRequest: {
+            note?: null | string;
+        };
         AssignOrderRequest: {
             /** Format: uuid */
             assignedToUserId: null | string;
@@ -4313,6 +4524,10 @@ export interface components {
             couponCode: null | string;
             paymentMethod: null | string;
         };
+        CompleteRefundRequest: {
+            bankReference: string;
+            note?: null | string;
+        };
         CouponDto: {
             /** Format: uuid */
             id: string;
@@ -4479,6 +4694,13 @@ export interface components {
             supplierId: string;
             note: null | string;
             items: components["schemas"]["PurchaseOrderItemRequest"][];
+        };
+        CreateRefundRequest: {
+            /** Format: uuid */
+            orderId: string;
+            /** Format: int64 */
+            amount: number | string;
+            reason: string;
         };
         CreateReviewRequest: {
             /** Format: uuid */
@@ -5244,6 +5466,9 @@ export interface components {
             email: string;
             verificationRequired: boolean;
         };
+        RejectRefundRequest: {
+            reason: string;
+        };
         RejectReviewRequest: {
             reason: null | string;
         };
@@ -5272,6 +5497,12 @@ export interface components {
         };
         ResetPasswordResponse: {
             reset: boolean;
+        };
+        ResolvePaymentTransactionRequest: {
+            action: string;
+            /** Format: uuid */
+            orderId?: null | string;
+            note?: null | string;
         };
         ReviewSummaryDto: {
             /** Format: double */
@@ -5328,6 +5559,17 @@ export interface components {
             isActive: boolean;
             provinceCodes: string[];
             rates: components["schemas"]["ShippingRateDto"][];
+        };
+        SimulateWebhookRequest: {
+            paymentCode?: null | string;
+            /** Format: int64 */
+            transferAmount?: null | number | string;
+            /** @default in */
+            transferType: null | string;
+            accountNumber?: null | string;
+            /** @default MBBank */
+            gateway: null | string;
+            content?: null | string;
         };
         SkippedReorderItemDto: {
             /** Format: uuid */
@@ -5721,6 +5963,28 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["SystemInfoResponse"];
                 };
+            };
+        };
+    };
+    SimulateSePayWebhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulateWebhookRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -10094,6 +10358,227 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
+            };
+        };
+    };
+    ProcessSePayWebhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetPaymentStatusByCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                paymentCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CreateNewPaymentAttempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetPaymentTransactions: {
+        parameters: {
+            query: {
+                reviewStatus?: string;
+                matchStatus?: string;
+                page: number | string;
+                pageSize: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ResolvePaymentTransaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolvePaymentTransactionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetRefunds: {
+        parameters: {
+            query: {
+                status?: string;
+                page: number | string;
+                pageSize: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RequestRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ApproveRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": null | components["schemas"]["ApproveRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RejectRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CompleteRefund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

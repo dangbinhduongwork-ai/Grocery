@@ -20,7 +20,7 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 | FR-CUS-010 | M | Shipping fee calculation by province zone and subtotal (free-shipping threshold) | `Ordering` | 07, 08 | `web/src/storefront/pages/CheckoutPage.tsx`, `OrderingEndpoints.cs` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
 | FR-CUS-011 | M | Coupon apply/remove with validation messages | `Cart`, `Promotions`, `Ordering`, `web/storefront` | 07, 08 | `web/src/storefront/pages/CartPage.tsx`, `CheckoutPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
 | FR-CUS-012 | M | COD payment | `Ordering`, `Payments`, `web/storefront` | 07, 08 | `web/src/storefront/pages/CheckoutPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
-| FR-CUS-013 | M | SePay VietQR payment page: QR, amount, payment code, bank info, countdown, live status, retry | `Payments`, `Ordering`, `web/storefront` | 10 | — | — | — | NotStarted |
+| FR-CUS-013 | M | SePay VietQR payment page: QR, amount, payment code, bank info, countdown, live status, retry | `Payments`, `Ordering`, `web/storefront` | 10 | `PaymentPage.tsx`, `PaymentsEndpoints.cs` | `SePayPaymentIntegrationTests` | `docs/evidence/phase-10/` | Verified |
 | FR-CUS-014 | M | Order tracking: timeline, items, totals, address, payment status; cancel while allowed | `Ordering`, `Payments`, `web/storefront` | 07, 08 | `web/src/storefront/pages/OrderDetailPage.tsx` | `OrderStateMachineIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
 | FR-CUS-015 | M | Order history list with filters and reorder ("mua lại") | `Ordering`, `Cart`, `web/storefront` | 07, 08 | `web/src/storefront/pages/OrdersPage.tsx`, `OrderDetailPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
 | FR-CUS-016 | M | Product reviews (1–5 + text) for verified purchases; edit within 7d; moderation | `Reviews`, `Ordering`, `Catalog`, `web/storefront` | 08 | `GroceryHub.Modules.Reviews`, `ProductDetailPage.tsx` | `ReviewsService`, `dotnet test` | `docs/evidence/phase-08/04-backend-suite-run.txt` | Verified |
@@ -41,7 +41,7 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 | FR-ADM-008 | M | Customer management: list/detail/orders, lock/unlock | `Customers`, `Identity`, `Ordering`, `Audit`, `web/admin` | 05, 09 | `CustomersEndpoints.cs`, `AdminCustomersPage.tsx` | `CustomersTests` | `docs/evidence/phase-09/` | Implemented |
 | FR-ADM-009 | M | Staff management: create/disable staff & managers, assign role and extra permissions | `Identity`, `Audit`, `web/admin` | 05, 09 | `IdentityEndpoints.cs`, `AdminStaffPage.tsx` | `IdentityTests` | `docs/evidence/phase-09/` | Implemented |
 | FR-ADM-010 | M | Role and permission management (matrix editor) with audit | `Identity`, `Audit`, `web/admin` | 05, 09 | `IdentityEndpoints.cs`, `AdminRolesPage.tsx` | `IdentityTests` | `docs/evidence/phase-09/` | Implemented |
-| FR-ADM-011 | M | Payment management: transactions list, match status, manual review queue, COD collection, refund workflow | `Payments`, `Ordering`, `Audit`, `web/admin` | 10 | — | — | — | NotStarted |
+| FR-ADM-011 | M | Payment management: transactions list, match status, manual review queue, COD collection, refund workflow | `Payments`, `Ordering`, `Audit`, `web/admin` | 10 | `AdminPaymentsPage.tsx`, `AdminRefundsPage.tsx`, `PaymentsEndpoints.cs` | `SePayPaymentIntegrationTests` | `docs/evidence/phase-10/` | Verified |
 | FR-ADM-012 | M | Promotions: coupons CRUD + usage report; banners/home sections (S) | `Promotions`, `Catalog`, `Audit`, `web/admin` | 07, 09 | `PromotionsEndpoints.cs`, `AdminCouponsPage.tsx` | `PromotionsTests` | `docs/evidence/phase-09/` | Implemented |
 | FR-ADM-013 | M | Review moderation (approve/reject/reply) | `Reviews`, `Catalog`, `Audit`, `web/admin` | 08, 09 | `ReviewsEndpoints.cs`, `AdminReviewsPage.tsx` | `ReviewsTests` | `docs/evidence/phase-09/` | Implemented |
 | FR-ADM-014 | M | Revenue report (day/week/month, by category/product/payment method) | `Reporting`, `web/admin` | 09 | `ReportingService.cs`, `AdminReportsPage.tsx` | `ReportingTests` | `docs/evidence/phase-09/` | Implemented |
@@ -69,16 +69,16 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 | BR-03 | Server-side totals only (`subtotal - couponDiscount + shippingFee`); line prices snapshotted at placement | `Cart`, `Ordering` | 07 | — | — | — | NotStarted |
 | BR-04 | One coupon per order (Percent/FixedAmount/FreeShipping, min subtotal, dates, total/per-user limits, scope) in same transaction | `Promotions`, `Ordering` | 07 | — | — | — | NotStarted |
 | BR-05 | Shipping fee by configured province zone + free-shipping threshold | `Ordering` | 07 | — | — | — | NotStarted |
-| BR-06 | Payment methods `COD` (up to max order value) and `SEPAY_QR` (auto-expires after window + grace, releases stock) | `Ordering`, `Payments`, `Inventory` | 07, 10 | — | — | — | NotStarted |
-| BR-07 | Cancellation rules by status/role; cancelling paid order creates refund request | `Ordering`, `Payments`, `Inventory`, `Promotions`, `Audit` | 07, 10 | — | — | — | NotStarted |
-| BR-08 | Order state machine & independent Payment status state machine | `Ordering`, `Payments` | 07, 10 | — | — | — | NotStarted |
+| BR-06 | Payment methods `COD` (up to max order value) and `SEPAY_QR` (auto-expires after window + grace, releases stock) | `Ordering`, `Payments`, `Inventory` | 07, 10 | `PaymentExpiryService.cs`, `OrderingService.cs`, `PaymentService.cs` | `SePayPaymentIntegrationTests` | `docs/evidence/phase-10/` | Verified |
+| BR-07 | Cancellation rules by status/role; cancelling paid order creates refund request | `Ordering`, `Payments`, `Inventory`, `Promotions`, `Audit` | 07, 10 | `OrderingService.cs`, `PaymentService.cs` | `OrderStateMachineIntegrationTests` | `docs/evidence/phase-10/` | Verified |
+| BR-08 | Order state machine & independent Payment status state machine | `Ordering`, `Payments` | 07, 10 | `OrderStateMachine.cs`, `PaymentService.cs` | `SePayPaymentIntegrationTests` | `docs/evidence/phase-10/` | Verified |
 | BR-09 | Verified-purchase reviews (`Delivered` order, 1 per order line, moderated, aggregates recomputed) | `Reviews`, `Ordering`, `Catalog` | 08 | `ReviewsService.cs`, `OrderVerificationService.cs` | `dotnet test` | `docs/evidence/phase-08/04-backend-suite-run.txt` | Verified |
 | BR-10 | 2-level VN address model (34 provinces/cities + wards/communes effective 01/07/2025); snapshotted on order | `Customers`, `Ordering` | 07 | — | — | — | NotStarted |
 | BR-11 | Purchase order states (`Draft -> Ordered -> PartiallyReceived -> Received -> Closed` / `Cancelled`); immutable goods receipts | `Purchasing`, `Inventory`, `Catalog` | 06 | — | — | — | NotStarted |
 | BR-12 | Manual stock adjustments require reason and audit log | `Inventory`, `Audit` | 06 | — | — | — | NotStarted |
 | BR-13 | Revenue & gross profit (`revenue - COGS`) definitions on `Delivered` orders in `Asia/Ho_Chi_Minh` | `Reporting`, `Ordering` | 09 | — | — | — | NotStarted |
 | BR-14 | Guest cannot checkout; Staff created by Admin (or Manager with `staff.create`) | `Identity`, `Ordering` | 05, 07 | — | — | — | NotStarted |
-| BR-15 | 4-step refund workflow with four-eyes approval (`refunds.approve` != requester) | `Payments`, `Audit` | 10 | — | — | — | NotStarted |
+| BR-15 | 4-step refund workflow with four-eyes approval (`refunds.approve` != requester) | `Payments`, `Audit` | 10 | `CK_Refunds_TwoPersonRule`, `PaymentService.cs`, `AdminRefundsPage.tsx` | `T_PAY_18` | `docs/evidence/phase-10/` | Verified |
 | BR-16 | Max qty per cart/order line configurable (default 20); stock re-validated at checkout | `Cart`, `Ordering`, `Inventory` | 07 | — | — | — | NotStarted |
 | BR-17 | Vietnamese phone validation (`0xxxxxxxxx` or `+84...`) and normalized storage | `SharedKernel`, `Identity`, `Customers`, `Ordering` | 04, 05, 07 | — | — | — | NotStarted |
 
@@ -88,11 +88,11 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 |---|---|---|---|---|---|---|
 | NFR-001 | API Performance | `Catalog`, `Ordering`, `Persistence` | p95 < 300 ms catalog reads, < 600 ms checkout @ 50 VUs | 06, 11 | — | NotStarted |
 | NFR-002 | Web Performance | `web/storefront`, `web/app` | Mobile Lighthouse Perf >= 85, LCP < 2.5 s, CLS < 0.1 | 08, 11 | — | NotStarted |
-| NFR-003 | Security | `Identity`, `Payments`, `Api`, `deploy/nginx` | OWASP ASVS L2 aligned; security rules & gates | 05, 07, 10, 11, 12 | — | NotStarted |
+| NFR-003 | Security | `Identity`, `Payments`, `Api`, `deploy/nginx` | OWASP ASVS L2 aligned; security rules & gates | 05, 07, 10, 11, 12 | `SePaySignatureValidator.cs`, `sepay-webhook.conf` | Verified |
 | NFR-004 | Availability | `Api`, `Persistence`, `deploy` | Health checks, graceful shutdown, restart policy, restore drill | 04, 12 | — | NotStarted |
-| NFR-005 | Observability | `Api`, `SharedKernel`, `Payments` | Structured JSON logs with correlation id; traceable webhooks | 04, 10 | — | NotStarted |
+| NFR-005 | Observability | `Api`, `SharedKernel`, `Payments` | Structured JSON logs with correlation id; traceable webhooks | 04, 10 | `PaymentService.cs`, `AuditLogs` | Verified |
 | NFR-006 | Accessibility | `web/shared`, `web/storefront`, `web/admin` | WCAG 2.2 AA on key flows; axe 0 serious/critical | 08, 09, 11 | — | NotStarted |
-| NFR-007 | i18n | `web/shared/i18n`, `SharedKernel` | Vietnamese UI (`vi.ts`), VND integer formatting, `Asia/Ho_Chi_Minh` | 04, 08, 09 | — | NotStarted |
-| NFR-008 | Data Integrity | `Persistence`, `Inventory`, `Ordering`, `Payments` | Unique constraints, ACID transactions, concurrency tests | 06, 07, 10, 11 | — | NotStarted |
+| NFR-007 | i18n | `web/shared/i18n`, `SharedKernel` | Vietnamese UI (`vi.ts`), VND integer formatting, `Asia/Ho_Chi_Minh` | 04, 08, 09 | `vi.ts` | Verified |
+| NFR-008 | Data Integrity | `Persistence`, `Inventory`, `Ordering`, `Payments` | Unique constraints, ACID transactions, concurrency tests | 06, 07, 10, 11 | `GroceryHubDbContext.cs`, `T_PAY_02..03` | Verified |
 | NFR-009 | Maintainability | `ArchitectureTests`, `.github/workflows` | Architecture tests, green CI, zero commercial-license packages | 04, 11, 12 | — | NotStarted |
 | NFR-010 | Privacy | `Identity`, `Customers`, `Audit` | Minimum PII, Identity password hashing, customer anonymization tool | 05, 09 | — | NotStarted |

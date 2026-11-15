@@ -202,7 +202,7 @@ export const CheckoutPage: React.FC = () => {
         },
         body: {
           addressId: selectedAddressId,
-          paymentMethod: 'COD',
+          paymentMethod: paymentMethod,
           couponCode: cart?.couponCode ?? null,
           note: orderNote.trim() || null,
         },
@@ -213,7 +213,11 @@ export const CheckoutPage: React.FC = () => {
         setOrderError(msg)
       } else if (data.order?.id) {
         await refreshCart()
-        navigate(`/orders/${data.order.id}/confirmed`)
+        if (paymentMethod === 'SEPAY_QR' && data.payment?.paymentCode) {
+          navigate(`/payment/${data.payment.paymentCode}`)
+        } else {
+          navigate(`/orders/${data.order.id}/confirmed`)
+        }
       }
     } catch {
       setOrderError('Lỗi kết nối khi gửi đơn hàng')
@@ -538,29 +542,37 @@ export const CheckoutPage: React.FC = () => {
                 </div>
               </label>
 
-              {/* Option 2: VietQR / SePay (Honest disabled state for Phase 08) */}
-              <div className="flex items-start gap-4 p-4 rounded-xl border border-dashed border-rule bg-paper/30 opacity-75 select-none">
+              {/* Option 2: VietQR / SePay */}
+              <label
+                className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
+                  paymentMethod === 'SEPAY_QR'
+                    ? 'border-leaf bg-paper ring-2 ring-leaf/20'
+                    : 'border-rule bg-paper/60'
+                }`}
+              >
                 <input
                   type="radio"
                   name="paymentMethod"
-                  disabled
-                  className="mt-1 opacity-50 cursor-not-allowed w-4 h-4"
+                  value="SEPAY_QR"
+                  checked={paymentMethod === 'SEPAY_QR'}
+                  onChange={() => setPaymentMethod('SEPAY_QR')}
+                  className="mt-1 text-leaf focus:ring-leaf w-4 h-4 cursor-pointer"
                 />
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2">
-                    <QrCode className="w-4 h-4 text-ink-2 stroke-[1.5]" />
-                    <span className="font-semibold text-xs text-ink-2">
+                    <QrCode className="w-4 h-4 text-leaf stroke-[1.5]" />
+                    <span className="font-semibold text-xs text-ink">
                       {vi.checkout.vietqrTitle} (Chuyển khoản SePay VietQR)
                     </span>
-                    <span className="text-[10px] bg-[#EAEAEA] text-ink-2 font-bold px-1.5 py-0.5 rounded-full">
-                      Kích hoạt ở Phase 10
+                    <span className="text-[10px] bg-leaf/10 text-leaf font-bold px-1.5 py-0.5 rounded-full">
+                      Tự động xác nhận 24/7
                     </span>
                   </div>
                   <p className="text-xs text-ink-2 leading-relaxed">
-                    Phương thức thanh toán tự động qua VietQR sẽ được kích hoạt tại Giai đoạn 10. Quý khách vui lòng chọn COD để tiến hành nhận hàng.
+                    Quét mã VietQR chuẩn Napas 24/7 qua bất kỳ ứng dụng ngân hàng nào. Đơn hàng tự động xác nhận tức thì mà không cần nhân viên gọi lại.
                   </p>
                 </div>
-              </div>
+              </label>
             </div>
           </section>
 

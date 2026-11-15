@@ -121,6 +121,12 @@ public class GroceryHubDbContext : DbContext
 
     public DbSet<PaymentAttempt> PaymentAttempts => Set<PaymentAttempt>();
 
+    public DbSet<WebhookEvent> WebhookEvents => Set<WebhookEvent>();
+
+    public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
+
+    public DbSet<Refund> Refunds => Set<Refund>();
+
     public DbSet<CodCollection> CodCollections => Set<CodCollection>();
 
     public DbSet<Review> Reviews => Set<Review>();

@@ -16,6 +16,7 @@ const ProductDetailPage = lazy(() => import('@/storefront/pages/ProductDetailPag
 const CartPage = lazy(() => import('@/storefront/pages/CartPage').then((m) => ({ default: m.CartPage })))
 const CheckoutPage = lazy(() => import('@/storefront/pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })))
 const OrderConfirmationPage = lazy(() => import('@/storefront/pages/OrderConfirmationPage').then((m) => ({ default: m.OrderConfirmationPage })))
+const PaymentPage = lazy(() => import('@/storefront/pages/PaymentPage').then((m) => ({ default: m.PaymentPage })))
 const OrdersPage = lazy(() => import('@/storefront/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })))
 const OrderDetailPage = lazy(() => import('@/storefront/pages/OrderDetailPage').then((m) => ({ default: m.OrderDetailPage })))
 const AccountPage = lazy(() => import('@/storefront/pages/AccountPage').then((m) => ({ default: m.AccountPage })))
@@ -30,6 +31,8 @@ const AdminDashboardPage = lazy(() => import('@/admin/pages/AdminDashboardPage')
 const AdminOrdersPage = lazy(() => import('@/admin/pages/AdminOrdersPage').then((m) => ({ default: m.AdminOrdersPage })))
 const AdminOrderDetailPage = lazy(() => import('@/admin/pages/AdminOrderDetailPage').then((m) => ({ default: m.AdminOrderDetailPage })))
 const AdminPickingModePage = lazy(() => import('@/admin/pages/AdminPickingModePage').then((m) => ({ default: m.AdminPickingModePage })))
+const AdminPaymentsPage = lazy(() => import('@/admin/pages/AdminPaymentsPage').then((m) => ({ default: m.AdminPaymentsPage })))
+const AdminRefundsPage = lazy(() => import('@/admin/pages/AdminRefundsPage').then((m) => ({ default: m.AdminRefundsPage })))
 const AdminProductsPage = lazy(() => import('@/admin/pages/AdminProductsPage').then((m) => ({ default: m.AdminProductsPage })))
 const AdminProductFormPage = lazy(() => import('@/admin/pages/AdminProductFormPage').then((m) => ({ default: m.AdminProductFormPage })))
 const AdminCategoriesPage = lazy(() => import('@/admin/pages/AdminCategoriesPage').then((m) => ({ default: m.AdminCategoriesPage })))
@@ -221,6 +224,22 @@ const AppContent: React.FC = () => {
         )
       }
 
+      if (pathname === '/admin/payments') {
+        return (
+          <AdminRouteGuard requiredPermission="payments.review">
+            <AdminPaymentsPage />
+          </AdminRouteGuard>
+        )
+      }
+
+      if (pathname === '/admin/refunds') {
+        return (
+          <AdminRouteGuard requiredPermission="refunds.request">
+            <AdminRefundsPage />
+          </AdminRouteGuard>
+        )
+      }
+
       if (pathname === '/admin/settings') {
         return (
           <AdminRouteGuard requiredPermission="settings.manage">
@@ -300,6 +319,12 @@ const AppContent: React.FC = () => {
     const prodMatch = matchPath('/p/:slug', pathname)
     if (prodMatch.matched && prodMatch.params.slug) {
       return <ProductDetailPage productSlug={prodMatch.params.slug} />
+    }
+
+    // Match /payment/:paymentCode
+    const paymentMatch = matchPath('/payment/:paymentCode', pathname)
+    if (paymentMatch.matched && paymentMatch.params.paymentCode) {
+      return <PaymentPage paymentCode={paymentMatch.params.paymentCode} />
     }
 
     // Match /orders/:id/confirmed

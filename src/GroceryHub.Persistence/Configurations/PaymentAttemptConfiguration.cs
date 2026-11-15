@@ -19,6 +19,10 @@ public sealed class PaymentAttemptConfiguration : IEntityTypeConfiguration<Payme
         builder.Property(pa => pa.PaymentId)
             .IsRequired();
 
+        builder.Property(pa => pa.PaymentCode)
+            .HasMaxLength(16)
+            .IsRequired();
+
         builder.Property(pa => pa.AttemptNumber)
             .IsRequired();
 
@@ -30,6 +34,9 @@ public sealed class PaymentAttemptConfiguration : IEntityTypeConfiguration<Payme
             .HasMaxLength(24)
             .IsRequired();
 
+        builder.Property(pa => pa.ExpiresAt)
+            .IsRequired();
+
         builder.Property(pa => pa.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("SYSDATETIMEOFFSET()");
@@ -38,6 +45,14 @@ public sealed class PaymentAttemptConfiguration : IEntityTypeConfiguration<Payme
             .WithMany(p => p.Attempts)
             .HasForeignKey(pa => pa.PaymentId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(pa => pa.PaymentCode)
+            .IsUnique()
+            .HasDatabaseName("UQ_PaymentAttempts_PaymentCode");
+
+        builder.HasIndex(pa => pa.ExpiresAt)
+            .HasFilter("[Status] = 'Open'")
+            .HasDatabaseName("IX_PaymentAttempts_ExpiresAt_Open");
 
         builder.HasIndex(pa => new { pa.PaymentId, pa.CreatedAt })
             .HasDatabaseName("IX_PaymentAttempts_PaymentId_CreatedAt");

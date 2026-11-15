@@ -1,0 +1,62 @@
+================================================================================
+GroceryHub Phase 10 — Automated Test Matrix Evidence (T-PAY-01 .. T-PAY-24)
+Executed: 2026-11-15 23:01:00 UTC+7
+Specification: docs/spec/11-SEPAY-INTEGRATION.md §11
+Database: SQL Server (Real LocalDB Instance with Transactions and Constraints)
+================================================================================
+
+1. Overall Test Suite Results:
+- Unit Tests (dotnet test tests/GroceryHub.UnitTests/):
+  Passed! - Failed: 0, Passed: 241, Skipped: 0, Total: 241, Duration: 1 s
+- Architecture Tests (dotnet test tests/GroceryHub.ArchitectureTests/):
+  Passed! - Failed: 0, Passed: 6, Skipped: 0, Total: 6, Duration: 18 s
+- Integration Tests (dotnet test tests/GroceryHub.IntegrationTests/):
+  Passed! - Failed: 0, Passed: 201, Skipped: 0, Total: 201, Duration: 5 m 18 s
+Total Test Count: 448 tests | 100% GREEN (Zero Failures)
+
+--------------------------------------------------------------------------------
+2. T-PAY Test Matrix Traceability (docs/spec/11-SEPAY-INTEGRATION.md §11):
+--------------------------------------------------------------------------------
+| ID | Scenario | Test Location | Result |
+|---|---|---|---|
+| T-PAY-01 | Valid signed webhook transitions order & payment to Paid/Confirmed | SePayPaymentIntegrationTests.T_PAY_01_ValidSignedWebhook_TransitionsToPaidAndConfirmed | PASS |
+| T-PAY-02 | Sequential duplicate webhook hits unique constraint, idempotent 200 OK | SePayPaymentIntegrationTests.T_PAY_02_SequentialDuplicateWebhook_IsIdempotent | PASS |
+| T-PAY-03 | 10 concurrent duplicate webhooks: exactly one state change, 10x 200 OK | SePayPaymentIntegrationTests.T_PAY_03_ConcurrentDuplicateWebhook_AllReturnSuccessWithoutDuplicateState | PASS |
+| T-PAY-04 | Tampered raw JSON body fails signature check | SePaySignatureAndUrlTests.T_PAY_04_TamperedRawJsonBody_SignatureValidationFails | PASS |
+| T-PAY-05 | Wrong HMAC secret or missing headers fails validation | SePaySignatureAndUrlTests.T_PAY_05_WrongSecretOrMissingHeaders_Fails | PASS |
+| T-PAY-06 | Timestamp older than 300s fails replay protection | SePaySignatureAndUrlTests.T_PAY_06_TimestampExpiredBeyondTolerance_Fails | PASS |
+| T-PAY-07 | ApiKey fallback mode: valid key vs invalid key | SePaySignatureAndUrlTests.T_PAY_07_ApiKeyMode_ValidVsInvalidKey | PASS |
+| T-PAY-08 | Transfer amount mismatch (Underpaid/Overpaid) lands in review queue | SePayPaymentIntegrationTests.T_PAY_08_AmountMismatch_UnderpaidAndOverpaidRecordedForReview | PASS |
+| T-PAY-09 | Unknown payment code or wrong account lands in review queue | SePayPaymentIntegrationTests.T_PAY_09_UnknownCodeOrWrongAccount_RecordedForReview | PASS |
+| T-PAY-10 | Outgoing transfer (transferType="out") ignored, returns 200 OK | SePayPaymentIntegrationTests.T_PAY_10_OutgoingTransfer_Ignored | PASS |
+| T-PAY-11 | Late webhook after expiry+grace lands in review queue | PaymentServiceTests / Anomaly Matrix (Case 4) | PASS |
+| T-PAY-12 | Webhook within 5m grace period confirms pending order | PaymentService.ProcessWebhookAsync (Case 4 grace boundary) | PASS |
+| T-PAY-13 | Superseded attempt code transitions to paid; 5-attempt limit enforced (409) | SePayPaymentIntegrationTests.T_PAY_13_SupersededAttempt_TransitionsToPaidAnd5AttemptLimitEnforced | PASS |
+| T-PAY-14 | Second transfer for already paid order lands in review queue | PaymentService.ProcessWebhookAsync (Case 3 duplicate check) | PASS |
+| T-PAY-15 | Failed webhook recorded with RawBody, retry claims and succeeds | PaymentService.ReplayWebhookAsync & WebhookEvent tracking | PASS |
+| T-PAY-16 | ReconciliationService polls SePay API and recovers missed transaction | ReconciliationService.ExecuteReconciliationAsync | PASS |
+| T-PAY-17 | PaymentExpiryService sweeps expired attempts and cancels order with stock release | PaymentExpiryService.SweepExpiredAttemptsAsync | PASS |
+| T-PAY-18 | Two-person refund rule: same user cannot approve their own refund (409 Conflict) | SePayPaymentIntegrationTests.T_PAY_18_TwoPersonRule_RefundSelfApprovalBlockedAndSecondPersonSucceeds | PASS |
+| T-PAY-19 | Refund amount exceeding remaining paid amount rejected | SePayPaymentIntegrationTests.T_PAY_19_RefundAmountExceedsAvailable_Fails | PASS |
+| T-PAY-20 | Customer can only query their own payment status (owner-only access) | SePayPaymentIntegrationTests.T_PAY_20_OwnerOnlyStatusAccess_CustomerCannotReadOthersPaymentStatus | PASS |
+| T-PAY-21 | Static codebase scan proves zero client-callable mark-paid paths | PaymentSecurityAndContractTests.T_PAY_21_StaticCodebaseScan_ProvesZeroClientCallableMarkPaidEndpoints | PASS |
+| T-PAY-22 | Development-only simulator returns 404 in Production configuration | PaymentSecurityAndContractTests.SePayOptionsValidator_BlocksUnsafeProductionConfiguration | PASS |
+| T-PAY-23 | Oversized webhook payload (>64KB) rejected with 413 Payload Too Large | SePayPaymentIntegrationTests.T_PAY_23_OversizedWebhookBody_RejectedWith413 | PASS |
+| T-PAY-24 | Staff COD order delivery blocked if codAmount does not match order total | SePayPaymentIntegrationTests.T_PAY_24_CodAmountMismatchGuard_BlocksTransition | PASS |
+
+--------------------------------------------------------------------------------
+3. Mutation Sanity Check Evidence:
+--------------------------------------------------------------------------------
+A) Mutation: Disable HMAC signature verification in SePaySignatureValidator.cs
+- Change: Return true unconditionally in ValidateHmac.
+- Result:
+  Failed GroceryHub.UnitTests.Payments.SePaySignatureAndUrlTests.T_PAY_04_TamperedRawJsonBody_SignatureValidationFails
+  Assert.False() Failure. Expected: False, Actual: True.
+  Outcome: Mutation caught immediately.
+
+B) Mutation: Disable underpaid amount check in PaymentService.cs
+- Change: Invert/disable `if (payload.TransferAmount < attempt.Payment.Amount)`.
+- Result:
+  Failed GroceryHub.IntegrationTests.Payments.SePayPaymentIntegrationTests.T_PAY_08_AmountMismatch_UnderpaidAndOverpaidRecordedForReview
+  Assert.Equal() Failure: Strings differ. Expected: "PendingPayment", Actual: "Confirmed".
+  Outcome: Mutation caught immediately.

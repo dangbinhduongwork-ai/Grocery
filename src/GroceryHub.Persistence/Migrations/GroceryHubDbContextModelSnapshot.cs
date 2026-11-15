@@ -1224,6 +1224,14 @@ namespace GroceryHub.Persistence.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PaymentCode")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1234,6 +1242,14 @@ namespace GroceryHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("IX_PaymentAttempts_ExpiresAt_Open")
+                        .HasFilter("[Status] = 'Open'");
+
+                    b.HasIndex("PaymentCode")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PaymentAttempts_PaymentCode");
+
                     b.HasIndex("PaymentId", "CreatedAt")
                         .HasDatabaseName("IX_PaymentAttempts_PaymentId_CreatedAt");
 
@@ -1242,6 +1258,95 @@ namespace GroceryHub.Persistence.Migrations
                             t.HasCheckConstraint("CK_PaymentAttempts_Amount", "[Amount] > 0");
 
                             t.HasCheckConstraint("CK_PaymentAttempts_Status", "[Status] IN ('Open', 'Paid', 'Expired', 'Superseded')");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PaymentTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("Gateway")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("MatchStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<Guid?>("PaymentAttemptId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferenceCode")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ResolutionNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ResolvedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReviewStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<DateTimeOffset>("TransactionTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("WebhookEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentAttemptId")
+                        .HasDatabaseName("IX_PaymentTransactions_PaymentAttemptId");
+
+                    b.HasIndex("ReferenceCode")
+                        .HasDatabaseName("IX_PaymentTransactions_ReferenceCode");
+
+                    b.HasIndex("ResolvedBy");
+
+                    b.HasIndex("ReviewStatus")
+                        .HasDatabaseName("IX_PaymentTransactions_ReviewStatus");
+
+                    b.HasIndex("WebhookEventId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PaymentTransactions_WebhookEventId");
+
+                    b.ToTable("PaymentTransactions", "payments", t =>
+                        {
+                            t.HasCheckConstraint("CK_PaymentTransactions_Amount", "[Amount] >= 0");
+
+                            t.HasCheckConstraint("CK_PaymentTransactions_Direction", "[Direction] IN ('in', 'out')");
+
+                            t.HasCheckConstraint("CK_PaymentTransactions_ReviewStatus", "[ReviewStatus] IN ('None', 'NeedsReview', 'Resolved')");
                         });
                 });
 
@@ -1770,6 +1875,86 @@ namespace GroceryHub.Persistence.Migrations
                     b.HasIndex("UserId", "ExpiresAt");
 
                     b.ToTable("RefreshTokens", "identity");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Refund", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("BankReference")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CompletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DecidedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<Guid>("RequestedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompletedBy");
+
+                    b.HasIndex("DecidedBy");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("IX_Refunds_OrderId");
+
+                    b.HasIndex("PaymentId")
+                        .HasDatabaseName("IX_Refunds_PaymentId");
+
+                    b.HasIndex("RequestedBy");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Refunds_Status");
+
+                    b.ToTable("Refunds", "payments", t =>
+                        {
+                            t.HasCheckConstraint("CK_Refunds_Amount", "[Amount] > 0");
+
+                            t.HasCheckConstraint("CK_Refunds_Status", "[Status] IN ('Requested', 'Approved', 'Rejected', 'Completed')");
+
+                            t.HasCheckConstraint("CK_Refunds_TwoPersonRule", "[DecidedBy] IS NULL OR [DecidedBy] <> [RequestedBy]");
+                        });
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Review", b =>
@@ -2549,6 +2734,66 @@ namespace GroceryHub.Persistence.Migrations
                     b.ToTable("Wards", "shared");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.WebhookEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DeliveryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset?>("ProcessedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ProcessingStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("ProviderTransactionId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("RawBody")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<bool>("SignatureValid")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcessingStatus", "ReceivedAt")
+                        .HasDatabaseName("IX_WebhookEvents_ProcessingStatus_ReceivedAt");
+
+                    b.HasIndex("Provider", "ProviderTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_WebhookEvents_Provider_ProviderTransactionId");
+
+                    b.ToTable("WebhookEvents", "payments", t =>
+                        {
+                            t.HasCheckConstraint("CK_WebhookEvents_ProcessingStatus", "[ProcessingStatus] IN ('Received', 'Processed', 'Ignored', 'Failed')");
+                        });
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Address", b =>
                 {
                     b.HasOne("GroceryHub.Persistence.Entities.User", "User")
@@ -2728,6 +2973,31 @@ namespace GroceryHub.Persistence.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PaymentTransaction", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.PaymentAttempt", "PaymentAttempt")
+                        .WithMany("Transactions")
+                        .HasForeignKey("PaymentAttemptId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GroceryHub.Persistence.Entities.User", "Resolver")
+                        .WithMany()
+                        .HasForeignKey("ResolvedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GroceryHub.Persistence.Entities.WebhookEvent", "WebhookEvent")
+                        .WithOne("Transaction")
+                        .HasForeignKey("GroceryHub.Persistence.Entities.PaymentTransaction", "WebhookEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PaymentAttempt");
+
+                    b.Navigation("Resolver");
+
+                    b.Navigation("WebhookEvent");
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Product", b =>
                 {
                     b.HasOne("GroceryHub.Persistence.Entities.Brand", "Brand")
@@ -2799,6 +3069,47 @@ namespace GroceryHub.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Refund", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.User", "Completer")
+                        .WithMany()
+                        .HasForeignKey("CompletedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GroceryHub.Persistence.Entities.User", "Decider")
+                        .WithMany()
+                        .HasForeignKey("DecidedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GroceryHub.Persistence.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GroceryHub.Persistence.Entities.Payment", "Payment")
+                        .WithMany("Refunds")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GroceryHub.Persistence.Entities.User", "Requester")
+                        .WithMany()
+                        .HasForeignKey("RequestedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Completer");
+
+                    b.Navigation("Decider");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Review", b =>
@@ -3003,6 +3314,13 @@ namespace GroceryHub.Persistence.Migrations
                     b.Navigation("Attempts");
 
                     b.Navigation("CodCollections");
+
+                    b.Navigation("Refunds");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PaymentAttempt", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Permission", b =>
@@ -3064,6 +3382,11 @@ namespace GroceryHub.Persistence.Migrations
                     b.Navigation("UserPermissions");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.WebhookEvent", b =>
+                {
+                    b.Navigation("Transaction");
                 });
 #pragma warning restore 612, 618
         }
