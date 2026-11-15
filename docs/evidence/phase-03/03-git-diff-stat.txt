@@ -1,0 +1,19 @@
+﻿ docs/progress/TRACEABILITY.md                      |  160 +-
+ docs/progress/phase-03-plan.md                     |   20 +
+ docs/security/review-phase-03.md                   |  131 ++
+ docs/spec/05-SYSTEM-ARCHITECTURE.md                |  298 ++--
+ docs/spec/06-DATABASE-ERD.md                       | 1612 ++++++++++++++++++--
+ docs/spec/07-API-SPECIFICATION.md                  |  563 +++++--
+ docs/spec/11-SEPAY-INTEGRATION.md                  |  651 ++++++--
+ docs/spec/adr/ADR-001-modular-monolith.md          |   78 +
+ docs/spec/adr/ADR-002-single-dbcontext-schemas.md  |   69 +
+ docs/spec/adr/ADR-003-auth-tokens-cookies.md       |   80 +
+ docs/spec/adr/ADR-004-no-mediator-mapper-libs.md   |   64 +
+ docs/spec/adr/ADR-005-contract-first-openapi.md    |   57 +
+ docs/spec/adr/ADR-006-error-model.md               |   94 ++
+ docs/spec/adr/ADR-007-time-money-id-conventions.md |   71 +
+ docs/spec/events.md                                |  386 +++++
+ docs/spec/module-contracts.md                      |  815 ++++++++++
+ docs/spec/permissions-seed.md                      |   73 +
+ docs/spec/state-machines.md                        |  261 ++++
+ 18 files changed, 4878 insertions(+), 605 deletions(-)

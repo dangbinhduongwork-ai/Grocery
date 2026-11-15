@@ -1,0 +1,94 @@
+﻿=== PHASE 03 VERIFICATION: 5 ENDPOINT TRACES & 3 REQUIREMENT TRACES ===
+Timestamp: 2026-11-15T11:03:45.3329337+07:00
+
+--- PART A: 5 ENDPOINT TRACES (Endpoint -> Contract -> Table -> Permission) ---
+### 1. POST /checkout/orders
+  [07-API-SPECIFICATION.md]:
+    34:- **Idempotency (`ADR-006`, `docs/spec/events.md` §2):** Header `Idempotency-Key: <uuid>` is mandatory on `POST /checkout/orders` and `POST /me/orders/{id}/payment-attempts`. Same key + same request hash returns the stored response; same key + different request hash returns `409 IDEMPOTENCY_KEY_REUSED`.
+    38:  - `checkout` policy: `10 req / min` per authenticated user (`/checkout/orders`, `/me/orders/{id}/payment-attempts`).
+    175:| `POST` | `/checkout/orders` | `Ordering` | `auth` + `Idempotency-Key` (`checkout` rate limit) | `{ addressId: uuid, couponCode?: string, paymentMethod: "COD" \| "SEPAY_QR", note?: string }` | `201 Created`: `PlaceOrderResponseDto` (`{ order: OrderSummaryDto, payment: OrderPaymentViewDto }`; see §6.2) | `IDEMPOTENCY_KEY_REUSED`, `CART_EMPTY`, `PRODUCT_UNAVAILABLE`, `INSUFFICIENT_STOCK`, `QUANTITY_LIMIT_EXCEEDED`, `ADDRESS_NOT_SERVICEABLE`, `COUPON_*`, `COD_LIMIT_EXCEEDED`, `PAYMENT_METHOD_UNAVAILABLE`, `RATE_LIMITED` |
+    371:### 6.2 `POST /api/v1/checkout/orders` (`SEPAY_QR` -> `201 Created`)
+  [module-contracts.md]:
+  [06-DATABASE-ERD.md]:
+    12:  3. **Concurrency Tokens:** Aggregates subject to concurrent mutation (`catalog.Products`, `inventory.StockItems`, `promotions.Coupons`, `ordering.Orders`, `payments.Payments`) include `RowVersion rowversion NOT NULL` (`IsRowVersion()`).
+    118:| `ordering.Orders.Status` | `nvarchar(24)` | `'PendingPayment'`, `'Placed'`, `'Confirmed'`, `'Preparing'`, `'Packed'`, `'Shipping'`, `'Delivered'`, `'DeliveryFailed'`, `'Cancelled'` | `BR-08`, `DEC-011` (`Q-006`) |
+    119:| `ordering.Orders.PaymentMethod` | `nvarchar(24)` | `'COD'`, `'SEPAY_QR'` | `BR-06` |
+    120:| `ordering.Orders.PaymentStatus` | `nvarchar(24)` | `'Unpaid'`, `'Pending'`, `'Paid'`, `'Failed'`, `'Expired'`, `'PartiallyRefunded'`, `'Refunded'` | `BR-08` |
+  [permissions-seed.md]:
+    14:| `Customer` | `CUSTOMER` | Yes | Registered storefront shopper. Zero admin/staff permissions (`RolePermissions` is empty). Access to `/me/*`, `/cart/*`, `/checkout/*`, and `/payments/{code}/status` is governed by `auth` policy + strict object-ownership checks (`UserId == CurrentUser.Id`). |
+    20:> **Guest (Unauthenticated):** Not a database role. Endpoints accessible to Guests explicitly declare `.AllowAnonymous()` (enforced by Architecture Test #3 in `docs/spec/05-SYSTEM-ARCHITECTURE.md` §15). Guest carts use the `gh_cart` `HttpOnly; Secure; SameSite=Lax` cookie; coupon application (`POST/DELETE /cart/coupon`) and checkout (`POST /checkout/*`) require an authenticated `Customer` (`DEC-011` / `Q-008`, `BR-14`).
+    31:| 2 | `catalog.write` | `Catalog` | – | ✓ | ✓ | Yes | Create/update products, categories, brands, product images, and publish/hide status (`FR-ADM-002`, `FR-ADM-003`). Restricted to Manager/Admin to prevent unauthorized catalog tampering. |
+
+### 2. POST /payments/sepay/webhook
+  [07-API-SPECIFICATION.md]:
+    187:| `POST` | `/payments/sepay/webhook` | `Payments` | `anon` + HMAC (`X-SePay-Signature` + `X-SePay-Timestamp`) or `Authorization: Apikey` | `SePayWebhookPayloadDto` (`{ id, gateway, transactionDate, accountNumber, subAccount?, code?, content, transferType, description?, transferAmount, accumulated, referenceCode? }`) | `200 OK`: `{"success": true}` (or `401 {"success": false}` on auth failure per Spec 11 §5) | `401` (invalid HMAC/timestamp/API key), `400` (invalid JSON), `413` (`>64KB`), `500` (transient DB error -> SePay retry) |
+  [module-contracts.md]:
+    21:   - `GroceryHub.Modules.Ordering` references `GroceryHub.Modules.Payments.Contracts` and calls `IPaymentService` (to create payments and QR payment attempts during checkout or retry).
+    49:| 8 | `Ordering` | `Cart.Contracts`, `Catalog.Contracts`, `Inventory.Contracts`, `Promotions.Contracts`, `Customers.Contracts`, `Payments.Contracts`, `Audit.Contracts` | `ICartCheckoutContract`, `ICatalogProductContract`, `IInventoryReservationContract`, `IPromotionCouponContract`, `ICustomerAddressContract`, `IPaymentService`, `IAuditLogPort` | Orchestrate checkout quote & order placement, reserve/release/commit stock, redeem/release coupons, snapshot delivery address, initialize `Payment`/`PaymentAttempt`, and audit cancellations/settings |
+    700:public interface IPaymentService
+  [06-DATABASE-ERD.md]:
+    124:| `payments.WebhookEvents.ProcessingStatus` | `nvarchar(24)` | `'Received'`, `'Processing'`, `'Processed'`, `'Ignored'`, `'Failed'` | Spec 11 §5.4 |
+    1075:#### `payments.WebhookEvents`
+    1104:| `WebhookEventId` | `uniqueidentifier` | `NOT NULL` | — | `UQ_PaymentTransactions_WebhookEventId`, `FK_PaymentTransactions_WebhookEvents` → `payments.WebhookEvents(Id)` |
+    1127:  - `FK_PaymentTransactions_WebhookEvents FOREIGN KEY (WebhookEventId) REFERENCES payments.WebhookEvents(Id) ON DELETE NO ACTION`
+  [permissions-seed.md]:
+    17:| `Admin` | `ADMIN` | Yes | System owner. Seeded with **all 29 permissions** (`RolePermissions`) and manages staff accounts (`staff.manage`), role permission assignments (`roles.manage`), customer PII anonymization, and store/SePay/shipping settings (`settings.manage`). |
+    47:| 18 | `staff.manage` | `Staff` | – | – | ✓ | No | Create/disable `Manager` or `Staff` accounts, assign roles/extra permissions (`PUT /admin/staff/{id}/roles|permissions`), and execute customer PII anonymization (`POST /admin/customers/{id}/anonymize`) (`FR-ADM-009`, `NFR-010`, `T-ID-03`). Strictly Admin-only. |
+
+### 3. PUT /admin/products/{id}/price
+  [07-API-SPECIFICATION.md]:
+    204:| `PUT` | `/admin/products/{id}/price` | `Catalog` | `catalog.price.write` (`If-Match`) | `{ listPrice: number, sellingPrice: number, reason: string }` (`0 <= sellingPrice <= listPrice` per `BR-01`) | `200 OK`: `{ id: uuid, listPrice: number, sellingPrice: number, rowVersion: string }` (writes `ProductPriceHistory` + `AuditLogs`) | `VALIDATION_FAILED`, `CONCURRENCY_CONFLICT`, `NOT_FOUND`, `FORBIDDEN` |
+  [module-contracts.md]:
+  [06-DATABASE-ERD.md]:
+    485:#### `catalog.ProductPriceHistory`
+  [permissions-seed.md]:
+    32:| 3 | `catalog.price.write` | `Catalog` | – | ✓ | ✓ | No | Update `ListPrice` and `SellingPrice` (`PUT /admin/products/{id}/price`). Separated from `catalog.write` because price changes directly affect revenue and write to `catalog.ProductPriceHistory` + `audit.AuditLogs` (`BR-01`, `FR-ADM-004`). |
+
+### 4. POST /admin/goods-receipts
+  [07-API-SPECIFICATION.md]:
+    243:| `GET` | `/admin/goods-receipts` | `Purchasing` | `purchasing.read` | Query: `supplierId?, purchaseOrderId?, from?, to?, page=1, pageSize=24` | `200 OK`: `PagedResponse<GoodsReceiptSummaryDto>` | `FORBIDDEN` |
+    244:| `GET` | `/admin/goods-receipts/{id}` | `Purchasing` | `purchasing.read` | Route: `id (uuid)` | `200 OK`: `GoodsReceiptDetailDto` | `NOT_FOUND`, `FORBIDDEN` |
+    245:| `POST` | `/admin/goods-receipts` | `Purchasing` | `purchasing.receive` | `{ purchaseOrderId?: uuid, supplierId: uuid, invoiceNo: string, note?: string, lines: { productId: uuid, quantity: int, unitCost: number, expiryDate?: date, batchNo?: string }[] }` | `201 Created`: `GoodsReceiptDetailDto` (immutable; increases `OnHand` and updates moving-average `CostPrice` per `BR-01`, `BR-11`) | `PO_INVALID_STATE`, `VALIDATION_FAILED`, `NOT_FOUND`, `FORBIDDEN` |
+  [module-contracts.md]:
+  [06-DATABASE-ERD.md]:
+    696:#### `purchasing.GoodsReceipts`
+    727:| `GoodsReceiptId` | `uniqueidentifier` | `NOT NULL` | — | `FK_GoodsReceiptLines_GoodsReceipts` → `purchasing.GoodsReceipts(Id)` |
+    737:  - `FK_GoodsReceiptLines_GoodsReceipts FOREIGN KEY (GoodsReceiptId) REFERENCES purchasing.GoodsReceipts(Id) ON DELETE CASCADE`
+  [permissions-seed.md]:
+    15:| `Staff` | `STAFF` | Yes | Warehouse picker, packer, and delivery operator. Can read catalog/inventory/purchasing/customers, process and ship orders, cancel unpaid early-stage orders (`PendingPayment`/`Placed`/`Confirmed` per `DEC-011`/`Q-006`), and request refunds (`refunds.request`). May receive per-user extra permission `purchasing.receive` via `identity.UserPermissions`. |
+    38:| 9 | `purchasing.receive` | `Purchasing` | *Grant per user* | ✓ | ✓ | **Yes (Staff)** | Post immutable `GoodsReceipts` (`POST /admin/goods-receipts`) which increase `OnHand` and recompute moving-average `CostPrice` (`FR-STF-005`, `BR-01`, `BR-11`). Granted by default to Manager/Admin and selectively granted via `UserPermissions` to designated receiving Staff. |
+
+### 5. POST /admin/refunds/{id}/approve
+  [07-API-SPECIFICATION.md]:
+    288:| `POST` | `/admin/refunds/{id}/approve` | `Payments` | `refunds.approve` | `{ note?: string }` (`CurrentUser.Id != RequestedBy` per `BR-15`) | `200 OK`: `RefundDto` (`Status = Approved`) | `REFUND_SAME_APPROVER` (`409`), `REFUND_INVALID_AMOUNT`, `CONFLICT`, `NOT_FOUND`, `FORBIDDEN` |
+  [module-contracts.md]:
+    21:   - `GroceryHub.Modules.Ordering` references `GroceryHub.Modules.Payments.Contracts` and calls `IPaymentService` (to create payments and QR payment attempts during checkout or retry).
+    49:| 8 | `Ordering` | `Cart.Contracts`, `Catalog.Contracts`, `Inventory.Contracts`, `Promotions.Contracts`, `Customers.Contracts`, `Payments.Contracts`, `Audit.Contracts` | `ICartCheckoutContract`, `ICatalogProductContract`, `IInventoryReservationContract`, `IPromotionCouponContract`, `ICustomerAddressContract`, `IPaymentService`, `IAuditLogPort` | Orchestrate checkout quote & order placement, reserve/release/commit stock, redeem/release coupons, snapshot delivery address, initialize `Payment`/`PaymentAttempt`, and audit cancellations/settings |
+    700:public interface IPaymentService
+  [06-DATABASE-ERD.md]:
+    128:| `payments.Refunds.Status` | `nvarchar(24)` | `'Requested'`, `'Approved'`, `'Rejected'`, `'Completed'` | `BR-15`, Spec 11 §8 |
+    1138:#### `payments.Refunds`
+    1415:  - Shipping fees (`SUM(o.ShippingFee)`) and completed refunds (`payments.Refunds WHERE Status = 'Completed'`) are queried in separate aggregate queries per `BR-13` to avoid fan-out multiplication across `OrderItems`.
+  [permissions-seed.md]:
+    16:| `Manager` | `MANAGER` | Yes | Store operations manager. Has all `Staff` permissions plus catalog/price/cost management, manual stock adjustment, PO creation & goods receipt, late/paid order cancellation (`orders.cancel`), customer lock/unlock, staff read, payment anomaly review (`payments.review`), refund approval (`refunds.approve` with `RequestedBy != DecidedBy`), promotions, review moderation, revenue/profit reports, and audit log viewing. May receive per-user `staff.create` via `identity.UserPermissions`. |
+    52:| 23 | `refunds.approve` | `Payments` | – | ✓ | ✓ | No | Approve, reject, or mark completed a refund (`POST /admin/refunds/{id}/approve|reject|complete`). Enforces **Four-Eyes Rule (`BR-15`, `T-ADM-03`)**: `DecidedBy != RequestedBy` (otherwise returns `409 REFUND_SAME_APPROVER`). |
+
+--- PART B: 3 REQUIREMENT TRACES (Requirement -> Module -> Phase in TRACEABILITY.md) ---
+### Requirement FR-CUS-009
+  [02-PROJECT-REQUIREMENTS.md]:
+    27:| FR-CUS-009 | Checkout: select address, shipping fee quote, coupon, payment method (COD / SePay QR), order review, place order idempotently. | M |
+  [TRACEABILITY.md]:
+    19:| FR-CUS-009 | M | Checkout: address, shipping quote, coupon, payment method (COD / SePay QR), idempotent order placement | `Ordering`, `Cart`, `Inventory`, `Promotions`, `Payments`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
+
+### Requirement FR-ADM-006
+  [02-PROJECT-REQUIREMENTS.md]:
+    46:| FR-ADM-006 | Purchasing: suppliers CRUD, purchase orders, goods receipt (qty, unit cost, invoice no., expiry date), cost update (moving average). | M |
+  [TRACEABILITY.md]:
+    39:| FR-ADM-006 | M | Purchasing: suppliers CRUD, POs, goods receipt, moving-average cost update | `Purchasing`, `Inventory`, `Catalog`, `Audit`, `web/admin` | 06, 09 | — | — | — | NotStarted |
+
+### Requirement BR-15
+  [02-PROJECT-REQUIREMENTS.md]:
+    86:| BR-15 | A refund requires: request (reason, amount ≤ paid) → approval by a different user with `refunds.approve` → manual bank transfer → completion with bank reference. |
+  [TRACEABILITY.md]:
+    81:| BR-15 | 4-step refund workflow with four-eyes approval (`refunds.approve` != requester) | `Payments`, `Audit` | 10 | — | — | — | NotStarted |
+
