@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: "web/**/*.ts, web/**/*.tsx, web/**/*.json, web/**/*.css"
+globs: "**/web/**/*.ts, **/web/**/*.tsx, **/web/**/*.json, **/web/**/*.css"
 description: "Frontend rules: React 19, TypeScript strict, Vite, TanStack, shadcn/ui, API client."
 ---
 

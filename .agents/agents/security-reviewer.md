@@ -3,6 +3,7 @@ name: security-reviewer
 description: Independent application-security reviewer for GroceryHub. Use after a feature or phase to audit authentication, authorization (object-level and role/permission), input validation, payment/webhook integrity, secrets, uploads, headers/CSP, dependencies and Docker configuration. Reports findings with severity and reproduction; does not fix application code.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/security-review
   - skills/wf-security-review

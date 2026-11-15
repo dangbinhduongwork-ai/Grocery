@@ -3,6 +3,7 @@ name: qa-engineer
 description: QA and test automation engineer for GroceryHub. Use to design test plans, write integration tests (Testcontainers SQL Server), API tests, Playwright E2E flows, concurrency and idempotency tests, accessibility checks, and to independently verify that features claimed done really work.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/testing-qa
   - skills/wf-code-review

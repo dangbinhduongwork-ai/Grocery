@@ -3,6 +3,7 @@ name: frontend-developer
 description: Senior React 19 + TypeScript engineer for GroceryHub. Use to implement storefront and admin pages, routing, data fetching, forms, cart/checkout UI, payment QR page, admin tables and dashboards from the design system and the OpenAPI contract.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/react-frontend
   - skills/ui-ux-design

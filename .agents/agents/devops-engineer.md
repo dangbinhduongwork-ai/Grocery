@@ -3,6 +3,7 @@ name: devops-engineer
 description: DevOps engineer for GroceryHub. Use for Dockerfiles, docker-compose (dev and production), reverse proxy/TLS, environment configuration and secrets handling, SQL Server container, migrations bundle, health checks, CI workflows on GitHub Actions, backups and deployment runbooks.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/docker-devops
   - skills/security-review

@@ -3,6 +3,7 @@ name: payment-specialist
 description: Payments engineer for GroceryHub. Use for the SePay VietQR integration: payment creation, QR URL, webhook authentication, validation, idempotency, late/duplicate/mismatched transactions, reconciliation, COD handling and refund workflow, plus test/production configuration.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/sepay-integration
   - skills/dotnet-api

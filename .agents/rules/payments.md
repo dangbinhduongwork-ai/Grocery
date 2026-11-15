@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: "src/GroceryHub.Modules.Payments/**, src/**/Payments/**, web/**/payment/**, web/**/checkout/**"
+globs: "**/src/GroceryHub.Modules.Payments/**, **/src/**/Payments/**, **/web/**/payment/**, **/web/**/checkout/**"
 description: "Rules for the SePay payment flow, webhook, idempotency, refunds."
 ---
 

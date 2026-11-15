@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: "src/**/*.cs, tests/**/*.cs, **/*.csproj, Directory.Build.props, Directory.Packages.props"
+globs: "**/src/**/*.cs, **/tests/**/*.cs, **/*.csproj, **/Directory.Build.props, **/Directory.Packages.props"
 description: "Backend (C#/.NET 10/ASP.NET Core) coding rules for GroceryHub modular monolith."
 ---
 

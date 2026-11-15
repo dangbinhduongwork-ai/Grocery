@@ -1,0 +1,38 @@
+﻿=== PHASE 02 FRONTMATTER AUDIT (POST-FIX) ===
+Timestamp: 2026-11-15T10:37:24.9346746+07:00
+
+--- 1. .agents/rules (7 files) ---
+Rule: backend.md | trigger=glob (valid=True) | hasDesc=True | globs="**/src/**/*.cs, **/tests/**/*.cs, **/*.csproj, **/Directory.Build.props, **/Directory.Packages.props"
+Rule: database.md | trigger=glob (valid=True) | hasDesc=True | globs="**/src/**/Infrastructure/**/*.cs, **/src/**/Migrations/**, **/*.sql, **/deploy/**/*.sql"
+Rule: frontend.md | trigger=glob (valid=True) | hasDesc=True | globs="**/web/**/*.ts, **/web/**/*.tsx, **/web/**/*.json, **/web/**/*.css"
+Rule: payments.md | trigger=glob (valid=True) | hasDesc=True | globs="**/src/GroceryHub.Modules.Payments/**, **/src/**/Payments/**, **/web/**/payment/**, **/web/**/checkout/**"
+Rule: security.md | trigger=always_on (valid=True) | hasDesc=True | globs=NONE
+Rule: testing.md | trigger=model_decision (valid=True) | hasDesc=True | globs=NONE
+Rule: ui-ux.md | trigger=model_decision (valid=True) | hasDesc=True | globs=NONE
+
+--- 2. .agents/skills (14 folders) ---
+Skill: docker-devops/SKILL.md | name=docker-devops | hasDesc=True
+Skill: dotnet-api/SKILL.md | name=dotnet-api | hasDesc=True
+Skill: ecommerce-business/SKILL.md | name=ecommerce-business | hasDesc=True
+Skill: efcore-sqlserver/SKILL.md | name=efcore-sqlserver | hasDesc=True
+Skill: react-frontend/SKILL.md | name=react-frontend | hasDesc=True
+Skill: security-review/SKILL.md | name=security-review | hasDesc=True
+Skill: sepay-integration/SKILL.md | name=sepay-integration | hasDesc=True
+Skill: testing-qa/SKILL.md | name=testing-qa | hasDesc=True
+Skill: ui-ux-design/SKILL.md | name=ui-ux-design | hasDesc=True
+Skill: wf-bug-fix/SKILL.md | name=wf-bug-fix | hasDesc=True
+Skill: wf-code-review/SKILL.md | name=wf-code-review | hasDesc=True
+Skill: wf-progress-review/SKILL.md | name=wf-progress-review | hasDesc=True
+Skill: wf-security-review/SKILL.md | name=wf-security-review | hasDesc=True
+Skill: wf-ui-review/SKILL.md | name=wf-ui-review | hasDesc=True
+
+--- 3. .agents/agents (9 files) ---
+Agent: backend-developer.md | name=backend-developer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: database-engineer.md | name=database-engineer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: devops-engineer.md | name=devops-engineer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: frontend-developer.md | name=frontend-developer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: payment-specialist.md | name=payment-specialist | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: project-manager.md | name=project-manager | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: qa-engineer.md | name=qa-engineer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: security-reviewer.md | name=security-reviewer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]
+Agent: ui-ux-designer.md | name=ui-ux-designer | subagent=true | tools=[read_file, edit_file, write_file, run_command, manage_task, search_web]

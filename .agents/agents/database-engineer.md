@@ -3,6 +3,7 @@ name: database-engineer
 description: SQL Server and EF Core 10 specialist for GroceryHub. Use for the DbContext, entity configurations, migrations, indexes, constraints, seeding of reference data, concurrency control for stock/orders, performance of queries and backup/restore scripts.
 mainAgent: false
 subagent: true
+tools: [read_file, edit_file, write_file, run_command, manage_task, search_web]
 skills:
   - skills/efcore-sqlserver
   - skills/ecommerce-business
