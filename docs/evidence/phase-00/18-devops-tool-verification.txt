@@ -1,0 +1,17 @@
+﻿=== winget search Microsoft.DotNet.SDK.10 ===
+Name                    Id                      Version
+--------------------------------------------------------
+Microsoft .NET SDK 10.0 Microsoft.DotNet.SDK.10 10.0.404
+
+=== winget search Docker.DockerDesktop ===
+Name           Id                   Version
+-------------------------------------------
+Docker Desktop Docker.DockerDesktop 4.99.0
+
+=== winget search BurntSushi.ripgrep.MSVC ===
+Name         Id                      Version
+--------------------------------------------
+RipGrep MSVC BurntSushi.ripgrep.MSVC 15.2.0
+
+=== wsl --status ===
+

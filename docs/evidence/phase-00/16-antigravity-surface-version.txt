@@ -1,0 +1,2 @@
+﻿package.json name: Antigravity IDE, version: 1.107.0
+product.json nameLong: Antigravity IDE, version: 1.107.0, ideVersion: 2.7.0, release: , commit: 71bedb45923debaf49871bdcb7c7d3a47918e247

@@ -1,0 +1,5 @@
+﻿Command: npm --version
+ExitCode: 0
+Output:
+11.6.2
+

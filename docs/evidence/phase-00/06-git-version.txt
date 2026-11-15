@@ -1,0 +1,5 @@
+﻿Command: git --version
+ExitCode: 0
+Output:
+git version 2.55.0.windows.5
+

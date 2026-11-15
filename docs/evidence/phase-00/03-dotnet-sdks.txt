@@ -1,0 +1,5 @@
+﻿Command: dotnet --list-sdks
+ExitCode: 0
+Output:
+9.0.316 [C:\Program Files\dotnet\sdk]
+

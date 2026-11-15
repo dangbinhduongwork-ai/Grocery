@@ -1,0 +1,71 @@
+# Ignore Visual Studio / .NET build artifacts
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+publish/
+coverage/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Node / Frontend (web/)
+node_modules/
+web/dist/
+web/dist-ssr/
+web/.tanstack/
+web/playwright-report/
+web/test-results/
+web/blob-report/
+web/playwright/.cache/
+*.tsbuildinfo
+.npm/
+.eslintcache
+.vite/
+
+# Environment & Secrets (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+*.pfx
+*.pem
+*.key
+*.crt
+secrets/
+
+# Docker & Local Runtime Data
+docker-data/
+sql-data/
+product-images/
+uploads/
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Temporary scratch files
+tmp/
+temp/
+*.tmp
+*.bak

@@ -1,0 +1,16 @@
+﻿=== git log --oneline -n 5 ===
+5335a45 chore(phase-00): initialize project structure, environment audit, and progress tracking
+4aaf402 chore: initial commit with specs, phase prompts, agents, rules, and skills
+
+=== git status ===
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+
+=== scripts/verify-reality.ps1 ===
+WARNING: 'rg' is not in system PATH; using local binary: C:\Users\Admin\AppData\Local\Programs\Antigravity IDE\resources\app\node_modules\@vscode\ripgrep\bin\rg.exe (Install globally via: winget install --id BurntSushi.ripgrep.MSVC --exact)
+verify-reality: no violations
+
+VerifyRealityExitCode: 0

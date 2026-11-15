@@ -1,0 +1,29 @@
+﻿=== winget --version ===
+v1.29.380
+
+
+=== agy --version (if in PATH) ===
+agy not in PATH: The term 'agy' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+=== Local SQL Server Services ===
+
+Name                        Status DisplayName                             
+----                        ------ -----------                             
+MSSQL$MSSQLSERVER01        Stopped SQL Server (MSSQLSERVER01)              
+MSSQL$MSSQLSERVER02        Stopped SQL Server (MSSQLSERVER02)              
+MSSQL$SQLEXPRESS           Stopped SQL Server (SQLEXPRESS)                 
+MSSQLSERVER                Stopped SQL Server (MSSQLSERVER)                
+postgresql-x64-16          Running postgresql-x64-16 - PostgreSQL Server 16
+SQLAgent$MSSQLSERVER01     Stopped SQL Server Agent (MSSQLSERVER01)        
+SQLAgent$MSSQLSERVER02     Stopped SQL Server Agent (MSSQLSERVER02)        
+SQLAgent$SQLEXPRESS        Stopped SQL Server Agent (SQLEXPRESS)           
+SQLBrowser                 Stopped SQL Server Browser                      
+SQLSERVERAGENT             Stopped SQL Server Agent (MSSQLSERVER)          
+SQLTELEMETRY               Running SQL Server CEIP service (MSSQLSERVER)   
+SQLTELEMETRY$MSSQLSERVER01 Running SQL Server CEIP service (MSSQLSERVER01) 
+SQLTELEMETRY$MSSQLSERVER02 Running SQL Server CEIP service (MSSQLSERVER02) 
+SQLTELEMETRY$SQLEXPRESS    Running SQL Server CEIP service (SQLEXPRESS)    
+SQLWriter                  Running SQL Server VSS Writer                   
+
+
+

@@ -1,0 +1,29 @@
+﻿=== OS & Shell ===
+OS Caption: Microsoft Windows 10 Pro
+OS Version: 10.0.19045 (Build 19045)
+Architecture: 64-bit
+PowerShell Version: 5.1.19041.6456 (Desktop)
+
+=== Memory (RAM) ===
+Total Visible RAM: 31.91 GB
+Free Physical RAM: 16.47 GB
+
+=== Disk Space ===
+
+Name UsedGB FreeGB
+---- ------ ------
+C    181.53  56.34
+D    155.67 352.02
+E     169.7 254.12
+
+
+
+
+=== Ports Check (1433, 5173, 8080, 8025) ===
+Port 1433: FREE
+Port 5173: FREE
+Port 8080: FREE
+Port 8025: FREE
+
+=== Check common install locations for Docker / Ripgrep ===
+Docker Desktop path exists (C:\Program Files\Docker\Docker\resources\bin\docker.exe): False

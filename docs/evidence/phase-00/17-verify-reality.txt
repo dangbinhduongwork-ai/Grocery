@@ -1,0 +1,6 @@
+﻿Command: powershell -ExecutionPolicy Bypass -File scripts/verify-reality.ps1
+ExitCode: 0
+Output:
+WARNING: 'rg' is not in system PATH; using local binary: C:\Users\Admin\AppData\Local\Programs\Antigravity IDE\resources\app\node_modules\@vscode\ripgrep\bin\rg.exe (Install globally via: winget install --id BurntSushi.ripgrep.MSVC --exact)
+verify-reality: no violations
+

@@ -1,0 +1,2 @@
+﻿C:\Program Files\Azure Data Studio\resources\app\node_modules.asar.unpacked\@vscode\ripgrep\bin\rg.exe
+C:\Users\Admin\AppData\Local\Programs\Antigravity IDE\resources\app\node_modules\@vscode\ripgrep\bin\rg.exe

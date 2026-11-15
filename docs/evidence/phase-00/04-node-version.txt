@@ -1,0 +1,5 @@
+﻿Command: node --version
+ExitCode: 0
+Output:
+v24.11.1
+

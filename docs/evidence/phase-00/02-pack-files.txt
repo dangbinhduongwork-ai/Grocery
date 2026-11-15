@@ -1,0 +1,62 @@
+﻿=== AGENTS.md ===
+Exists: True
+
+=== .agents/rules (*.md) ===
+Count: 7
+backend.md
+database.md
+frontend.md
+payments.md
+security.md
+testing.md
+ui-ux.md
+
+=== .agents/skills (*/SKILL.md) ===
+Folder Count: 14
+SKILL.md Count: 14
+docker-devops/SKILL.md
+dotnet-api/SKILL.md
+ecommerce-business/SKILL.md
+efcore-sqlserver/SKILL.md
+react-frontend/SKILL.md
+security-review/SKILL.md
+sepay-integration/SKILL.md
+testing-qa/SKILL.md
+ui-ux-design/SKILL.md
+wf-bug-fix/SKILL.md
+wf-code-review/SKILL.md
+wf-progress-review/SKILL.md
+wf-security-review/SKILL.md
+wf-ui-review/SKILL.md
+
+=== .agents/agents (*.md) ===
+Count: 9
+backend-developer.md
+database-engineer.md
+devops-engineer.md
+frontend-developer.md
+payment-specialist.md
+project-manager.md
+qa-engineer.md
+security-reviewer.md
+ui-ux-designer.md
+
+=== scripts/verify-reality.* ===
+Count: 2
+verify-reality.ps1
+verify-reality.sh
+
+=== docs/spec/ (02..13) ===
+Count: 12
+02-PROJECT-REQUIREMENTS.md
+03-TECH-STACK-RESEARCH.md
+04-GITHUB-UI-RESEARCH.md
+05-SYSTEM-ARCHITECTURE.md
+06-DATABASE-ERD.md
+07-API-SPECIFICATION.md
+08-UI-DESIGN-SYSTEM.md
+09-AGENT-ORCHESTRATION.md
+10-SKILLS-AND-RULES.md
+11-SEPAY-INTEGRATION.md
+12-TESTING-STRATEGY.md
+13-DEPLOYMENT-STRATEGY.md

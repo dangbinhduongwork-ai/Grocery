@@ -1,0 +1,94 @@
+﻿=== git status ===
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+
+=== git branch -a ===
+* main
+  remotes/origin/main
+
+=== git remote -v ===
+origin	https://github.com/dangbinhduongwork-ai/Grocery.git (fetch)
+origin	https://github.com/dangbinhduongwork-ai/Grocery.git (push)
+
+=== git log --oneline -n 20 ===
+4aaf402 chore: initial commit with specs, phase prompts, agents, rules, and skills
+
+=== tree to depth 3 ===
+
+FullName                                                                 Mode  
+--------                                                                 ----  
+E:\25.Mykey\GroceryHub\.agents                                           d-----
+E:\25.Mykey\GroceryHub\docs                                              d-----
+E:\25.Mykey\GroceryHub\scripts                                           d-----
+E:\25.Mykey\GroceryHub\AGENTS.md                                         -a----
+E:\25.Mykey\GroceryHub\.agents\agents                                    d-----
+E:\25.Mykey\GroceryHub\.agents\rules                                     d-----
+E:\25.Mykey\GroceryHub\.agents\skills                                    d-----
+E:\25.Mykey\GroceryHub\.agents\agents\backend-developer.md               -a----
+E:\25.Mykey\GroceryHub\.agents\agents\database-engineer.md               -a----
+E:\25.Mykey\GroceryHub\.agents\agents\devops-engineer.md                 -a----
+E:\25.Mykey\GroceryHub\.agents\agents\frontend-developer.md              -a----
+E:\25.Mykey\GroceryHub\.agents\agents\payment-specialist.md              -a----
+E:\25.Mykey\GroceryHub\.agents\agents\project-manager.md                 -a----
+E:\25.Mykey\GroceryHub\.agents\agents\qa-engineer.md                     -a----
+E:\25.Mykey\GroceryHub\.agents\agents\security-reviewer.md               -a----
+E:\25.Mykey\GroceryHub\.agents\agents\ui-ux-designer.md                  -a----
+E:\25.Mykey\GroceryHub\.agents\rules\backend.md                          -a----
+E:\25.Mykey\GroceryHub\.agents\rules\database.md                         -a----
+E:\25.Mykey\GroceryHub\.agents\rules\frontend.md                         -a----
+E:\25.Mykey\GroceryHub\.agents\rules\payments.md                         -a----
+E:\25.Mykey\GroceryHub\.agents\rules\security.md                         -a----
+E:\25.Mykey\GroceryHub\.agents\rules\testing.md                          -a----
+E:\25.Mykey\GroceryHub\.agents\rules\ui-ux.md                            -a----
+E:\25.Mykey\GroceryHub\.agents\skills\docker-devops                      d-----
+E:\25.Mykey\GroceryHub\.agents\skills\dotnet-api                         d-----
+E:\25.Mykey\GroceryHub\.agents\skills\ecommerce-business                 d-----
+E:\25.Mykey\GroceryHub\.agents\skills\efcore-sqlserver                   d-----
+E:\25.Mykey\GroceryHub\.agents\skills\react-frontend                     d-----
+E:\25.Mykey\GroceryHub\.agents\skills\security-review                    d-----
+E:\25.Mykey\GroceryHub\.agents\skills\sepay-integration                  d-----
+E:\25.Mykey\GroceryHub\.agents\skills\testing-qa                         d-----
+E:\25.Mykey\GroceryHub\.agents\skills\ui-ux-design                       d-----
+E:\25.Mykey\GroceryHub\.agents\skills\wf-bug-fix                         d-----
+E:\25.Mykey\GroceryHub\.agents\skills\wf-code-review                     d-----
+E:\25.Mykey\GroceryHub\.agents\skills\wf-progress-review                 d-----
+E:\25.Mykey\GroceryHub\.agents\skills\wf-security-review                 d-----
+E:\25.Mykey\GroceryHub\.agents\skills\wf-ui-review                       d-----
+E:\25.Mykey\GroceryHub\docs\evidence                                     d-----
+E:\25.Mykey\GroceryHub\docs\phase-prompts                                d-----
+E:\25.Mykey\GroceryHub\docs\spec                                         d-----
+E:\25.Mykey\GroceryHub\docs\evidence\phase-00                            d-----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\01-MASTER-PROMPT.md            -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-00-audit.md              -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-01-research.md           -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-02-agents-skills.md      -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-03-architecture.md       -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-04-backend.md            -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-05-auth-rbac.md          -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-06-products-inventory.md -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-07-cart-orders.md        -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-08-customer-frontend.md  -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-09-admin-dashboard.md    -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-10-sepay.md              -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-11-testing-security.md   -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-12-deployment.md         -a----
+E:\25.Mykey\GroceryHub\docs\phase-prompts\phase-13-final-review.md       -a----
+E:\25.Mykey\GroceryHub\docs\spec\02-PROJECT-REQUIREMENTS.md              -a----
+E:\25.Mykey\GroceryHub\docs\spec\03-TECH-STACK-RESEARCH.md               -a----
+E:\25.Mykey\GroceryHub\docs\spec\04-GITHUB-UI-RESEARCH.md                -a----
+E:\25.Mykey\GroceryHub\docs\spec\05-SYSTEM-ARCHITECTURE.md               -a----
+E:\25.Mykey\GroceryHub\docs\spec\06-DATABASE-ERD.md                      -a----
+E:\25.Mykey\GroceryHub\docs\spec\07-API-SPECIFICATION.md                 -a----
+E:\25.Mykey\GroceryHub\docs\spec\08-UI-DESIGN-SYSTEM.md                  -a----
+E:\25.Mykey\GroceryHub\docs\spec\09-AGENT-ORCHESTRATION.md               -a----
+E:\25.Mykey\GroceryHub\docs\spec\10-SKILLS-AND-RULES.md                  -a----
+E:\25.Mykey\GroceryHub\docs\spec\11-SEPAY-INTEGRATION.md                 -a----
+E:\25.Mykey\GroceryHub\docs\spec\12-TESTING-STRATEGY.md                  -a----
+E:\25.Mykey\GroceryHub\docs\spec\13-DEPLOYMENT-STRATEGY.md               -a----
+E:\25.Mykey\GroceryHub\scripts\verify-reality.ps1                        -a----
+E:\25.Mykey\GroceryHub\scripts\verify-reality.sh                         -a----
+
+
+
