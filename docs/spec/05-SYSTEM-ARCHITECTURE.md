@@ -1,173 +1,183 @@
-# 05 — System Architecture
+# 05 — System Architecture (`v1.0` Baseline)
 
-## 1. Context
+> **Version & Change Control Note (Phase 03 Freeze — 2026-11-15):** This document is frozen at **v1.0**. Detailed cross-module C# contracts live in [`docs/spec/module-contracts.md`](./module-contracts.md), domain/integration events in [`docs/spec/events.md`](./events.md), domain state machines in [`docs/spec/state-machines.md`](./state-machines.md), RBAC permissions in [`docs/spec/permissions-seed.md`](./permissions-seed.md), and Architecture Decision Records in [`docs/spec/adr/ADR-001..007`](./adr/).
+
+---
+
+## 1. System Context
+
 ```mermaid
 flowchart LR
-  G[Guest / Customer browser] -->|HTTPS| P[nginx reverse proxy + static SPA]
-  S[Staff / Manager / Admin browser] -->|HTTPS| P
-  P -->|/api/*| A[GroceryHub.Api - ASP.NET Core 10]
-  A --> D[(SQL Server)]
-  A --> F[(Image volume)]
-  A -->|SMTP| M[Mail provider / Mailpit]
-  SP[SePay] -->|signed webhook POST| P
-  A -->|HTTPS API - reconciliation| SP
-  G -.->|QR image GET| Q[qr.sepay.vn]
+  G["Guest / Customer Browser"] -->|HTTPS| P["nginx Reverse Proxy + Static SPA"]
+  S["Staff / Manager / Admin Browser"] -->|HTTPS| P
+  P -->|/api/v1/*| A["GroceryHub.Api (ASP.NET Core 10)"]
+  A --> D[("SQL Server (12 Schemas)")]
+  A --> F[("Product Images Volume")]
+  A -->|SMTP| M["Mail Provider / Mailpit"]
+  SP["SePay Webhook"] -->|HMAC / API Key POST| P
+  A -->|HTTPS API v2 Reconciliation| SP
+  G -.->|QR Image GET| Q["qr.sepay.vn"]
 ```
 
-## 2. Architecture decision (ADR-001): modular monolith
-- One deployable (`GroceryHub.Api`) hosting all modules; one SQL Server database; schema per module; single `GroceryHubDbContext`.
-- Why: stock/order/payment/coupon invariants need ACID transactions; small team; simple Docker deploy; microservices would add distributed-transaction complexity with no benefit at this scale.
-- Guardrails to keep it *modular*: separate projects per module; modules talk only through `Contracts`; no cross-module navigation properties; architecture tests; events through an outbox for non-critical side effects.
-- Rejected: microservices (complexity), Clean-Architecture single-project (boundaries erode), controllers+MediatR (licence + ceremony).
+---
 
-## 3. Solution layout
-```
+## 2. Architecture Decision Records (`docs/spec/adr/`)
+
+| ADR | Title | Summary |
+|---|---|---|
+| [`ADR-001`](./adr/ADR-001-modular-monolith.md) | Modular Monolith & Project Boundaries | Single deployable `GroceryHub.Api` with 12 isolated module assemblies (`GroceryHub.Modules.<Name>`) + 12 contract assemblies (`GroceryHub.Modules.<Name>.Contracts`), enforced by compile-time `internal` visibility and NetArchTest architecture tests. |
+| [`ADR-002`](./adr/ADR-002-single-dbcontext-schemas.md) | Single `GroceryHubDbContext` with Schema-Per-Module | Single EF Core 10 `GroceryHubDbContext` in `GroceryHub.Persistence` managing 12 logical SQL Server schemas (`identity`, `customers`, `catalog`, `inventory`, `purchasing`, `promotions`, `cart`, `ordering`, `payments`, `reviews`, `audit`, `shared`), enabling atomic cross-module ACID transactions without cross-schema FKs or navigation properties. |
+| [`ADR-003`](./adr/ADR-003-auth-tokens-cookies.md) | Auth, Short-Lived JWT, Rotating Refresh Cookie & Permission Cache | ASP.NET Core Identity + 15-minute access JWT (no permission array in JWT) + rotating SHA-256 hashed refresh token in `HttpOnly; Secure; SameSite=Strict` cookie (`gh_refresh`) with family reuse detection + server-side `IMemoryCache` permission resolution (TTL $\le 60\text{s}$). |
+| [`ADR-004`](./adr/ADR-004-no-mediator-mapper-libs.md) | Ban Commercial-License Mediator / Mapper / Assertion Libraries | Strictly bans `MediatR`, `AutoMapper`, `FluentAssertions` 8+, and `MassTransit` 9+ (`DEC-003`) in favor of explicit DI application services, static C# mapping extensions / EF projections, xUnit `Assert`, and an in-process transactional outbox dispatcher. |
+| [`ADR-005`](./adr/ADR-005-contract-first-openapi.md) | Contract-First OpenAPI (`docs/contracts/openapi.json`) | ASP.NET Core 10 Minimal APIs (`TypedResults`) export OpenAPI 3.1 to `docs/contracts/openapi.json`; frontend generates TypeScript types via `openapi-typescript` with zero hand-written duplicate DTOs. |
+| [`ADR-006`](./adr/ADR-006-error-model.md) | Domain `Result<T>` Pattern & RFC 7807 `ProblemDetails` | Expected business rule failures return `Result<T>` / `DomainError` across domain/application/contract boundaries and map to RFC 7807 `application/problem+json` (`type`, `title`, `status`, `detail`, `code`, `traceId`, `errors`). |
+| [`ADR-007`](./adr/ADR-007-time-money-id-conventions.md) | Time, Money & Identifier Conventions | Injected `TimeProvider` (`datetimeoffset` UTC in DB, `Asia/Ho_Chi_Minh` `+07:00` for business days), `long` integer VND (`Money` value object), `Guid.CreateVersion7()` entity PKs, and SQL Server `SEQUENCE`s for human codes (`DHyyMMdd-NNNN`, `GH##########`). |
+
+---
+
+## 3. Solution Layout
+
+```text
 GroceryHub/
-├─ AGENTS.md                      # always-on charter
-├─ .agents/{rules,skills,agents}  # Antigravity customisations
+├─ AGENTS.md                                      # Always-on project charter
+├─ .agents/{rules,skills,agents}                  # Antigravity role & skill definitions
 ├─ docs/{spec,contracts,design,progress,evidence,qa,security,ops,agent-notes}
 ├─ src/
-│  ├─ GroceryHub.Api/                 # composition root, middleware, OpenAPI, hosted services
-│  ├─ GroceryHub.SharedKernel/        # Result, Money, DomainEvent, Clock, Guard, pagination
-│  ├─ GroceryHub.Persistence/         # DbContext, interceptors, migrations, seeders, outbox
-│  └─ GroceryHub.Modules.<Name>/      # Identity, Customers, Catalog, Inventory, Purchasing,
-│       ├─ Domain/                     #   Promotions, Cart, Ordering, Payments, Reviews,
-│       ├─ Application/                #   Reporting, Audit
-│       ├─ Infrastructure/Persistence/ #   (EF configs + query services - DB engineer)
-│       ├─ Api/                        #   endpoint classes
-│       └─ Contracts/                  #   public interfaces/DTOs/events
-├─ tests/{GroceryHub.UnitTests,GroceryHub.IntegrationTests,GroceryHub.ArchitectureTests}
-├─ web/                             # Vite app (src/{app,shared,storefront,admin}, e2e/)
+│  ├─ GroceryHub.Api/                             # Composition root, middleware, OpenAPI, hosted services
+│  ├─ GroceryHub.SharedKernel/                    # Result<T>, DomainError, Money, DomainEvent, VietnamTime, PagedResult
+│  ├─ GroceryHub.Persistence/                     # GroceryHubDbContext, configurations, migrations, seeders, outbox
+│  ├─ GroceryHub.Modules.<Name>.Contracts/        # Public interfaces, DTO records, integration events (references SharedKernel only)
+│  └─ GroceryHub.Modules.<Name>/                  # 12 modules: Identity, Customers, Catalog, Inventory, Purchasing,
+│       ├─ Domain/                                #   Promotions, Cart, Ordering, Payments, Reviews, Reporting, Audit
+│       ├─ Application/
+│       ├─ Infrastructure/
+│       └─ Api/                                   #   Minimal API endpoint groups + module registration
+├─ tests/
+│  ├─ GroceryHub.UnitTests/
+│  ├─ GroceryHub.IntegrationTests/                # Real SQL Server via Testcontainers + WebApplicationFactory
+│  └─ GroceryHub.ArchitectureTests/               # Module boundary, default-deny auth, & banned-library checks
+├─ web/                                           # React 19 + TypeScript + Vite SPA (src/{app,shared,storefront,admin}, e2e/)
 ├─ deploy/{nginx,db,security}
 ├─ scripts/
 └─ docker-compose.yml, docker-compose.override.yml, .env.example
 ```
 
-## 4. Module catalog and allowed dependencies
-| Module | Owns | May call (via Contracts) |
-|---|---|---|
-| Identity | users, roles, permissions, tokens, staff profiles | — |
-| Customers | profiles, addresses, VN admin units | Identity |
-| Catalog | categories, brands, products, images, price history, banners | — |
-| Inventory | stock, movements, reservations, stocktake | Catalog (existence/cost) |
-| Purchasing | suppliers, POs, goods receipts | Catalog, Inventory (receive → stock+cost) |
-| Promotions | coupons, redemptions | Catalog (scope) |
-| Cart | carts, items | Catalog (price/availability), Inventory (availability), Promotions (preview) |
-| Ordering | orders, status history, shipping zones/rates, idempotency | Cart, Catalog, Inventory (reserve), Promotions (redeem), Customers (address), Payments (create payment) |
-| Payments | payments, attempts, webhook inbox, transactions, refunds, COD collections | Ordering (state transitions), Audit |
-| Reviews | reviews, moderation | Ordering (verified purchase), Catalog (aggregates) |
-| Reporting | read models/queries over all schemas | read-only, via query services |
-| Audit | audit logs | none (receives events/calls) |
-Rule: arrows are one-way; Ordering→Payments and Payments→Ordering are resolved by `Ordering.Contracts.IOrderPaymentPort` implemented by Ordering and `Payments.Contracts.IPaymentService` implemented by Payments (no project cycle: each references the other's Contracts only).
+---
 
-## 5. Backend architecture
-- **Layers per module**: Api (endpoints) → Application (use-cases) → Domain (aggregates, rules) ← Infrastructure (EF, adapters).
-- **Cross-cutting (SharedKernel/Api)**: global exception handler → ProblemDetails; request logging with correlation id; auth (JwtBearer + permission policies); rate limiting; FluentValidation filter; idempotency filter; OpenAPI; health checks; Serilog.
-- **Background services (hosted)**: `PaymentExpiryService` (expire QR attempts, cancel orders, release stock), `ReconciliationService` (SePay transactions API), `ReservationSweeper` (safety net), `OutboxDispatcher`, `CartCleanupService`.
-- **Events**: domain events written to `shared.OutboxMessages` in the same transaction; dispatcher invokes in-process handlers (e.g. Audit, review aggregate update). Handlers are idempotent.
-- **Read side**: list endpoints use projection queries (no tracking). Reporting uses SQL views/queries in the module `Infrastructure`.
+## 4. Module Catalog & Acyclic Dependency Rules (`docs/spec/module-contracts.md`)
 
-## 6. Frontend architecture
-- Single Vite SPA, two lazy-loaded route trees: `/` (storefront) and `/admin` (admin + staff). Shared: tokens, ui primitives, api client, i18n, formatting.
-- Server state in TanStack Query; URL search params for filters; tiny Zustand store for cart drawer/theme; forms with RHF+Zod.
-- nginx serves the SPA and proxies `/api` → API (same origin ⇒ simple cookies, no CORS in prod).
-- Build output hashed; `index.html` no-cache; assets immutable.
+| Module | Schema | Owns | Outbound Contract Dependencies (`GroceryHub.Modules.<Target>.Contracts`) |
+|---|---|---|---|
+| `Identity` | `identity` | Users, roles, permissions, refresh tokens, staff profiles | `Audit.Contracts` |
+| `Customers` | `customers`, `shared` | Customer profile, addresses, VN 2-level provinces/wards | `Identity.Contracts`, `Audit.Contracts` |
+| `Catalog` | `catalog` | Categories, brands, products, images, price history, banners | `Inventory.Contracts`, `Audit.Contracts` |
+| `Inventory` | `inventory` | Stock items, movements ledger, reservations, expiry lots | `Catalog.Contracts`, `Audit.Contracts` |
+| `Purchasing` | `purchasing` | Suppliers, purchase orders, immutable goods receipts | `Catalog.Contracts`, `Inventory.Contracts`, `Audit.Contracts` |
+| `Promotions` | `promotions` | Coupons, scopes, coupon redemptions | `Catalog.Contracts`, `Audit.Contracts` |
+| `Cart` | `cart` | Guest & customer carts, cart items | `Catalog.Contracts`, `Inventory.Contracts`, `Promotions.Contracts` |
+| `Ordering` | `ordering`, `shared` | Orders, items, status history, shipping zones/rates, idempotency, settings | `Cart.Contracts`, `Catalog.Contracts`, `Inventory.Contracts`, `Promotions.Contracts`, `Customers.Contracts`, `Payments.Contracts` (`IPaymentService`), `Audit.Contracts` |
+| `Payments` | `payments` | Payments, QR attempts, webhook inbox, transactions, refunds, COD collections | `Ordering.Contracts` (`IOrderPaymentPort`), `Inventory.Contracts`, `Audit.Contracts` |
+| `Reviews` | `reviews` | Verified purchase reviews, moderation | `Ordering.Contracts` (`IOrderVerificationContract`), `Catalog.Contracts` (`ICatalogReviewSummaryPort`), `Audit.Contracts` |
+| `Reporting` | *(read-only)* | Dashboard KPIs, revenue, gross profit, top products, stock valuation | Read-only projections in `GroceryHub.Persistence` |
+| `Audit` | `audit` | Immutable `AuditLogs` | *(None — leaf module)* |
 
-## 7. Authentication flow
+**Cycle-Free Guarantee (`ADR-001`):**
+`Ordering` references `GroceryHub.Modules.Payments.Contracts` (`IPaymentService`), and `Payments` references `GroceryHub.Modules.Ordering.Contracts` (`IOrderPaymentPort`). Because `.Contracts` projects reference only `GroceryHub.SharedKernel` and no implementation project ever references another implementation project, the solution dependency graph is strictly acyclic.
+
+---
+
+## 5. Backend Runtime & Cross-Cutting Architecture
+
+- **Layering inside each module:** `Api` (thin Minimal API endpoints) $\rightarrow$ `Application` (command/query services + FluentValidation) $\rightarrow$ `Domain` (aggregates enforcing invariants & state transitions) $\leftarrow$ `Infrastructure` / `Persistence`.
+- **Cross-Cutting Pipeline (`GroceryHub.Api`):**
+  1. `CorrelationIdMiddleware` (`X-Correlation-Id` propagation into `HttpContext` and Serilog `LogContext`).
+  2. `GlobalExceptionHandler` (`IExceptionHandler` mapping unhandled exceptions to HTTP 500 `ProblemDetails` with `traceId`).
+  3. Authentication (`JwtBearer`) & Authorization (`PermissionAuthorizationHandler` + `DynamicPermissionPolicyProvider`).
+  4. Rate Limiting (`auth`, `checkout`, `public-read`).
+  5. Endpoint Filters: `ValidationFilter<TRequest>` (`422 VALIDATION_FAILED`) and `IdempotencyFilter` (`Idempotency-Key` header check against `ordering.IdempotencyKeys`).
+- **Hosted Background Services (`IHostedService` / `BackgroundService`):**
+  - `PaymentExpiryService` (every 1m): expires QR attempts where `now > ExpiresAt + ExpiryGraceMinutes` (`30m + 5m`), cancels `PendingPayment` orders, and releases stock + coupon redemptions.
+  - `ReconciliationService` (every 15m): queries SePay API v2 (`GET /v2/transactions`), deduplicates against `WebhookEvents` and `PaymentTransactions` (`ReferenceCode` / `PaymentCode` per `docs/spec/11-SEPAY-DIFFS.md`), and processes any missed incoming transfers.
+  - `ReservationSweeper` (every 5m): safety net releasing any orphaned `Active` stock reservations whose order is already `Cancelled`.
+  - `OutboxDispatcher` (every 2s): dispatches pending `shared.OutboxMessages` to `IIntegrationEventHandler<T>` implementations (`docs/spec/events.md`).
+  - `CartCleanupService` (daily): purges guest/expired carts idle past `ExpiresAt` (30 days) and expired `IdempotencyKeys` (>24h).
+
+---
+
+## 6. Frontend Architecture (`web/`)
+
+- Single React 19 + TypeScript (`strict: true`) + Vite SPA with two lazy-loaded route trees: `/` (Storefront) and `/admin` (Admin / Manager / Staff portal).
+- Styling & primitives: Tailwind CSS v4 + **Radix UI** variant of `shadcn/ui` (`DEC-004`) + self-hosted `Be Vietnam Pro` & `Fraunces` fonts (`DEC-005`) implementing the **"Sổ chợ"** design system (`DEC-009`, `docs/spec/08-UI-DESIGN-SYSTEM.md`).
+- API Client: Generated from `docs/contracts/openapi.json` via `openapi-typescript` (`ADR-005`), wrapped in TanStack Query v5 hooks.
+
+---
+
+## 7. Authentication & Authorization Flows (`ADR-003`, `docs/spec/permissions-seed.md`)
+
 ```mermaid
 sequenceDiagram
   participant B as Browser (SPA)
-  participant A as API
-  participant D as DB
-  B->>A: POST /auth/login {email,password}
-  A->>D: verify password (Identity hasher), lockout check
-  A-->>B: 200 {accessToken(15m), user, permissions}; Set-Cookie refresh (HttpOnly, Secure, SameSite=Strict, Path=/api/v1/auth)
-  B->>A: GET /... Authorization: Bearer access
-  A-->>B: 401 (expired)
-  B->>A: POST /auth/refresh (cookie + X-Requested-With)
-  A->>D: find hashed token, check family/reuse
-  A-->>B: 200 new access + rotated refresh cookie
-  Note over A,D: reuse of an old refresh token revokes the whole family
+  participant A as GroceryHub.Api
+  participant C as IMemoryCache
+  participant D as SQL Server (identity)
+
+  B->>A: POST /api/v1/auth/login {email, password} (+ optional gh_cart cookie)
+  A->>D: Verify password (PBKDF2), lockout & EmailConfirmed check, merge guest cart
+  A-->>B: 200 {accessToken (15m), expiresIn: 900, user}; Set-Cookie gh_refresh (HttpOnly, Secure, SameSite=Strict, Path=/api/v1/auth)
+  B->>A: POST /api/v1/admin/orders/{id}/transition (Authorization: Bearer <accessToken>)
+  A->>C: GetEffectivePermissionsAsync(userId) [key: perm:user:{userId}, TTL 60s]
+  alt Cache miss
+    C->>D: Load Status==Active, RolePermissions(Roles) U UserPermissions(userId)
+    D-->>C: Cached permission set
+  end
+  A->>A: Verify policy (orders.process / orders.ship / orders.cancel)
+  A-->>B: 200 OK (or 403 FORBIDDEN ProblemDetails)
 ```
-Register → email verification link (token) → login allowed only after verification (configurable; dev auto-verify forbidden in Production). Forgot/reset via Identity tokens; responses never reveal whether the email exists.
 
-## 8. Authorization flow
-1. JWT carries `sub`, `role` (names), `jti`; **no permission list** (fresh permissions resolved server-side).
-2. `PermissionAuthorizationHandler` loads `effectivePermissions = RolePermissions(roles) ∪ UserPermissions(user)` from a cache (TTL ≤ 60 s, invalidated on role/permission change).
-3. Endpoints declare `RequireAuthorization("<permission>")`. Default-deny architecture test fails the build if any endpoint lacks a policy or explicit `AllowAnonymous`.
-4. Object-level checks (customer owns resource) are done in Application services with the current user id; Staff/Manager access to others' orders requires the relevant permission.
-5. Frontend gets `permissions` from `GET /auth/me` for UX only.
+---
 
-## 9. Shopping cart flow
+## 8. Shopping Cart & Checkout Flow (`DEC-007`, `DEC-011`)
+
 ```mermaid
 flowchart TD
-  A[Guest adds item] --> B{cart cookie?}
-  B -- no --> C[create guest cart + cookie gh_cart]
-  B -- yes --> D[load cart]
-  C --> E[validate product active + available + max qty]
+  A["Guest / Customer adds item"] --> B{"Authenticated or has gh_cart?"}
+  B -- "No (Guest)" --> C["Create guest cart + Set-Cookie gh_cart"]
+  B -- "Yes" --> D["Load cart"]
+  C --> E["Validate Product Active, Quantity <= MaxQuantityPerLine (20), Available >= Quantity"]
   D --> E
-  E --> F[persist item]
-  F --> G[return cart view with current prices, stock warnings]
-  H[Login] --> I[merge guest cart into user cart: sum qty capped by stock/max]
+  E --> F["Upsert CartItems row"]
+  F --> G["Return CartViewDto with live Catalog prices & stock warnings"]
+  H["Customer Login"] --> I["Merge guest cart into customer cart (cap at min(Available, 20))"]
+  J["Customer applies coupon (POST /cart/coupon)"] --> K["Requires auth (DEC-011/Q-008); evaluate scope & minSubtotal"]
+  L["Checkout Quote (POST /checkout/quote)"] --> M["Compute shipping by Province Zone + FreeShipping threshold (300.000đ) + availablePaymentMethods"]
 ```
-Cart view always recomputes prices from Catalog; the cart never stores authoritative totals.
 
-## 10. Order flow and state machine
-```mermaid
-stateDiagram-v2
-  [*] --> PendingPayment: place order (QR)
-  [*] --> Placed: place order (COD)
-  PendingPayment --> Confirmed: payment verified (system)
-  PendingPayment --> Cancelled: expiry / customer / staff
-  Placed --> Confirmed: staff confirms
-  Placed --> Cancelled: customer / staff
-  Confirmed --> Preparing: staff
-  Confirmed --> Cancelled: customer / staff / manager
-  Preparing --> Packed: staff
-  Preparing --> Cancelled: staff / manager (reason)
-  Packed --> Shipping: staff (stock deducted)
-  Packed --> Cancelled: manager (reason)
-  Shipping --> Delivered: staff (COD cash recorded)
-  Shipping --> DeliveryFailed: staff (reason)
-  DeliveryFailed --> Shipping: retry
-  DeliveryFailed --> Cancelled: manager (stock returned)
-  Delivered --> [*]
-  Cancelled --> [*]
-```
-| Transition | Actor / permission | Side effects |
-|---|---|---|
-| place → PendingPayment/Placed | Customer | validate cart, reserve stock, redeem coupon, snapshot address/prices, create Payment (+attempt for QR), history row |
-| PendingPayment → Confirmed | System (verified webhook) | Payment=Paid, history, event |
-| * → Cancelled | per matrix; reason required | release reservation (or return stock if already deducted), release coupon redemption, create refund request if Paid, audit |
-| Confirmed → Preparing → Packed | `orders.process` | history, assignment |
-| Packed → Shipping | `orders.ship` | commit reservation → `Sale` movements with unit-cost snapshot |
-| Shipping → Delivered | `orders.ship` | COD: record `CodCollection`, Payment=Paid; enable reviews |
-Invalid transitions return 409 with `ORDER_INVALID_TRANSITION`.
+---
 
-## 11. Inventory flow
-```mermaid
-flowchart LR
-  R[Goods receipt] -->|+onHand, moving-avg cost| S[(StockItem)]
-  O[Order placed] -->|reserve: UPDATE ... WHERE onHand-reserved>=qty| S
-  X[Cancel/expire] -->|release reservation| S
-  Sh[Order -> Shipping] -->|reservation committed: onHand-=qty, reserved-=qty, movement Sale + cost snapshot| S
-  Adj[Manual adjustment + reason] --> S
-  S --> L[(StockMovements ledger)]
-```
-Invariants (DB check constraints): `OnHand ≥ 0`, `Reserved ≥ 0`, `Reserved ≤ OnHand`. Every change writes a movement row in the same transaction.
+## 9. Order, Inventory, Payment, Purchasing & Review State Machines (`docs/spec/state-machines.md`)
 
-## 12. Payment flow (summary; full spec in doc 11)
-Place order (QR) → Payment + Attempt (code `GH##########`, expiry) → QR URL returned → customer pays → SePay webhook → verify → persist inbox → match/validate → transaction: Payment=Paid, Order=Confirmed → status endpoint reflects → SPA shows success. Anything abnormal → review queue. Expiry/reconciliation jobs back it up.
+All 5 domain lifecycles are specified with complete guard and side-effect matrices in [`docs/spec/state-machines.md`](./state-machines.md):
 
-## 13. Deployment architecture (summary; full spec in doc 13)
-`web` (nginx, TLS termination or behind a managed proxy) → `api` → `sqlserver`; one-off `migrator`; volumes for DB and images; backups; CI builds images; secrets via env/Docker secrets.
+1. **`Order` (`ordering.Orders.Status`):**
+   - `PendingPayment` (QR) / `Placed` (COD) $\rightarrow$ `Confirmed` $\rightarrow$ `Preparing` $\rightarrow$ `Packed` $\rightarrow$ `Shipping` (commits reservation, writes `Sale` movement, snapshots `UnitCostSnapshot`) $\rightarrow$ `Delivered` (records `CodCollection` if COD; enables reviews & revenue recognition) / `DeliveryFailed` $\rightarrow$ `Cancelled`.
+   - Cancellation permissions (`DEC-011` / `Q-006`): Customer may cancel own order in `PendingPayment`, `Placed`, `Confirmed`; Staff (`orders.process`) may cancel **unpaid** orders in `PendingPayment`, `Placed`, `Confirmed`; Manager/Admin (`orders.cancel`) is required to cancel in `Preparing`, `Packed`, `DeliveryFailed` (returning committed stock), or any **Paid** order (automatically creating a `Refund` in `Requested` state).
+2. **`Payment` & `PaymentAttempt` (`payments.Payments`, `payments.PaymentAttempts`):**
+   - `Payment`: `Unpaid` (COD) / `Pending` (QR) $\rightarrow$ `Paid` $\rightarrow$ `PartiallyRefunded` / `Refunded` (or `Expired` / `Failed`).
+   - `PaymentAttempt`: `Open` $\rightarrow$ `Superseded` (up to **max 5 attempts** per `DEC-011` / `Q-010`) / `Paid` / `Expired`. Both `Open` and `Superseded` attempts match incoming SePay transfers while the order is in `PendingPayment` (`T-PAY-13`).
+3. **`PurchaseOrder` (`purchasing.PurchaseOrders.Status`):**
+   - `Draft` $\rightarrow$ `Ordered` $\rightarrow$ `PartiallyReceived` $\rightarrow$ `Received` $\rightarrow$ `Closed` (or `Cancelled` before any receipt). Posting a `GoodsReceipt` (`purchasing.receive`) is immutable, increments `StockItems.OnHand`, and updates `Products.CostPrice` via the moving-average formula (`ADR-007`, `BR-01`).
+4. **`Refund` (`payments.Refunds.Status`):**
+   - `Requested` (`refunds.request`) $\rightarrow$ `Approved` / `Rejected` (`refunds.approve`, enforcing Four-Eyes Rule `DecidedBy != RequestedBy` $\rightarrow$ `409 REFUND_SAME_APPROVER`) $\rightarrow$ `Completed` (`refunds.approve` with mandatory `BankReference`).
+5. **`Review` (`reviews.Reviews.Status`):**
+   - `Pending` (verified purchase on `OrderItemId` of a `Delivered` order; editable within 7 days returning to `Pending`) $\rightarrow$ `Approved` / `Rejected` (`reviews.moderate`, recomputing `Products.RatingAvg` and `RatingCount`).
 
-## 14. Observability and errors
-Correlation id (`X-Correlation-Id`) in logs and ProblemDetails `traceId`; domain error codes (doc 07 §3); metrics via OpenTelemetry optional (C).
+---
 
-## 15. Architecture tests (must exist from Phase 4)
-1. Modules reference only SharedKernel and other modules' Contracts.
-2. No type in `Api` depends on EF Core entities.
-3. Every endpoint has a policy or explicit anonymous marker.
-4. No `DateTime.Now/UtcNow`, `Thread.Sleep` in `src`.
-5. No dependency on banned packages (MediatR, AutoMapper, FluentAssertions, MassTransit).
+## 10. Architecture Tests (`tests/GroceryHub.ArchitectureTests` — Enforced from Phase 04)
+
+1. **Module Isolation:** `GroceryHub.Modules.<Caller>` references only `GroceryHub.SharedKernel`, `GroceryHub.Persistence`, its own `.Contracts`, and other modules' `.Contracts` assemblies (never another module's implementation assembly).
+2. **Contract Purity:** `GroceryHub.Modules.*.Contracts` assemblies reference only `GroceryHub.SharedKernel` and contain no EF Core or ASP.NET Core types.
+3. **No Entity Leaks:** No Minimal API endpoint signature or response type in `Api` namespaces references a `Domain` entity or EF Core type.
+4. **Default-Deny Authorization:** Every registered Minimal API endpoint metadata contains either an `IAuthorizeData` policy or an explicit `IAllowAnonymous` marker.
+5. **Time & Async Discipline:** No type in `src/` calls `DateTime.Now`, `DateTime.UtcNow`, `DateTimeOffset.Now`, `DateTimeOffset.UtcNow`, or `Thread.Sleep`.
+6. **License Guardrail (`DEC-003`):** Zero references to `MediatR`, `AutoMapper`, `FluentAssertions`, or `MassTransit` across all projects.
