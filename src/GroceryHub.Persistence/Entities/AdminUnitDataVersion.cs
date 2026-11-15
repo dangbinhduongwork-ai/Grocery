@@ -8,7 +8,13 @@ public sealed class AdminUnitDataVersion
 
     public string Version { get; set; } = string.Empty;
 
-    public DateTimeOffset ImportedAt { get; set; }
+    public int ProvinceCount { get; set; }
+
+    public int WardCount { get; set; }
+
+    public string? ChecksumSha256 { get; set; }
 
     public string Licence { get; set; } = string.Empty;
+
+    public DateTimeOffset ImportedAt { get; set; }
 }

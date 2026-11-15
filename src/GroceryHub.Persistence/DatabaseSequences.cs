@@ -15,4 +15,5 @@ public static class DatabaseSequences
     public const string GoodsReceipt = GoodsReceiptSeq;
 
     public const long PaymentCodeStartValue = 1_000_000_001L;
+    public const long OrderNumberStartValue = 1L;
 }
