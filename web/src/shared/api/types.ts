@@ -1,0 +1,15 @@
+import type { paths } from './schema'
+
+export type StorefrontHomeData = paths['/api/v1/home']['get']['responses'][200]['content']['application/json']
+export type StorefrontProductCard = paths['/api/v1/products']['get']['responses'][200]['content']['application/json']['items'][number]
+export type StorefrontProductDetail = paths['/api/v1/products/{slug}']['get']['responses'][200]['content']['application/json']
+export type CategoryTreeItem = paths['/api/v1/categories']['get']['responses'][200]['content']['application/json'][number]
+export type ProductReviewsData = paths['/api/v1/products/{id}/reviews']['get']['responses'][200]['content']['application/json']
+export type PublicReviewItem = ProductReviewsData['reviews']['items'][number]
+export type CartData = paths['/api/v1/cart']['get']['responses'][200]['content']['application/json']
+export type CartItemData = CartData['items'][number]
+export type CustomerOrderItem = paths['/api/v1/me/orders']['get']['responses'][200]['content']['application/json']['items'][number]
+export type CustomerOrderDetail = paths['/api/v1/me/orders/{id}']['get']['responses'][200]['content']['application/json']
+export type CustomerAddress = paths['/api/v1/me/addresses']['get']['responses'][200]['content']['application/json'][number]
+export type ProvinceItem = paths['/api/v1/locations/provinces']['get']['responses'][200]['content']['application/json']['items'][number]
+export type WardItem = paths['/api/v1/locations/provinces/{code}/wards']['get']['responses'][200]['content']['application/json']['items'][number]

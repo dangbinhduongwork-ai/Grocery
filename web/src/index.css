@@ -1,0 +1,61 @@
+@import "@fontsource/be-vietnam-pro/400.css";
+@import "@fontsource/be-vietnam-pro/500.css";
+@import "@fontsource/be-vietnam-pro/600.css";
+@import "@fontsource/be-vietnam-pro/700.css";
+@import "@fontsource-variable/fraunces";
+
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #FAF7F0;
+  --color-paper-2: #F2EDE0;
+  --color-ink: #1B2B22;
+  --color-ink-2: #4A5A50;
+  --color-leaf: #1F3A2D;
+  --color-leaf-2: #2F5A44;
+  --color-sprout: #7FA38A;
+  --color-tomato: #D9432F;
+  --color-tomato-ink: #B8321F;
+  --color-turmeric: #E3A21A;
+  --color-rule: #D9D1BD;
+  --color-ok: #2E7D4F;
+  --color-warn: #B7791F;
+  --color-err: #B8321F;
+  --color-info: #2B6C8F;
+
+  --font-sans: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces Variable", "Be Vietnam Pro", serif;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-rule);
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

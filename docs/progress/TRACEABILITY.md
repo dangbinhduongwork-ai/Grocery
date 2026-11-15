@@ -8,23 +8,23 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 
 | ID | Pri | Requirement Summary | Owning Module(s) | Target Phase | Code Path | Test Name | Evidence File | Status |
 |---|---|---|---|---|---|---|---|---|
-| FR-CUS-001 | M | Home page: banners, category (aisle) navigation, featured/new/best-selling/promo sections | `Catalog`, `Promotions`, `web/storefront` | 06, 08 | — | — | — | NotStarted |
-| FR-CUS-002 | M | Category tree browsing with product counts; breadcrumbs | `Catalog`, `web/storefront` | 06, 08 | — | — | — | NotStarted |
-| FR-CUS-003 | M | Search (VN accent-insensitive), filter, sort, pagination in URL | `Catalog`, `Inventory`, `web/storefront` | 06, 08 | — | — | — | NotStarted |
-| FR-CUS-004 | M | Product detail: gallery, prices, unit/pack size, stock, specs, brand, reviews, related | `Catalog`, `Inventory`, `Reviews`, `web/storefront` | 06, 08 | — | — | — | NotStarted |
-| FR-CUS-005 | M | Cart for Guest (`gh_cart` cookie) & Customer; CRUD; stock/price revalidation; merge on login | `Cart`, `Catalog`, `Inventory`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
-| FR-CUS-006 | M | Register, email verification, login, logout, forgot/reset password | `Identity`, `Cart` (merge), `web/storefront` | 05, 08 | — | — | — | NotStarted |
-| FR-CUS-007 | M | Profile: name, phone, email (read-only after verify), change password | `Customers`, `Identity`, `web/storefront` | 05, 08 | — | — | — | NotStarted |
-| FR-CUS-008 | M | Multiple delivery addresses (max 10): 2-level VN model (province/city + ward/commune) | `Customers`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
-| FR-CUS-009 | M | Checkout: address, shipping quote, coupon, payment method (COD / SePay QR), idempotent order placement | `Ordering`, `Cart`, `Inventory`, `Promotions`, `Payments`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
-| FR-CUS-010 | M | Shipping fee calculation by province zone and subtotal (free-shipping threshold) | `Ordering` | 07 | — | — | — | NotStarted |
-| FR-CUS-011 | M | Coupon apply/remove with validation messages | `Cart`, `Promotions`, `Ordering`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
-| FR-CUS-012 | M | COD payment | `Ordering`, `Payments`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
+| FR-CUS-001 | M | Home page: banners, category (aisle) navigation, featured/new/best-selling/promo sections | `Catalog`, `Promotions`, `web/storefront` | 06, 08 | `web/src/storefront/pages/HomePage.tsx` | `vitest run` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-002 | M | Category tree browsing with product counts; breadcrumbs | `Catalog`, `web/storefront` | 06, 08 | `web/src/storefront/pages/CategoryPage.tsx` | `vitest run` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-003 | M | Search (VN accent-insensitive), filter, sort, pagination in URL | `Catalog`, `Inventory`, `web/storefront` | 06, 08 | `web/src/storefront/pages/SearchPage.tsx` | `vitest run` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-004 | M | Product detail: gallery, prices, unit/pack size, stock, specs, brand, reviews, related | `Catalog`, `Inventory`, `Reviews`, `web/storefront` | 06, 08 | `web/src/storefront/pages/ProductDetailPage.tsx` | `vitest run` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-005 | M | Cart for Guest (`gh_cart` cookie) & Customer; CRUD; stock/price revalidation; merge on login | `Cart`, `Catalog`, `Inventory`, `web/storefront` | 07, 08 | `web/src/storefront/pages/CartPage.tsx`, `CartContext.tsx` | `vitest run` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-006 | M | Register, email verification, login, logout, forgot/reset password | `Identity`, `Cart` (merge), `web/storefront` | 05, 08 | `web/src/storefront/pages/LoginPage.tsx`, `AuthContext.tsx` | `authSecurity.test.ts` | `docs/evidence/phase-08/02-vitest-run.txt` | Verified |
+| FR-CUS-007 | M | Profile: name, phone, email (read-only after verify), change password | `Customers`, `Identity`, `web/storefront` | 05, 08 | `web/src/storefront/pages/AccountPage.tsx` | `vitest run` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-008 | M | Multiple delivery addresses (max 10): 2-level VN model (province/city + ward/commune) | `Customers`, `web/storefront` | 07, 08 | `web/src/storefront/pages/AccountPage.tsx`, `CheckoutPage.tsx` | `CustomerAndCartIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-009 | M | Checkout: address, shipping quote, coupon, payment method (COD / SePay QR), idempotent order placement | `Ordering`, `Cart`, `Inventory`, `Promotions`, `Payments`, `web/storefront` | 07, 08 | `web/src/storefront/pages/CheckoutPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-010 | M | Shipping fee calculation by province zone and subtotal (free-shipping threshold) | `Ordering` | 07, 08 | `web/src/storefront/pages/CheckoutPage.tsx`, `OrderingEndpoints.cs` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-011 | M | Coupon apply/remove with validation messages | `Cart`, `Promotions`, `Ordering`, `web/storefront` | 07, 08 | `web/src/storefront/pages/CartPage.tsx`, `CheckoutPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-012 | M | COD payment | `Ordering`, `Payments`, `web/storefront` | 07, 08 | `web/src/storefront/pages/CheckoutPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
 | FR-CUS-013 | M | SePay VietQR payment page: QR, amount, payment code, bank info, countdown, live status, retry | `Payments`, `Ordering`, `web/storefront` | 10 | — | — | — | NotStarted |
-| FR-CUS-014 | M | Order tracking: timeline, items, totals, address, payment status; cancel while allowed | `Ordering`, `Payments`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
-| FR-CUS-015 | M | Order history list with filters and reorder ("mua lại") | `Ordering`, `Cart`, `web/storefront` | 07, 08 | — | — | — | NotStarted |
-| FR-CUS-016 | M | Product reviews (1–5 + text) for verified purchases; edit within 7d; moderation | `Reviews`, `Ordering`, `Catalog`, `web/storefront` | 08 | — | — | — | NotStarted |
-| FR-CUS-017 | M | Responsive UI (360–1920 px), WCAG 2.2 AA accessible | `web/storefront`, `web/shared` | 08, 11 | — | — | — | NotStarted |
+| FR-CUS-014 | M | Order tracking: timeline, items, totals, address, payment status; cancel while allowed | `Ordering`, `Payments`, `web/storefront` | 07, 08 | `web/src/storefront/pages/OrderDetailPage.tsx` | `OrderStateMachineIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-015 | M | Order history list with filters and reorder ("mua lại") | `Ordering`, `Cart`, `web/storefront` | 07, 08 | `web/src/storefront/pages/OrdersPage.tsx`, `OrderDetailPage.tsx` | `OrderLifecycleScriptedIntegrationTests` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
+| FR-CUS-016 | M | Product reviews (1–5 + text) for verified purchases; edit within 7d; moderation | `Reviews`, `Ordering`, `Catalog`, `web/storefront` | 08 | `GroceryHub.Modules.Reviews`, `ProductDetailPage.tsx` | `ReviewsService`, `dotnet test` | `docs/evidence/phase-08/04-backend-suite-run.txt` | Verified |
+| FR-CUS-017 | M | Responsive UI (360–1920 px), WCAG 2.2 AA accessible | `web/storefront`, `web/shared` | 08, 11 | `web/src/storefront/layout/StorefrontLayout.tsx` | `vite build`, `oxlint` | `docs/evidence/phase-08/01-frontend-build-verification.txt` | Verified |
 | FR-CUS-018 | C | Wishlist / favorites | `Customers`, `Catalog`, `web/storefront` | Backlog | — | — | — | NotStarted |
 
 ## 2. Admin / Manager Functional Requirements (`FR-ADM-*`)
@@ -72,7 +72,7 @@ Status values: `NotStarted` | `InProgress` | `Implemented` | `Verified` (only QA
 | BR-06 | Payment methods `COD` (up to max order value) and `SEPAY_QR` (auto-expires after window + grace, releases stock) | `Ordering`, `Payments`, `Inventory` | 07, 10 | — | — | — | NotStarted |
 | BR-07 | Cancellation rules by status/role; cancelling paid order creates refund request | `Ordering`, `Payments`, `Inventory`, `Promotions`, `Audit` | 07, 10 | — | — | — | NotStarted |
 | BR-08 | Order state machine & independent Payment status state machine | `Ordering`, `Payments` | 07, 10 | — | — | — | NotStarted |
-| BR-09 | Verified-purchase reviews (`Delivered` order, 1 per order line, moderated, aggregates recomputed) | `Reviews`, `Ordering`, `Catalog` | 08 | — | — | — | NotStarted |
+| BR-09 | Verified-purchase reviews (`Delivered` order, 1 per order line, moderated, aggregates recomputed) | `Reviews`, `Ordering`, `Catalog` | 08 | `ReviewsService.cs`, `OrderVerificationService.cs` | `dotnet test` | `docs/evidence/phase-08/04-backend-suite-run.txt` | Verified |
 | BR-10 | 2-level VN address model (34 provinces/cities + wards/communes effective 01/07/2025); snapshotted on order | `Customers`, `Ordering` | 07 | — | — | — | NotStarted |
 | BR-11 | Purchase order states (`Draft -> Ordered -> PartiallyReceived -> Received -> Closed` / `Cancelled`); immutable goods receipts | `Purchasing`, `Inventory`, `Catalog` | 06 | — | — | — | NotStarted |
 | BR-12 | Manual stock adjustments require reason and audit log | `Inventory`, `Audit` | 06 | — | — | — | NotStarted |
