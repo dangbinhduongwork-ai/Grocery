@@ -1,3 +1,7 @@
+using FluentValidation;
+using GroceryHub.Modules.Purchasing.Application.Services;
+using GroceryHub.Modules.Purchasing.Application.Validators;
+using GroceryHub.Modules.Purchasing.Contracts;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +16,11 @@ public static class PurchasingModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddScoped<PurchasingAdminService>();
+        services.AddScoped<IPurchasingModuleContract, PurchasingModuleContract>();
+        services.AddValidatorsFromAssemblyContaining<CreateSupplierRequestValidator>();
+
         return services;
     }
 
@@ -19,6 +28,9 @@ public static class PurchasingModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+
+        endpoints.MapPurchasingApiEndpoints();
+
         return endpoints;
     }
 }
