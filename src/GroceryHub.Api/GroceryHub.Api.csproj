@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>GroceryHub.Api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GroceryHub.SharedKernel\GroceryHub.SharedKernel.csproj" />
+    <ProjectReference Include="..\GroceryHub.Persistence\GroceryHub.Persistence.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Identity\GroceryHub.Modules.Identity.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Customers\GroceryHub.Modules.Customers.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Catalog\GroceryHub.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Inventory\GroceryHub.Modules.Inventory.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Purchasing\GroceryHub.Modules.Purchasing.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Promotions\GroceryHub.Modules.Promotions.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Cart\GroceryHub.Modules.Cart.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Ordering\GroceryHub.Modules.Ordering.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Payments\GroceryHub.Modules.Payments.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Reviews\GroceryHub.Modules.Reviews.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Reporting\GroceryHub.Modules.Reporting.csproj" />
+    <ProjectReference Include="..\GroceryHub.Modules.Audit\GroceryHub.Modules.Audit.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Formatting.Compact" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="GroceryHub.UnitTests" />
+    <InternalsVisibleTo Include="GroceryHub.IntegrationTests" />
+    <InternalsVisibleTo Include="GroceryHub.ArchitectureTests" />
+  </ItemGroup>
+</Project>
