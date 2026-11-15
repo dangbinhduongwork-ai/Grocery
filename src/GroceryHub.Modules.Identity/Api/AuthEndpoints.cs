@@ -75,12 +75,14 @@ internal static class AuthEndpoints
         {
             string? ip = context.Connection.RemoteIpAddress?.ToString();
             string? userAgent = context.Request.Headers.UserAgent;
+            string? guestCartToken = context.Request.Cookies["gh_cart"];
 
             Result<AuthTokenResponse> result = await authService.LoginAsync(
                 request,
                 context.Response,
                 ip,
                 userAgent,
+                guestCartToken,
                 ct);
 
             return result.IsSuccess

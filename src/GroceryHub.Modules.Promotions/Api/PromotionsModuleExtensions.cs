@@ -1,3 +1,6 @@
+using FluentValidation;
+using GroceryHub.Modules.Promotions.Application.Services;
+using GroceryHub.Modules.Promotions.Application.Validators;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +15,10 @@ public static class PromotionsModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddValidatorsFromAssemblyContaining<CreateCouponValidator>();
+        services.AddScoped<PromotionsService>();
+
         return services;
     }
 
@@ -19,6 +26,7 @@ public static class PromotionsModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+        PromotionsEndpoints.MapPromotionsEndpoints(endpoints);
         return endpoints;
     }
 }

@@ -1,3 +1,6 @@
+using FluentValidation;
+using GroceryHub.Modules.Ordering.Application.Services;
+using GroceryHub.Modules.Ordering.Application.Validators;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +15,10 @@ public static class OrderingModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddValidatorsFromAssemblyContaining<ShippingQuoteValidator>();
+        services.AddScoped<OrderingService>();
+
         return services;
     }
 
@@ -19,6 +26,7 @@ public static class OrderingModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+        OrderingEndpoints.MapOrderingEndpoints(endpoints);
         return endpoints;
     }
 }

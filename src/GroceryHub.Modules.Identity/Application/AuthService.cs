@@ -22,6 +22,7 @@ public sealed class AuthService
     private readonly IPermissionService _permissionService;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly TimeProvider _timeProvider;
+    private readonly ICartMergeService? _cartMergeService;
 
     public AuthService(
         GroceryHubDbContext dbContext,
@@ -30,7 +31,8 @@ public sealed class AuthService
         IEmailService emailService,
         IPermissionService permissionService,
         IPasswordHasher<User> passwordHasher,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ICartMergeService? cartMergeService = null)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
@@ -39,6 +41,7 @@ public sealed class AuthService
         _permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
         _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+        _cartMergeService = cartMergeService;
     }
 
     public async Task<Result<RegisterResponse>> RegisterAsync(
@@ -194,6 +197,7 @@ public sealed class AuthService
         HttpResponse httpResponse,
         string? ipAddress = null,
         string? userAgent = null,
+        string? guestCartToken = null,
         CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -288,6 +292,12 @@ public sealed class AuthService
             : [];
 
         SetRefreshCookie(httpResponse, tokens.RawRefreshToken, tokens.RefreshTokenExpiresAt);
+
+        if (!string.IsNullOrWhiteSpace(guestCartToken) && _cartMergeService != null)
+        {
+            await _cartMergeService.MergeGuestCartOnLoginAsync(user.Id, guestCartToken, ct);
+            httpResponse.Cookies.Delete("gh_cart");
+        }
 
         AuthUserDto authUser = new(
             user.Id,
