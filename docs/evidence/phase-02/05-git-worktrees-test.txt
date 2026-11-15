@@ -1,0 +1,44 @@
+﻿=== PHASE 02 STEP 4: GIT WORKTREES TEST ===
+Timestamp: 2026-11-15T10:43:42.3830366+07:00
+
+1. Creating two git worktrees (../wt-backend and ../wt-qa):
+Preparing worktree (new branch 'agent/backend-developer/phase-02-test')
+HEAD is now at d45a138 merge(phase-02): integrate smoke3-branch-b from qa-engineer
+Preparing worktree (new branch 'agent/qa-engineer/phase-02-test')
+HEAD is now at d45a138 merge(phase-02): integrate smoke3-branch-b from qa-engineer
+
+2. git worktree list:
+E:/25.Mykey/GroceryHub d45a138 [integration/phase-02]
+E:/25.Mykey/wt-backend d45a138 [agent/backend-developer/phase-02-test]
+E:/25.Mykey/wt-qa      d45a138 [agent/qa-engineer/phase-02-test]
+
+3. Committing a distinct file in ../wt-backend:
+warning: in the working copy of 'docs/evidence/phase-02/worktree-backend.txt', CRLF will be replaced by LF the next time Git touches it
+[agent/backend-developer/phase-02-test a58cb2f] test(phase-02): add worktree-backend.txt in wt-backend
+ 1 file changed, 1 insertion(+)
+ create mode 100644 docs/evidence/phase-02/worktree-backend.txt
+
+4. Committing a distinct file in ../wt-qa:
+warning: in the working copy of 'docs/evidence/phase-02/worktree-qa.txt', CRLF will be replaced by LF the next time Git touches it
+[agent/qa-engineer/phase-02-test 2f9841e] test(phase-02): add worktree-qa.txt in wt-qa
+ 1 file changed, 1 insertion(+)
+ create mode 100644 docs/evidence/phase-02/worktree-qa.txt
+
+5. Merging both worktree branches into integration/phase-02:
+Merge made by the 'ort' strategy.
+ docs/evidence/phase-02/worktree-backend.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 docs/evidence/phase-02/worktree-backend.txt
+Merge made by the 'ort' strategy.
+ docs/evidence/phase-02/worktree-qa.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 docs/evidence/phase-02/worktree-qa.txt
+
+6. Removing worktrees and temporary test branches:
+Deleted branch agent/backend-developer/phase-02-test (was a58cb2f).
+Deleted branch agent/qa-engineer/phase-02-test (was 2f9841e).
+Deleted branch agent/backend-developer/phase-02-smoke3a (was ac70b74).
+Deleted branch agent/qa-engineer/phase-02-smoke3b (was ba836f4).
+
+7. Final git worktree list:
+E:/25.Mykey/GroceryHub 93128ce [integration/phase-02]
