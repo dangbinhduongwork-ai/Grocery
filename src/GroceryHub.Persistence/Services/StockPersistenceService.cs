@@ -40,7 +40,10 @@ public sealed class StockPersistenceService(
             .OrderBy(static x => x.ProductId)
             .ToList();
 
-        await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        bool ownsTransaction = _dbContext.Database.CurrentTransaction is null;
+        await using IDbContextTransaction? transaction = ownsTransaction
+            ? await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct)
+            : null;
         try
         {
             foreach (var item in consolidatedItems)
@@ -53,7 +56,10 @@ public sealed class StockPersistenceService(
 
                 if (affected < 1)
                 {
-                    await transaction.RollbackAsync(ct);
+                    if (transaction is not null)
+                    {
+                        await transaction.RollbackAsync(ct);
+                    }
                     return Result.Failure(DomainError.Conflict(
                         ErrorCodes.InsufficientStock,
                         $"Insufficient stock for product '{item.ProductId}'."));
@@ -81,12 +87,18 @@ public sealed class StockPersistenceService(
             await _dbContext.StockReservations.AddRangeAsync(reservations, ct);
             await _dbContext.SaveChangesAsync(ct);
 
-            await transaction.CommitAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(ct);
+            }
             return Result.Success();
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(ct);
+            }
             throw;
         }
     }
@@ -100,7 +112,10 @@ public sealed class StockPersistenceService(
             return Result.Failure(DomainError.Validation(ErrorCodes.ValidationFailed, "OrderId cannot be empty."));
         }
 
-        await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        bool ownsTransaction = _dbContext.Database.CurrentTransaction is null;
+        await using IDbContextTransaction? transaction = ownsTransaction
+            ? await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct)
+            : null;
         try
         {
             var activeReservations = await _dbContext.StockReservations
@@ -110,7 +125,10 @@ public sealed class StockPersistenceService(
 
             if (activeReservations.Count == 0)
             {
-                await transaction.RollbackAsync(ct);
+                if (transaction is not null)
+                {
+                    await transaction.RollbackAsync(ct);
+                }
                 return Result.Success();
             }
 
@@ -132,12 +150,18 @@ public sealed class StockPersistenceService(
                         .SetProperty(b => b.UpdatedAt, utcNow),
                     ct);
 
-            await transaction.CommitAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(ct);
+            }
             return Result.Success();
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(ct);
+            }
             throw;
         }
     }
@@ -151,7 +175,10 @@ public sealed class StockPersistenceService(
             return Result.Failure(DomainError.Validation(ErrorCodes.ValidationFailed, "OrderId cannot be empty."));
         }
 
-        await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        bool ownsTransaction = _dbContext.Database.CurrentTransaction is null;
+        await using IDbContextTransaction? transaction = ownsTransaction
+            ? await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct)
+            : null;
         try
         {
             var activeReservations = await _dbContext.StockReservations
@@ -161,7 +188,10 @@ public sealed class StockPersistenceService(
 
             if (activeReservations.Count == 0)
             {
-                await transaction.RollbackAsync(ct);
+                if (transaction is not null)
+                {
+                    await transaction.RollbackAsync(ct);
+                }
                 return Result.Failure(DomainError.NotFound(
                     "ReservationsNotFound",
                     $"No active stock reservations found for order '{orderId}'."));
@@ -177,7 +207,10 @@ public sealed class StockPersistenceService(
 
                 if (stockItem is null)
                 {
-                    await transaction.RollbackAsync(ct);
+                    if (transaction is not null)
+                    {
+                        await transaction.RollbackAsync(ct);
+                    }
                     return Result.Failure(DomainError.NotFound(
                         "StockItemNotFound",
                         $"Stock item for product '{res.ProductId}' was not found."));
@@ -195,7 +228,10 @@ public sealed class StockPersistenceService(
 
                 if (affected < 1)
                 {
-                    await transaction.RollbackAsync(ct);
+                    if (transaction is not null)
+                    {
+                        await transaction.RollbackAsync(ct);
+                    }
                     return Result.Failure(DomainError.Conflict(
                         "CommitFailed",
                         $"Failed to deduct stock for product '{res.ProductId}'."));
@@ -235,12 +271,18 @@ public sealed class StockPersistenceService(
                     ct);
 
             await _dbContext.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(ct);
+            }
             return Result.Success();
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(ct);
+            }
             throw;
         }
     }

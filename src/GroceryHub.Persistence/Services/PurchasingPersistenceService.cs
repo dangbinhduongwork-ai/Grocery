@@ -43,7 +43,10 @@ public sealed class PurchasingPersistenceService(
                 DomainError.Validation(ErrorCodes.ValidationFailed, "Received quantity must be > 0 and unit cost must be >= 0."));
         }
 
-        await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        bool ownsTransaction = _dbContext.Database.CurrentTransaction is null;
+        await using IDbContextTransaction? transaction = ownsTransaction
+            ? await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct)
+            : null;
         try
         {
             DateTimeOffset utcNow = _timeProvider.GetUtcNow();
@@ -57,7 +60,10 @@ public sealed class PurchasingPersistenceService(
 
                 if (po is null)
                 {
-                    await transaction.RollbackAsync(ct);
+                    if (transaction is not null)
+                    {
+                        await transaction.RollbackAsync(ct);
+                    }
                     return Result.Failure<GoodsReceiptIntakeResult>(
                         DomainError.NotFound("PurchaseOrderNotFound", $"Purchase order '{command.PurchaseOrderId.Value}' was not found."));
                 }
@@ -178,7 +184,10 @@ public sealed class PurchasingPersistenceService(
             }
 
             await _dbContext.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(ct);
+            }
 
             return Result.Success(new GoodsReceiptIntakeResult(
                 receipt.Id,
@@ -187,7 +196,10 @@ public sealed class PurchasingPersistenceService(
         }
         catch (Exception)
         {
-            await transaction.RollbackAsync(ct);
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(ct);
+            }
             throw;
         }
     }

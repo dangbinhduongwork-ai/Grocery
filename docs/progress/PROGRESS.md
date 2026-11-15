@@ -16,7 +16,7 @@
 | **04** | Backend Foundation | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-04-plan.md` | `docs/progress/phase-04-report.md` (`docs/evidence/phase-04/`) |
 | **05** | Authentication and RBAC | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-05-plan.md` | `docs/progress/phase-05-report.md` (`docs/evidence/phase-05/`) |
 | **06** | Products, Categories and Inventory | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-06-plan.md` | `docs/progress/phase-06-report.md` (`docs/evidence/phase-06/`) |
-| **07** | Cart, Checkout and Order Lifecycle | NotStarted | — | Pending | — | — | — |
+| **07** | Cart, Checkout and Order Lifecycle | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-07-plan.md` | `docs/progress/phase-07-report.md` (`docs/evidence/phase-07/`) |
 | **08** | Customer Frontend (Storefront) | NotStarted | — | Pending | — | — | — |
 | **09** | Admin, Manager and Staff Dashboard | NotStarted | — | Pending | — | — | — |
 | **10** | SePay VietQR + Webhook | NotStarted | — | Pending | — | — | — |
