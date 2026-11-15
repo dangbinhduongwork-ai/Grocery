@@ -7,10 +7,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GroceryHub.SharedKernel\GroceryHub.SharedKernel.csproj" />
+    <ProjectReference Include="..\GroceryHub.Persistence\GroceryHub.Persistence.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="SkiaSharp" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="GroceryHub.UnitTests" />

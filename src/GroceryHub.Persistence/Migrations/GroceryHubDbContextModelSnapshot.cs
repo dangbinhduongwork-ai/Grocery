@@ -117,6 +117,286 @@ namespace GroceryHub.Persistence.Migrations
                     b.ToTable("AuditLogs", "audit");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Banner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<DateTimeOffset?>("EndsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ImageKey")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Placement")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasDefaultValue("HomeHero");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTimeOffset?>("StartsAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Placement", "IsActive", "SortOrder")
+                        .HasDatabaseName("IX_Banners_Placement_Active");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Placement", "IsActive", "SortOrder"), new[] { "Title", "ImageKey", "LinkUrl", "StartsAt", "EndsAt" });
+
+                    b.ToTable("Banners", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_Banners_Schedule", "[StartsAt] IS NULL OR [EndsAt] IS NULL OR [StartsAt] <= [EndsAt]");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("LogoKey")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Brands_Name");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Brands_Slug");
+
+                    b.HasIndex("IsActive", "Name")
+                        .HasDatabaseName("IX_Brands_IsActive_Name")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.ToTable("Brands", "catalog");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImageKey")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Categories_Slug");
+
+                    b.HasIndex("ParentId", "SortOrder")
+                        .HasDatabaseName("IX_Categories_ParentId_SortOrder")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ParentId", "SortOrder"), new[] { "Name", "Slug", "IsActive" });
+
+                    b.ToTable("Categories", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_Categories_NoSelfParent", "[ParentId] IS NULL OR [ParentId] <> [Id]");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.GoodsReceipt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("PurchaseOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReceiptNumber")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<Guid>("ReceivedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PurchaseOrderId")
+                        .HasDatabaseName("IX_GoodsReceipts_PurchaseOrderId")
+                        .HasFilter("[PurchaseOrderId] IS NOT NULL");
+
+                    b.HasIndex("ReceiptNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_GoodsReceipts_ReceiptNumber");
+
+                    b.HasIndex("ReceivedAt")
+                        .HasDatabaseName("IX_GoodsReceipts_ReceivedAt");
+
+                    b.ToTable("GoodsReceipts", "purchasing");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.GoodsReceiptItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<Guid>("GoodsReceiptId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PurchaseOrderItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ReceivedQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<long>("UnitCost")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoodsReceiptId")
+                        .HasDatabaseName("IX_GoodsReceiptItems_GoodsReceiptId");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("IX_GoodsReceiptItems_ProductId");
+
+                    b.ToTable("GoodsReceiptItems", "purchasing", t =>
+                        {
+                            t.HasCheckConstraint("CK_GoodsReceiptItems_Quantities", "[ReceivedQuantity] > 0 AND [UnitCost] >= 0");
+                        });
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.IdempotencyRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -270,6 +550,285 @@ namespace GroceryHub.Persistence.Migrations
                     b.ToTable("Permissions", "identity");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<Guid?>("BrandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("CostPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("ExpiryTracked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsFeatured")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<long>("ListPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("PackSize")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<decimal>("RatingAvg")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(3, 2)
+                        .HasColumnType("decimal(3,2)")
+                        .HasDefaultValue(0.00m);
+
+                    b.Property<int>("RatingCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SearchText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long>("SellingPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(280)
+                        .HasColumnType("nvarchar(280)");
+
+                    b.Property<int>("SoldCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("SpecsJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)")
+                        .HasDefaultValue("Draft");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Barcode")
+                        .HasDatabaseName("IX_Products_Barcode")
+                        .HasFilter("[Barcode] IS NOT NULL AND [DeletedAt] IS NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Barcode"), new[] { "Sku", "Name", "Status" });
+
+                    b.HasIndex("SearchText")
+                        .HasDatabaseName("IX_Products_SearchText")
+                        .HasFilter("[Status] = 'Active' AND [DeletedAt] IS NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("SearchText"), new[] { "Id", "Name", "Slug", "CategoryId", "BrandId", "SellingPrice", "ListPrice", "Status", "SoldCount" });
+
+                    b.HasIndex("Sku")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Products_Sku");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Products_Slug");
+
+                    b.HasIndex("BrandId", "Status")
+                        .HasDatabaseName("IX_Products_BrandId_Status")
+                        .HasFilter("[BrandId] IS NOT NULL AND [DeletedAt] IS NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("BrandId", "Status"), new[] { "CategoryId", "SellingPrice" });
+
+                    b.HasIndex("CategoryId", "Status", "SellingPrice")
+                        .HasDatabaseName("IX_Products_Category_Status_SellingPrice")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CategoryId", "Status", "SellingPrice"), new[] { "Name", "Slug", "Sku", "BrandId", "Unit", "PackSize", "ListPrice", "IsFeatured", "RatingAvg", "RatingCount", "SoldCount", "CreatedAt" });
+
+                    b.HasIndex("Status", "SoldCount", "CreatedAt")
+                        .HasDatabaseName("IX_Products_Status_SoldCount")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Status", "SoldCount", "CreatedAt"), new[] { "Name", "Slug", "CategoryId", "BrandId", "SellingPrice", "ListPrice", "Unit", "PackSize", "RatingAvg", "RatingCount" });
+
+                    b.ToTable("Products", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_Products_CostPrice", "[CostPrice] >= 0");
+
+                            t.HasCheckConstraint("CK_Products_ListPrice", "[ListPrice] >= 0");
+
+                            t.HasCheckConstraint("CK_Products_Rating", "[RatingAvg] >= 0.00 AND [RatingAvg] <= 5.00 AND [RatingCount] >= 0 AND [SoldCount] >= 0");
+
+                            t.HasCheckConstraint("CK_Products_SellingPrice", "[SellingPrice] >= 0");
+
+                            t.HasCheckConstraint("CK_Products_SellingPrice_ListPrice", "[SellingPrice] <= [ListPrice]");
+
+                            t.HasCheckConstraint("CK_Products_SpecsJson", "[SpecsJson] IS NULL OR ISJSON([SpecsJson]) = 1");
+
+                            t.HasCheckConstraint("CK_Products_Status", "[Status] IN ('Draft', 'Active', 'Archived')");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.ProductImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AltText")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<int>("Height")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(800);
+
+                    b.Property<bool>("IsPrimary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("Width")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(800);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_ProductImages_ProductId_Primary")
+                        .HasFilter("[IsPrimary] = 1");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_ProductImages_StorageKey");
+
+                    b.HasIndex("ProductId", "SortOrder")
+                        .HasDatabaseName("IX_ProductImages_ProductId_SortOrder");
+
+                    b.ToTable("ProductImages", "catalog");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.ProductPriceHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<Guid?>("ChangedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("NewListPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("NewSellingPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("OldListPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("OldSellingPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "ChangedAt")
+                        .HasDatabaseName("IX_ProductPriceHistory_ProductId_ChangedAt");
+
+                    b.ToTable("ProductPriceHistory", "catalog");
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Province", b =>
                 {
                     b.Property<string>("Code")
@@ -294,6 +853,132 @@ namespace GroceryHub.Persistence.Migrations
                     b.HasKey("Code");
 
                     b.ToTable("Provinces", "shared");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PurchaseOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PoNumber")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)")
+                        .HasDefaultValue("Draft");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("TotalAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PoNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PurchaseOrders_PoNumber");
+
+                    b.HasIndex("Status", "CreatedAt")
+                        .HasDatabaseName("IX_PurchaseOrders_Status_CreatedAt");
+
+                    b.HasIndex("SupplierId", "Status", "CreatedAt")
+                        .HasDatabaseName("IX_PurchaseOrders_SupplierId_Status");
+
+                    b.ToTable("PurchaseOrders", "purchasing", t =>
+                        {
+                            t.HasCheckConstraint("CK_PurchaseOrders_Status", "[Status] IN ('Draft', 'Submitted', 'PartiallyReceived', 'Received', 'Closed', 'Cancelled')");
+
+                            t.HasCheckConstraint("CK_PurchaseOrders_TotalAmount", "[TotalAmount] >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PurchaseOrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<int>("OrderedQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PurchaseOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ReceivedQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<long>("Subtotal")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UnitCost")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("IX_PurchaseOrderItems_ProductId");
+
+                    b.HasIndex("PurchaseOrderId", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PurchaseOrderItems_PO_Product");
+
+                    b.ToTable("PurchaseOrderItems", "purchasing", t =>
+                        {
+                            t.HasCheckConstraint("CK_PurchaseOrderItems_Quantities", "[OrderedQuantity] > 0 AND [ReceivedQuantity] >= 0 AND [UnitCost] >= 0 AND [Subtotal] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.RefreshToken", b =>
@@ -489,6 +1174,254 @@ namespace GroceryHub.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("StaffProfiles", "identity");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.StockItem", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<int>("OnHand")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("ReorderLevel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(10);
+
+                    b.Property<int>("Reserved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("ProductId");
+
+                    b.HasIndex("OnHand", "Reserved", "ReorderLevel")
+                        .HasDatabaseName("IX_StockItems_LowStock");
+
+                    b.ToTable("StockItems", "inventory", t =>
+                        {
+                            t.HasCheckConstraint("CK_StockItems_Invariants", "[OnHand] >= 0 AND [Reserved] >= 0 AND [Reserved] <= [OnHand]");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.StockMovement", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("At")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<int>("OnHandAfter")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OnHandBefore")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferenceType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<long>("UnitCost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "At")
+                        .HasDatabaseName("IX_StockMovements_ProductId_At");
+
+                    b.HasIndex("ReferenceType", "ReferenceId")
+                        .HasDatabaseName("IX_StockMovements_Reference")
+                        .HasFilter("[ReferenceId] IS NOT NULL");
+
+                    b.ToTable("StockMovements", "inventory", t =>
+                        {
+                            t.HasCheckConstraint("CK_StockMovements_Quantities", "[OnHandBefore] >= 0 AND [OnHandAfter] >= 0 AND [UnitCost] >= 0");
+
+                            t.HasCheckConstraint("CK_StockMovements_Type", "[Type] IN ('PurchaseReceipt', 'Sale', 'Adjustment', 'Return', 'Waste')");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.StockReservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)")
+                        .HasDefaultValue("Active");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_StockReservations_OrderId_ProductId");
+
+                    b.HasIndex("ProductId", "Status")
+                        .HasDatabaseName("IX_StockReservations_ProductId_Status");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ProductId", "Status"), new[] { "Quantity", "OrderId" });
+
+                    b.HasIndex("Status", "ExpiresAt")
+                        .HasDatabaseName("IX_StockReservations_Status_ExpiresAt")
+                        .HasFilter("[Status] = 'Active' AND [ExpiresAt] IS NOT NULL");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Status", "ExpiresAt"), new[] { "OrderId", "ProductId", "Quantity" });
+
+                    b.ToTable("StockReservations", "inventory", t =>
+                        {
+                            t.HasCheckConstraint("CK_StockReservations_Quantity", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_StockReservations_Status", "[Status] IN ('Active', 'Released', 'Committed')");
+                        });
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("ContactPerson")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TaxCode")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Suppliers_Code");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Suppliers_Name")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.ToTable("Suppliers", "purchasing");
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.User", b =>
@@ -694,6 +1627,99 @@ namespace GroceryHub.Persistence.Migrations
                     b.ToTable("Wards", "shared");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Category", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.Category", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.GoodsReceipt", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("GoodsReceipts")
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("PurchaseOrder");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.GoodsReceiptItem", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.GoodsReceipt", "GoodsReceipt")
+                        .WithMany("Items")
+                        .HasForeignKey("GoodsReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GoodsReceipt");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Product", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GroceryHub.Persistence.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.ProductImage", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.ProductPriceHistory", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.Product", "Product")
+                        .WithMany("PriceHistories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PurchaseOrder", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.Supplier", "Supplier")
+                        .WithMany("PurchaseOrders")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PurchaseOrderItem", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("Items")
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PurchaseOrder");
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.RefreshToken", b =>
                 {
                     b.HasOne("GroceryHub.Persistence.Entities.User", "User")
@@ -733,6 +1759,17 @@ namespace GroceryHub.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.StockReservation", b =>
+                {
+                    b.HasOne("GroceryHub.Persistence.Entities.StockItem", "StockItem")
+                        .WithMany("Reservations")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("StockItem");
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.UserPermission", b =>
@@ -792,6 +1829,23 @@ namespace GroceryHub.Persistence.Migrations
                     b.Navigation("Province");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Category", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.GoodsReceipt", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -799,9 +1853,23 @@ namespace GroceryHub.Persistence.Migrations
                     b.Navigation("UserPermissions");
                 });
 
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Product", b =>
+                {
+                    b.Navigation("Images");
+
+                    b.Navigation("PriceHistories");
+                });
+
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Province", b =>
                 {
                     b.Navigation("Wards");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.PurchaseOrder", b =>
+                {
+                    b.Navigation("GoodsReceipts");
+
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.Role", b =>
@@ -809,6 +1877,16 @@ namespace GroceryHub.Persistence.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.StockItem", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("GroceryHub.Persistence.Entities.Supplier", b =>
+                {
+                    b.Navigation("PurchaseOrders");
                 });
 
             modelBuilder.Entity("GroceryHub.Persistence.Entities.User", b =>

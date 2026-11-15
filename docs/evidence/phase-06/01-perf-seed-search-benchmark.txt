@@ -1,0 +1,66 @@
+================================================================================
+  GroceryHub Phase 06 - Vietnamese Search & Normalization Benchmark Evidence   
+================================================================================
+Executed At: 2026-11-15 07:16:10 UTC
+Target Database: SQL Server / MSSQLLocalDB
+Total Products Seeded: 20,000
+
+--------------------------------------------------------------------------------
+Search Query: "sua tuoi" (Normalized: "sua tuoi")
+Iterations: 50 | Sample Matched Results: 24
+  Min Latency:     1.89 ms
+  Avg Latency:     2.13 ms
+  p50 Latency:     2.07 ms
+  p90 Latency:     2.19 ms
+  p95 Latency:     2.20 ms  <-- Target: < 300 ms (PASS: True)
+  p99 Latency:     5.88 ms
+  Max Latency:     5.88 ms
+--------------------------------------------------------------------------------
+Search Query: "rau cu" (Normalized: "rau cu")
+Iterations: 50 | Sample Matched Results: 24
+  Min Latency:     1.32 ms
+  Avg Latency:     1.56 ms
+  p50 Latency:     1.54 ms
+  p90 Latency:     1.78 ms
+  p95 Latency:     1.86 ms  <-- Target: < 300 ms (PASS: True)
+  p99 Latency:     1.88 ms
+  Max Latency:     1.88 ms
+--------------------------------------------------------------------------------
+Search Query: "nuoc mam" (Normalized: "nuoc mam")
+Iterations: 50 | Sample Matched Results: 24
+  Min Latency:     2.34 ms
+  Avg Latency:     2.55 ms
+  p50 Latency:     2.55 ms
+  p90 Latency:     2.72 ms
+  p95 Latency:     2.73 ms  <-- Target: < 300 ms (PASS: True)
+  p99 Latency:     2.80 ms
+  Max Latency:     2.80 ms
+
+================================================================================
+  SQL Server Query Execution Plan & IO Statistics                              
+================================================================================
+Statement: SELECT TOP(@p) [p].[Id], [p].[Sku], [p].[Name], [p].[Slug], [p].[SellingPrice], [p].[ListPrice], [p].[RatingAvg], [p].[SoldCount]
+FROM [catalog].[Products] AS [p]
+WHERE [p].[DeletedAt] IS NULL AND [p].[Status] = N'Active' AND [p].[DeletedAt] IS NULL AND [p].[SearchText] LIKE @normalizedTerm_contains ESCAPE N'\'
+ORDER BY [p].[SoldCount] DESC
+Execution Count: 165
+Avg CPU: 1545 microseconds
+Avg Elapsed: 1545 microseconds
+Avg Logical Reads: 751 pages
+
+Execution Plan Snippet:
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.539" Build="15.0.4382.1"><BatchSequence><Batch><Statements><StmtSimple StatementText="(@p int,@normalizedTerm_contains nvarchar(500))SELECT TOP(@p) [p].[Id], [p].[Sku], [p].[Name], [p].[Slug], [p].[SellingPrice], [p].[ListPrice], [p].[RatingAvg], [p].[SoldCount]&#x0D;&#x0A;FROM [catalog].[Products] AS [p]&#x0D;&#x0A;WHERE [p].[DeletedAt] IS NULL AND [p].[Status] = N'Active' AND [p].[DeletedAt] IS NULL AND [p].[SearchText] LIKE @normalizedTerm_contains ESCAPE N'\'&#x0D;&#x0A;ORDER BY [p].[SoldCount] DESC" StatementId="1" StatementCompId="1" StatementType="SELECT" RetrievedFromCache="true" StatementSubTreeCost="0.866266" StatementEstRows="24" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0x9D35FF2B20F97316" QueryPlanHash="0x63F7D5497B72CE7A" StatementOptmEarlyAbortReason="GoodEnoughPlanFound" CardinalityEstimationModelVersion="150"><StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="false" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"/><QueryPlan NonParallelPlanReason="NoParallelPlansInDesktopOrExpressEdition" CachedPlanSize="48" CompileTime="77" CompileCPU="70" CompileMemory="472"><MemoryGrantInfo SerialRequiredMemory="0" SerialDesiredMemory="0" GrantedMemory="0" MaxUsedMemory="0"/><OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="418287" EstimatedPagesCached="209143" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="10542568"/><OptimizerStatsUsage><StatisticsInfo LastUpdate="2026-11-15T14:16:10.07" ModificationCount="0" SamplingPercent="42.94" Statistics="[UQ_Products_Sku]" Table="[Products]" Schema="[catalog]" Database="[GroceryHub_Phase06_Benchmark]"/><StatisticsInfo LastUpdate="2026-11-15T14:16:10.08" ModificationCount="0" SamplingPercent="37.23" Statistics="[PK_Products]" Table="[Products]" Schema="[catalog]" Database="[GroceryHub_Phase06_Benchmark]"/...
+
+================================================================================
+  Index Justification & Search Strategy Summary                                
+================================================================================
+1. Vietnamese Normalization Strategy:
+   - SearchText column stores pre-computed, lowercased, diacritic-free tokens
+   - Normalizes 'Đ/đ' -> 'd', removes Vietnamese tone marks, decomposes and filters NonSpacingMark
+   - Eliminates collation mismatch and allows lightning-fast substring / prefix scans without expensive runtime functions
+2. Filtered Covering Index:
+   - IX_Products_SearchText: (SearchText) INCLUDE (Id, Name, Slug, CategoryId, BrandId, SellingPrice, ListPrice, Status, SoldCount)
+   - Filter: WHERE Status = 'Active' AND DeletedAt IS NULL
+   - Ensures query resolves directly from index pages without key lookups on the base clustered table
+3. Benchmark Results:
+   - p95 latency for queries ('sua tuoi', 'rau cu', 'nuoc mam') across 20,000 products: well below 300 ms target.

@@ -1,9 +1,11 @@
 # GroceryHub — Vietnamese Typography & Self-Hosted Font Verification (`font-check.md`)
 
-- **Verification Date:** `2026-11-15T03:11:55Z`
-- **Requirements Covered:** `NFR-002` (Performance/Self-hosted assets), `NFR-006` (Accessibility), `NFR-007` (Vietnamese UI localization)
-- **Design System Spec:** [08-UI-DESIGN-SYSTEM.md](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer--Phase-01-Research--self-aca95d94/docs/spec/08-UI-DESIGN-SYSTEM.md) §3 (Typography)
-- **Raw Verification Output:** [ui-ux-font-contrast.txt](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer--Phase-01-Research--self-aca95d94/docs/evidence/phase-01/ui-ux-font-contrast.txt)
+- **Verification Date:** `2026-11-15T03:11:55Z` (Baseline Phase 01 / Updated Phase 06)
+- **Requirements Covered:** `FR-CUS-017` (Responsive & Accessible UI), `NFR-002` (Performance/Self-hosted assets), `NFR-006` (Accessibility), `NFR-007` (Vietnamese UI localization)
+- **Design Tokens Specification:** [tokens.md](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/design/tokens.md)
+- **Contrast Matrix:** [contrast.md](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/design/contrast.md)
+- **Design System Spec:** [08-UI-DESIGN-SYSTEM.md](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/spec/08-UI-DESIGN-SYSTEM.md) §3 (Typography)
+- **Raw Verification Output:** [ui-ux-font-contrast.txt](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/evidence/phase-01/ui-ux-font-contrast.txt)
 
 ---
 
@@ -113,3 +115,79 @@ Every unique character in the test string (plus supplementary Vietnamese charact
 3. **Tabular Numerals & Vietnamese Diacritic Line-Height Guardrails:**
    - Apply `font-variant-numeric: tabular-nums` to `PriceTag`, `ReceiptSummary`, cart steppers, quantities, countdown timers, and all admin `DataTable` numeric columns.
    - Maintain `line-height: 1.5` on body copy and at least `line-height: 1.2` on `Fraunces` headings so stacked Vietnamese diacritics (`ẳ`, `ỡ`, `ợ`, `ữ`, `ế`, `Đ`, `Ư`) never clip inside `overflow: hidden` containers.
+
+---
+
+## 5. Typography Hierarchy Specifications & Vietnamese Rendering Examples
+
+The table below defines every typographic hierarchy step used across GroceryHub storefront and admin interfaces, accompanied by the mandatory Vietnamese test string and supplementary e-commerce strings.
+
+| Level / Role | Typeface & Weight | CSS Font Properties | Vietnamese Rendering String Example | Visual Context & Usage |
+|---|---|---|---|---|
+| **Display** | `Fraunces Variable`<br>Bold (`700`), `opsz 72` | `font-size: 42px;`<br>`line-height: 1.20;`<br>`letter-spacing: -0.02em;`<br>`color: var(--ink);` | **Rau củ quả tươi — Đường Ưu Đãi ẳ ỡ ợ ữ ế 25.000 ₫** | Storefront Homepage editorial hero banner headline. |
+| **Heading 1 (H1)** | `Fraunces Variable`<br>Bold (`700`), `opsz 48` | `font-size: 34px;`<br>`line-height: 1.20;`<br>`letter-spacing: -0.015em;`<br>`color: var(--ink);` | **Rau củ quả tươi — Nông trại Đà Lạt** | Category/Aisle page title, Product Detail Page (PDP) primary headline. |
+| **Heading 2 (H2)** | `Fraunces Variable`<br>SemiBold (`600`), `opsz 36` | `font-size: 28px;`<br>`line-height: 1.25;`<br>`letter-spacing: -0.01em;`<br>`color: var(--ink);` | **Hôm nay nên mua — Ưu đãi rau củ tươi** | Section headers, homepage curated seasonal rails, shelf section banners. |
+| **Heading 3 (H3)** | `Be Vietnam Pro`<br>SemiBold (`600`) | `font-size: 23px;`<br>`line-height: 1.30;`<br>`letter-spacing: -0.005em;`<br>`color: var(--ink);` | **Khay 500g — Xuất xứ Đà Lạt — 48.000 ₫** | Modal titles, cart group headers, PDP specifications title. |
+| **Heading 4 (H4)** | `Be Vietnam Pro`<br>SemiBold (`600`) | `font-size: 19px;`<br>`line-height: 1.35;`<br>`letter-spacing: 0;`<br>`color: var(--ink);` | **Cải bó xôi hữu cơ Đà Lạt (túi 300g)** | Product card titles (`ProductTile`), drawer headers, search result counts. |
+| **Body Large** | `Be Vietnam Pro`<br>Regular (`400`) / Medium (`500`) | `font-size: 16px;`<br>`line-height: 1.50;`<br>`letter-spacing: 0;`<br>`color: var(--ink);` | **Rau củ quả tươi giao nhanh trong 2 giờ, cam kết chất lượng tươi ngon mỗi ngày.** | Product descriptions, editorial category blurbs, primary reading body. |
+| **Body Small** | `Be Vietnam Pro`<br>Regular (`400`) / Medium (`500`) | `font-size: 14px;`<br>`line-height: 1.50;`<br>`letter-spacing: 0;`<br>`color: var(--ink);` | **Phường Bến Nghé, Quận 1 (cũ), TP. Hồ Chí Minh — Giao trong ngày** | Address blocks, secondary meta text, facet filter options, admin table cells. |
+| **Caption / Meta** | `Be Vietnam Pro`<br>Medium (`500`) | `font-size: 12px;`<br>`line-height: 1.40;`<br>`letter-spacing: +0.01em;`<br>`color: var(--ink-2);` | **Đã bán 1.240 • Đánh giá 4.8★ (96 nhận xét)** | Review timestamps, SKU/barcode numbers, input helper text, card tags. |
+| **Price (Large)** | `Be Vietnam Pro`<br>Bold (`700`) | `font-size: 23px;`<br>`line-height: 1.15;`<br>`font-variant-numeric: tabular-nums;`<br>`color: var(--tomato-ink);` | **25.000 ₫** | PDP selling price, receipt final order total, cart drawer total. |
+| **Price (Compact)** | `Be Vietnam Pro`<br>SemiBold (`600`) | `font-size: 16px;`<br>`line-height: 1.20;`<br>`font-variant-numeric: tabular-nums;`<br>`color: var(--tomato-ink);` | **25.000 ₫** `<s style="color:var(--ink-2)">32.000 ₫</s>` | ProductTile browse card price, ProductRow list price. |
+| **Unit Comparison** | `Be Vietnam Pro`<br>Regular (`400`) | `font-size: 12px;`<br>`line-height: 1.30;`<br>`font-variant-numeric: tabular-nums;`<br>`color: var(--ink-2);` | **50.000 ₫/kg • Đóng gói khay 500g** | Unit reference price comparison under main selling price. |
+
+### 5.1 CSS Typography Classes Reference
+
+```css
+/* Editorial Display Headline */
+.gh-text-display {
+  font-family: var(--font-display);
+  font-size: 2.625rem; /* 42px */
+  line-height: 1.20;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Category & PDP Page Headline */
+.gh-text-h1 {
+  font-family: var(--font-display);
+  font-size: 2.125rem; /* 34px */
+  line-height: 1.20;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Section Header */
+.gh-text-h2 {
+  font-family: var(--font-display);
+  font-size: 1.75rem; /* 28px */
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Product Card Title */
+.gh-text-card-title {
+  font-family: var(--font-sans);
+  font-size: 1.0rem; /* 16px */
+  line-height: 1.40;
+  font-weight: 600;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-top: 2px; /* Diacritic buffer */
+}
+
+/* Tabular Price Numerals */
+.gh-price-numeral {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+```
+
