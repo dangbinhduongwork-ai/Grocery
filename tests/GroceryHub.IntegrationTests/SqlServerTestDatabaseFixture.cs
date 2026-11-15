@@ -68,6 +68,9 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
             await dbContext.Database.MigrateAsync();
             IConfiguration config = new ConfigurationBuilder().Build();
             await IdentitySeeder.SeedIdentityAsync(dbContext, config, TimeProvider.System, NullLogger.Instance);
+            await AdminUnitSeeder.SeedAdminUnitsAsync(dbContext, TimeProvider.System, NullLogger.Instance);
+            await ShippingSeeder.SeedShippingAsync(dbContext, TimeProvider.System, NullLogger.Instance);
+            await PromotionsSeeder.SeedPromotionsAsync(dbContext, TimeProvider.System, NullLogger.Instance);
         }
 
         await using SqlConnection connection = new(ConnectionString);
@@ -96,6 +99,9 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
                 TablesToIgnore =
                 [
                     new Table("shared", "__EFMigrationsHistory"),
+                    new Table("shared", "AdminUnitDataVersion"),
+                    new Table("shared", "Provinces"),
+                    new Table("shared", "Wards"),
                 ],
             });
     }
@@ -127,6 +133,8 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
         await using GroceryHubDbContext dbContext = CreateDbContext();
         IConfiguration config = new ConfigurationBuilder().Build();
         await IdentitySeeder.SeedIdentityAsync(dbContext, config, TimeProvider.System, NullLogger.Instance);
+        await ShippingSeeder.SeedShippingAsync(dbContext, TimeProvider.System, NullLogger.Instance);
+        await PromotionsSeeder.SeedPromotionsAsync(dbContext, TimeProvider.System, NullLogger.Instance);
     }
 
     public async Task DisposeAsync()
