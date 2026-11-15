@@ -1,4 +1,6 @@
-# 02 — Project Requirements (GroceryHub)
+# 02 — Project Requirements (GroceryHub — v1.0 Baseline)
+
+> **Version & Change Control Note (Phase 01 Freeze — 2026-11-15):** This document is frozen at **v1.0**. Any addition, removal, or modification to an `FR-*`, `BR-*`, or `NFR-*` requirement after Phase 01 requires a written Change Request (`docs/agent-notes/CR-<nnn>-<slug>.md`) approved by the user and recorded in `docs/progress/DECISIONS.md`.
 
 Authoritative list of functional (FR), non-functional (NFR) requirements and business rules (BR). Every phase prompt cites these IDs. Traceability (`docs/progress/TRACEABILITY.md`) maps each ID to code, test and evidence. Priority: **M** = must for v1, **S** = should, **C** = could (only after all M done).
 

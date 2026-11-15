@@ -10,7 +10,7 @@
 | Phase | Title | Status | Started | Gate Decision | GO Date | Plan | Report & Evidence |
 |---|---|---|---|---|---|---|---|
 | **00** | Audit repository and environment | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-00-plan.md` | `docs/progress/phase-00-report.md` (`docs/evidence/phase-00/`) |
-| **01** | Research and Requirements | NotStarted | — | Pending | — | — | — |
+| **01** | Research and Requirements | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/progress/phase-01-plan.md` | `docs/progress/phase-01-report.md` (`docs/evidence/phase-01/`) |
 | **02** | Agents, Skills, Rules (install & prove) | NotStarted | — | Pending | — | — | — |
 | **03** | Architecture and Database Design | NotStarted | — | Pending | — | — | — |
 | **04** | Backend Foundation | NotStarted | — | Pending | — | — | — |

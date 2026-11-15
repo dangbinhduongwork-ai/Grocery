@@ -67,7 +67,16 @@ Finding: there is **no mature open-source grocery storefront** on React + Vite +
 | Fonts | Be Vietnam Pro + display serif (Fraunces candidate), self-hosted | Verify Vietnamese glyphs |
 | Product imagery system | Uploaded originals → server-side derivatives (WebP/AVIF, 4:5 and 1:1 crops, 320/640/960 px), alt text required, consistent neutral background guideline for photographers; dev placeholders clearly labelled "DEV" | Never ship stock images with unclear licences |
 
-## 4. Tasks for Phase 1 (research confirmation)
-1. Re-open each repository, record commit date, licence file, and last release; update this table.
-2. Capture 6–10 reference screenshots per source (private notes) and write observations (what to emulate / avoid) into `docs/design/references.md`.
-3. Decide Radix vs Base UI variant of shadcn/ui and record in `docs/progress/DECISIONS.md`.
+## 4. Phase 01 Verified Repository Table (Verified via GitHub REST API, 15 Nov 2026)
+
+Full details, UX pattern synthesis, and raw API outputs are recorded in `docs/design/references.md` and `docs/evidence/phase-01/ui-ux-github-api.txt`.
+
+| Repository | Canonical URL | Latest Commit SHA & Date (UTC) | Latest Tag | License | Stars / Forks | Verified Decision |
+|---|---|---|---|---|---|---|
+| `Giogfr/aura-storefront` | https://github.com/Giogfr/aura-storefront | `7b36904949f7` (`2026-10-17T00:46:05Z`) | None | `MIT` (`LICENSE`) | 0 / 0 | Read-only UX interaction reference (focus trapping in drawers, free-shipping progress bar, reduced-motion). |
+| `Kiranism/next-shadcn-dashboard-starter` | https://github.com/Kiranism/next-shadcn-dashboard-starter | `47da494b89e3` (`2026-11-02T11:02:26Z`) | `v2.0.0` (Base UI) / `v1.0.0` (Radix) | `MIT` (`LICENSE`) | 7,275 / 1,625 | Pattern reference only for URL-synced data-table toolbars and feature folders. |
+| `masondevx/orbynadmin` | https://github.com/masondevx/orbynadmin | `6c2796f7baf7` (`2026-07-17T14:45:12Z`) | None | `MIT` (`LICENSE`) | 19 / 10 | Visual composition reference only for logistics/order status views. |
+| `shadcnstore/shadcn-dashboard-landing-template` | https://github.com/shadcnstore/shadcn-dashboard-landing-template | `866423741fa4` (`2026-10-22T12:22:47Z`) | `v2.0.0` (`f12bbec`) | `MIT` (`License.md`) | 1,264 / 266 | Secondary reference (`vite-version/`) for RHF+Zod form layouts and split-screen auth. |
+| `satnaing/shadcn-admin` | https://github.com/satnaing/shadcn-admin | `e16c87f213a5` (`2026-06-11T10:08:35Z`) | `v2.2.1` (`0217f8c`) | `MIT` (`LICENSE`) | 16,711 / 2,508 | **Primary structural reference for `web/src/admin`** (Vite + React 19 + TanStack Router/Query/Table + Radix `shadcn/ui` + `cmdk`). |
+
+- **`shadcn/ui` primitive decision:** Standardized on the **Radix UI** variant of `shadcn/ui` (`@radix-ui/react-*` / unified `radix-ui`), matching `satnaing/shadcn-admin` and never mixing with `@base-ui/react` (recorded in `docs/progress/DECISIONS.md`).

@@ -15,12 +15,12 @@ Sources are official docs unless noted. Agents must re-verify versions with `dot
 | Tests (BE) | xUnit, Shouldly (or built-in asserts), Testcontainers for .NET, NetArchTest or ArchUnitNET (license check) | Avoid FluentAssertions 8+ (commercial) | Licence notes below |
 | Frontend | React 19 + TypeScript strict + Vite | Required by user | react.dev, vite.dev |
 | Routing/data | TanStack Router + TanStack Query + TanStack Table | Type-safe URL search params (filters), cache management, admin tables; matches `satnaing/shadcn-admin` stack so its shell can be reused | tanstack.com |
-| UI | Tailwind CSS v4 + shadcn/ui (copied components) | Required by user; full control of look | ui.shadcn.com, tailwindcss.com |
+| UI | Tailwind CSS v4 + shadcn/ui (Radix UI variant, copied components) | Required by user; full control of look; Radix UI primitives standardized in Phase 01 to match `satnaing/shadcn-admin` | ui.shadcn.com, tailwindcss.com |
 | Forms | React Hook Form + Zod | Type-safe validation, small | |
 | API client | `openapi-typescript` + `openapi-fetch` generated from `docs/contracts/openapi.json` | No duplicate DTOs | |
 | Icons | lucide-react (+ small custom SVG set for grocery-specific glyphs) | Consistent line icons, ISC licence | |
 | Animation | CSS transitions first; `motion` library only for 2–3 purposeful interactions (cart drawer, add-to-cart feedback) | Avoid decorative motion | |
-| Fonts | Be Vietnam Pro (UI/body; OFL; designed for Vietnamese) + display serif candidate Fraunces (verify Vietnamese subset); self-host via Fontsource | Vietnamese diacritics correctness, no CDN dependency | fonts.google.com |
+| Fonts | Be Vietnam Pro (UI/body; OFL-1.1; `@fontsource/be-vietnam-pro@5.3.0`) + Fraunces display serif (OFL-1.1; `@fontsource-variable/fraunces@5.3.0`, `vietnamese` subset verified in Phase 01); self-host via Fontsource | Vietnamese diacritics correctness verified (`docs/design/font-check.md`), no CDN dependency | fonts.google.com, fontsource.org |
 | Payments | SePay VietQR + webhook (HMAC-SHA256) | Required by user | developer.sepay.vn |
 | Infra | Docker + Compose; nginx reverse proxy; GitHub Actions | Required by user | docs.docker.com |
 | Mail | SMTP via provider; Mailpit in dev | Email verification/reset | |
