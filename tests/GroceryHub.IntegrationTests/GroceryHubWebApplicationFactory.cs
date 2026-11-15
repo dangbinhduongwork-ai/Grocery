@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using FluentValidation;
 using GroceryHub.Api.Filters;
+using GroceryHub.Modules.Identity.Contracts;
 using GroceryHub.Persistence.Outbox;
 using GroceryHub.SharedKernel;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +14,35 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace GroceryHub.IntegrationTests;
+
+public sealed record TestEmailRecord(Guid UserId, string Email, string Token);
+
+public sealed class TestEmailService : IEmailService
+{
+    private readonly ConcurrentBag<TestEmailRecord> _verificationEmails = [];
+    private readonly ConcurrentBag<TestEmailRecord> _resetPasswordEmails = [];
+
+    public IReadOnlyCollection<TestEmailRecord> VerificationEmails => _verificationEmails;
+    public IReadOnlyCollection<TestEmailRecord> ResetPasswordEmails => _resetPasswordEmails;
+
+    public Task SendVerificationEmailAsync(Guid UserId, string Email, string Token, CancellationToken ct = default)
+    {
+        _verificationEmails.Add(new TestEmailRecord(UserId, Email, Token));
+        return Task.CompletedTask;
+    }
+
+    public Task SendPasswordResetEmailAsync(Guid UserId, string Email, string Token, CancellationToken ct = default)
+    {
+        _resetPasswordEmails.Add(new TestEmailRecord(UserId, Email, Token));
+        return Task.CompletedTask;
+    }
+
+    public void Reset()
+    {
+        _verificationEmails.Clear();
+        _resetPasswordEmails.Clear();
+    }
+}
 
 public sealed record TestValidationRequest(string Name, int Quantity);
 
@@ -84,10 +115,12 @@ public sealed class GroceryHubWebApplicationFactory(string connectionString) : W
     private readonly string _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
     public TestOrderPlacedIntegrationEventHandler OrderPlacedHandler { get; } = new();
+    public TestEmailService EmailService { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("ConnectionStrings:DefaultConnection", _connectionString);
+        builder.UseSetting("RateLimiting:AuthPermitLimitPerMinute", "1000");
 
         builder.ConfigureAppConfiguration((_, configBuilder) =>
         {
@@ -97,6 +130,7 @@ public sealed class GroceryHubWebApplicationFactory(string connectionString) : W
                 ["GroceryHub:ServiceName"] = "GroceryHub.Api",
                 ["GroceryHub:EnvironmentName"] = "Testing",
                 ["GroceryHub:Version"] = "1.0.0",
+                ["RateLimiting:AuthPermitLimitPerMinute"] = "1000",
             });
         });
 
@@ -111,6 +145,18 @@ public sealed class GroceryHubWebApplicationFactory(string connectionString) : W
             {
                 services.Remove(descriptor);
             }
+
+            // Replace IEmailService with test spy
+            ServiceDescriptor[] emailServices = services
+                .Where(static d => d.ServiceType == typeof(IEmailService))
+                .ToArray();
+
+            foreach (ServiceDescriptor descriptor in emailServices)
+            {
+                services.Remove(descriptor);
+            }
+
+            services.AddSingleton<IEmailService>(EmailService);
 
             OutboxEventTypeRegistry.Register(typeof(TestOrderPlacedIntegrationEvent), "ordering.test-order-placed.v1");
             services.AddSingleton(OrderPlacedHandler);
