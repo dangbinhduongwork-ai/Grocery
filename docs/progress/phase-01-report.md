@@ -7,8 +7,8 @@
   - `ui-ux-designer` — branch `agent/ui-ux-designer/01-references-and-fonts` (commit `32015d1`)
   - `payment-specialist` — branch `agent/payment-specialist/01-sepay-diffs` (commit `5388660`)
   - `security-reviewer` — branch `agent/security-reviewer/01-threat-model` (commit `5cae719`)
-- **Integration Branch:** `integration/phase-01`
-- **Gate Status:** **READY FOR GO** (All technical deliverables and verification evidence are complete and passing; awaiting user confirmation of `Q-001`..`Q-011` or acceptance of proposed defaults in `docs/progress/DECISIONS.md` to finalize `GO` and tag `phase-01-done`).
+- **Integration Branch:** `integration/phase-01` → merged to `main` (`phase-01-done`)
+- **Gate Status:** **GO** (All technical deliverables and verification evidence are complete and passing; user confirmed proposed defaults for `Q-001`..`Q-011` recorded as `CONFIRMED` in `docs/progress/DECISIONS.md`; requirements frozen as `v1.0`).
 
 ---
 
