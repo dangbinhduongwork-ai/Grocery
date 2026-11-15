@@ -107,6 +107,7 @@ public sealed class ArchitectureTests
 
                 bool allowedReference =
                     string.Equals(refName, "GroceryHub.SharedKernel", StringComparison.Ordinal) ||
+                    string.Equals(refName, "GroceryHub.Persistence", StringComparison.Ordinal) ||
                     refName.EndsWith(".Contracts", StringComparison.Ordinal);
 
                 if (!allowedReference)
@@ -137,6 +138,8 @@ public sealed class ArchitectureTests
                 bool isAllowed =
                     normalized.EndsWith("/GroceryHub.SharedKernel.csproj", StringComparison.Ordinal) ||
                     normalized.Equals("GroceryHub.SharedKernel.csproj", StringComparison.Ordinal) ||
+                    normalized.EndsWith("/GroceryHub.Persistence.csproj", StringComparison.Ordinal) ||
+                    normalized.Equals("GroceryHub.Persistence.csproj", StringComparison.Ordinal) ||
                     normalized.EndsWith(".Contracts.csproj", StringComparison.Ordinal);
 
                 if (!isAllowed)

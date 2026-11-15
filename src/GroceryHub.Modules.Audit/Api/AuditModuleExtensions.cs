@@ -1,3 +1,5 @@
+using GroceryHub.Modules.Audit.Application;
+using GroceryHub.Modules.Audit.Contracts;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,11 @@ public static class AuditModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddScoped<AuditLogService>();
+        services.AddScoped<IAuditModuleLogPort>(sp => sp.GetRequiredService<AuditLogService>());
+        services.AddScoped<GroceryHub.SharedKernel.IAuditLogPort>(sp => sp.GetRequiredService<AuditLogService>());
+
         return services;
     }
 
