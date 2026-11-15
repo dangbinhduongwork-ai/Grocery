@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "integration/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  secret-and-reality-scan:
+    name: Secret & Reality Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install ripgrep for reality scan
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Run verify-reality scan
+        run: bash scripts/verify-reality.sh
+
+  backend-build-and-test:
+    name: Backend Build & Test (.NET 10)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10.0.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Verify code formatting
+        run: dotnet format --verify-no-changes
+
+      - name: Build solution (-warnaserror)
+        run: dotnet build --no-restore -warnaserror
+
+      - name: Check for vulnerable NuGet packages
+        run: |
+          output=$(dotnet list package --vulnerable --include-transitive)
+          echo "$output"
+          if echo "$output" | grep -q "has the following vulnerable packages"; then
+            echo "Vulnerable NuGet packages detected!"
+            exit 1
+          fi
+
+      - name: Run tests
+        run: dotnet test --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results (TRX)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: "**/TestResults/*.trx"

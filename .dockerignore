@@ -1,0 +1,29 @@
+# Version control & IDE metadata
+.git
+.gitignore
+.vs
+.vscode
+.idea
+*.user
+*.suo
+
+# Agent orchestration & documentation artifacts
+.agents
+docs/evidence
+
+# Build outputs & dependencies
+**/bin
+**/obj
+**/out
+node_modules
+web/node_modules
+dist
+web/dist
+TestResults
+**/TestResults
+coverage
+
+# Local environment & secret files
+.env
+.env.*
+!.env.example
