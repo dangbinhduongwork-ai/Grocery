@@ -65,6 +65,34 @@ public class GroceryHubDbContext : DbContext
 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
+    public DbSet<Category> Categories => Set<Category>();
+
+    public DbSet<Brand> Brands => Set<Brand>();
+
+    public DbSet<Product> Products => Set<Product>();
+
+    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+
+    public DbSet<ProductPriceHistory> ProductPriceHistories => Set<ProductPriceHistory>();
+
+    public DbSet<Banner> Banners => Set<Banner>();
+
+    public DbSet<StockItem> StockItems => Set<StockItem>();
+
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+
+    public DbSet<StockReservation> StockReservations => Set<StockReservation>();
+
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+
+    public DbSet<PurchaseOrderItem> PurchaseOrderItems => Set<PurchaseOrderItem>();
+
+    public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
+
+    public DbSet<GoodsReceiptItem> GoodsReceiptItems => Set<GoodsReceiptItem>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
