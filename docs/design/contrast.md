@@ -1,8 +1,10 @@
 # GroceryHub — WCAG 2.2 Relative Luminance & Color Contrast Verification (`contrast.md`)
 
-- **Verification Date:** `2026-11-15T03:11:55Z`
-- **Requirements Covered:** `NFR-006` (WCAG 2.2 AA Accessibility), `08-UI-DESIGN-SYSTEM.md` §3 & §9
-- **Raw Calculation Evidence:** [ui-ux-font-contrast.txt](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer--Phase-01-Research--self-aca95d94/docs/evidence/phase-01/ui-ux-font-contrast.txt)
+- **Verification Date:** `2026-11-15T03:11:55Z` (Baseline Phase 01 / Updated Phase 06)
+- **Requirements Covered:** `FR-CUS-017` (Responsive & Accessible UI), `NFR-006` (WCAG 2.2 AA Accessibility), `08-UI-DESIGN-SYSTEM.md` §3 & §9
+- **Design Tokens Specification:** [tokens.md](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/design/tokens.md)
+- **Typography & Font Check:** [font-check.md](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/design/font-check.md)
+- **Raw Calculation Evidence:** [ui-ux-font-contrast.txt](file:///C:/Users/Admin/.gemini/antigravity/worktrees/d92f5437-cefe-4593-bfb8-546ce3fd7f4f/subagent-UI-UX-Designer-Phase-06-Design-Docs-ui-ux-designer-8568a0c4/docs/evidence/phase-01/ui-ux-font-contrast.txt)
 
 ---
 
