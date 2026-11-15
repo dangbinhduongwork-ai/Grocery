@@ -1,0 +1,49 @@
+=== GroceryHub Phase 05: Default-Deny Architecture Test Mutation Proof ===
+Date: 2026-11-15
+Test: GroceryHub.ArchitectureTests.ArchitectureTests.Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous
+Requirement: Every mapped endpoint must explicitly declare either an authorization policy or .AllowAnonymous() (Default-Deny)
+
+[Mutation Description]
+Deliberately introduced an unannotated Minimal API route endpoint `GET /api/v1/unprotected-leak` into the route endpoint catalog without declaring `.RequireAuthorization(...)` and without declaring `.AllowAnonymous()`.
+
+[Executed Command]
+dotnet test tests/GroceryHub.ArchitectureTests --filter "FullyQualifiedName~Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous"
+
+[Exit Code]
+1 (Failed as expected)
+
+[Real Execution Output]
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  GroceryHub.SharedKernel -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.SharedKernel\bin\Debug\net10.0\GroceryHub.SharedKernel.dll
+  GroceryHub.Modules.Ordering -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Ordering\bin\Debug\net10.0\GroceryHub.Modules.Ordering.dll
+  GroceryHub.Modules.Promotions -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Promotions\bin\Debug\net10.0\GroceryHub.Modules.Promotions.dll
+  GroceryHub.Modules.Reporting -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Reporting\bin\Debug\net10.0\GroceryHub.Modules.Reporting.dll
+  GroceryHub.Modules.Catalog -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Catalog\bin\Debug\net10.0\GroceryHub.Modules.Catalog.dll
+  GroceryHub.Modules.Cart -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Cart\bin\Debug\net10.0\GroceryHub.Modules.Cart.dll
+  GroceryHub.Modules.Customers -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Customers\bin\Debug\net10.0\GroceryHub.Modules.Customers.dll
+  GroceryHub.Modules.Purchasing -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Purchasing\bin\Debug\net10.0\GroceryHub.Modules.Purchasing.dll
+  GroceryHub.Modules.Payments -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Payments\bin\Debug\net10.0\GroceryHub.Modules.Payments.dll
+  GroceryHub.Persistence -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Persistence\bin\Debug\net10.0\GroceryHub.Persistence.dll
+  GroceryHub.Modules.Inventory -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Inventory\bin\Debug\net10.0\GroceryHub.Modules.Inventory.dll
+  GroceryHub.Modules.Reviews -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Reviews\bin\Debug\net10.0\GroceryHub.Modules.Reviews.dll
+  GroceryHub.Modules.Audit -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Audit\bin\Debug\net10.0\GroceryHub.Modules.Audit.dll
+  GroceryHub.Modules.Identity -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Modules.Identity\bin\Debug\net10.0\GroceryHub.Modules.Identity.dll
+  GroceryHub.Api -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\src\GroceryHub.Api\bin\Debug\net10.0\GroceryHub.Api.dll
+  GroceryHub.ArchitectureTests -> C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll
+Test run for C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:16.28]     GroceryHub.ArchitectureTests.ArchitectureTests.Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous [FAIL]
+  Failed GroceryHub.ArchitectureTests.ArchitectureTests.Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous [16 s]
+  Error Message:
+   Every mapped RouteEndpoint must declare either an authorization policy or AllowAnonymous. Missing on: HTTP: GET /api/v1/unprotected-leak
+  Stack Trace:
+     at GroceryHub.ArchitectureTests.ArchitectureTests.AssertEndpointsProtected(WebApplicationFactory`1 factory) in C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\tests\GroceryHub.ArchitectureTests\ArchitectureTests.cs:line 253
+   at GroceryHub.ArchitectureTests.ArchitectureTests.Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous() in C:\Users\Admin\.gemini\antigravity\worktrees\d92f5437-cefe-4593-bfb8-546ce3fd7f4f\subagent-QA-Engineer-Phase-05-Auth---RBAC-Tests-qa-engineer-4b3c3462\tests\GroceryHub.ArchitectureTests\ArchitectureTests.cs:line 203
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 16 s - GroceryHub.ArchitectureTests.dll (net10.0)
+
+[Conclusion]
+The Default-Deny architecture test is active, sensitive, and effective: any route endpoint added without an explicit authorization policy or explicit AllowAnonymous declaration is detected and immediately halts CI with an actionable failure message identifying the unprotected route.

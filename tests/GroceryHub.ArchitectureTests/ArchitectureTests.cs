@@ -188,9 +188,20 @@ public sealed class ArchitectureTests
     }
 
     [Fact]
+    public void Default_Deny_Endpoints_Require_Authorization_Or_AllowAnonymous()
+    {
+        All_Mapped_Endpoints_Must_Have_Authorization_Policy_Or_AllowAnonymous();
+    }
+
+    [Fact]
     public void All_Mapped_Endpoints_Must_Have_Authorization_Policy_Or_AllowAnonymous()
     {
         using WebApplicationFactory<Program> factory = new();
+        AssertEndpointsProtected(factory);
+    }
+
+    private static void AssertEndpointsProtected(WebApplicationFactory<Program> factory)
+    {
         IEnumerable<EndpointDataSource> dataSources = factory.Services.GetRequiredService<IEnumerable<EndpointDataSource>>();
 
         RouteEndpoint[] routeEndpoints = dataSources
