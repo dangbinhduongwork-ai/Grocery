@@ -1,0 +1,168 @@
+# Phase 01 — Vietnamese Font Subset & WCAG 2.2 Contrast Math Evidence
+Executed at: 2026-11-15T03:11:55.433Z
+================================================================================
+
+## 1. Google Fonts CSS2 API Query
+URL: https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap
+HTTP Status: 200
+
+### Font Family (Google Fonts CSS2): Be Vietnam Pro
+- Verified weights returned: 400, 500, 600, 700
+- Subsets returned: vietnamese, latin-ext, latin
+  - [vietnamese] unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB
+  - [latin-ext] unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF
+  - [latin] unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+
+### Font Family (Google Fonts CSS2): Fraunces
+- Verified weights returned: 600, 700
+- Subsets returned: vietnamese, latin-ext, latin
+  - [vietnamese] unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB
+  - [latin-ext] unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF
+  - [latin] unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+
+## 2. Fontsource (Self-Hosted npm Packages) Registry Verification
+GET https://registry.npmjs.org/@fontsource-variable/be-vietnam-pro/latest -> HTTP 404
+GET https://registry.npmjs.org/@fontsource/be-vietnam-pro/latest -> HTTP 200
+  - name: @fontsource/be-vietnam-pro
+  - version: 5.3.0
+  - license: OFL-1.1
+  - description: Self-host the Be Vietnam Pro font in a neatly bundled NPM package.
+  - exports keys: ., ./*, ./scss, ./*.css, ./LICENSE, ./files/*, ./files/*.woff, ./package.json, ./unicode.json, ./files/*.woff2, ./metadata.json
+GET https://registry.npmjs.org/@fontsource-variable/fraunces/latest -> HTTP 200
+  - name: @fontsource-variable/fraunces
+  - version: 5.3.0
+  - license: OFL-1.1
+  - description: Self-host the Fraunces font in a neatly bundled NPM package.
+  - exports keys: ., ./*, ./scss, ./*.css, ./LICENSE, ./files/*, ./files/*.woff, ./package.json, ./unicode.json, ./files/*.woff2, ./metadata.json
+GET https://registry.npmjs.org/@fontsource/fraunces/latest -> HTTP 200
+  - name: @fontsource/fraunces
+  - version: 5.3.0
+  - license: OFL-1.1
+  - description: Self-host the Fraunces font in a neatly bundled NPM package.
+  - exports keys: ., ./*, ./scss, ./*.css, ./LICENSE, ./files/*, ./files/*.woff, ./package.json, ./unicode.json, ./files/*.woff2, ./metadata.json
+GET https://api.fontsource.org/v1/fonts/be-vietnam-pro -> HTTP 200
+  - id: be-vietnam-pro, family: Be Vietnam Pro, type: google, variable: false
+  - subsets: ["latin","latin-ext","vietnamese"]
+  - weights: [100,200,300,400,500,600,700,800,900]
+  - styles: ["italic","normal"]
+  - unicodeRange: {"vietnamese":"U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB","latin-ext":"U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF","latin":"U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"}
+GET https://api.fontsource.org/v1/fonts/fraunces -> HTTP 200
+  - id: fraunces, family: Fraunces, type: google, variable: true
+  - subsets: ["latin","latin-ext","vietnamese"]
+  - weights: [100,200,300,400,500,600,700,800,900]
+  - styles: ["italic","normal"]
+  - unicodeRange: {"vietnamese":"U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB","latin-ext":"U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF","latin":"U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"}
+
+## 3. Codepoint Coverage Verification for Test String
+Test string (spec 08 §3): "Rau củ quả tươi — Đường Ưu Đãi ẳ ỡ ợ ữ ế 25.000 ₫"
+Supplementary Vietnamese base characters checked: ă, đ, Ă, Ơ, ư
+Char | Codepoint | UTF-16 | Be Vietnam Pro Subset(s) | Fraunces Subset(s)
+-----|-----------|--------|--------------------------|-------------------
+R    | U+0052    | 82     | latin                    | latin
+a    | U+0061    | 97     | latin                    | latin
+u    | U+0075    | 117    | latin                    | latin
+[SPACE] | U+0020    | 32     | latin                    | latin
+c    | U+0063    | 99     | latin                    | latin
+ủ    | U+1EE7    | 7911   | vietnamese               | vietnamese
+q    | U+0071    | 113    | latin                    | latin
+ả    | U+1EA3    | 7843   | vietnamese               | vietnamese
+t    | U+0074    | 116    | latin                    | latin
+ư    | U+01B0    | 432    | vietnamese, latin-ext    | vietnamese, latin-ext
+ơ    | U+01A1    | 417    | vietnamese, latin-ext    | vietnamese, latin-ext
+i    | U+0069    | 105    | latin                    | latin
+—    | U+2014    | 8212   | latin                    | latin
+Đ    | U+0110    | 272    | vietnamese, latin-ext    | vietnamese, latin-ext
+ờ    | U+1EDD    | 7901   | vietnamese               | vietnamese
+n    | U+006E    | 110    | latin                    | latin
+g    | U+0067    | 103    | latin                    | latin
+Ư    | U+01AF    | 431    | vietnamese, latin-ext    | vietnamese, latin-ext
+ã    | U+00E3    | 227    | latin                    | latin
+ẳ    | U+1EB3    | 7859   | vietnamese               | vietnamese
+ỡ    | U+1EE1    | 7905   | vietnamese               | vietnamese
+ợ    | U+1EE3    | 7907   | vietnamese               | vietnamese
+ữ    | U+1EEF    | 7919   | vietnamese               | vietnamese
+ế    | U+1EBF    | 7871   | vietnamese               | vietnamese
+2    | U+0032    | 50     | latin                    | latin
+5    | U+0035    | 53     | latin                    | latin
+.    | U+002E    | 46     | latin                    | latin
+0    | U+0030    | 48     | latin                    | latin
+₫    | U+20AB    | 8363   | vietnamese, latin-ext    | vietnamese, latin-ext
+ă    | U+0103    | 259    | vietnamese, latin-ext    | vietnamese, latin-ext
+đ    | U+0111    | 273    | vietnamese, latin-ext    | vietnamese, latin-ext
+Ă    | U+0102    | 258    | vietnamese, latin-ext    | vietnamese, latin-ext
+Ơ    | U+01A0    | 416    | vietnamese, latin-ext    | vietnamese, latin-ext
+
+Summary:
+- Be Vietnam Pro covers 100% of test string + supplementary codepoints: true
+- Fraunces covers 100% of test string + supplementary codepoints: true
+
+## 4. WCAG 2.2 Relative Luminance & Contrast Ratio Calculations
+
+### Token Relative Luminances (L)
+- --paper              #FAF7F0 (RGB 250, 247, 240) -> L = 0.931368
+- --paper-2            #F2EDE0 (RGB 242, 237, 224) -> L = 0.848274
+- --ink                #1B2B22 (RGB  27,  43,  34) -> L = 0.020763
+- --ink-2              #4A5A50 (RGB  74,  90,  80) -> L = 0.093474
+- --leaf               #1F3A2D (RGB  31,  58,  45) -> L = 0.035069
+- --leaf-2             #2F5A44 (RGB  47,  90,  68) -> L = 0.083340
+- --sprout             #7FA38A (RGB 127, 163, 138) -> L = 0.325414
+- --tomato             #D9432F (RGB 217,  67,  47) -> L = 0.189713
+- --tomato-ink         #B8321F (RGB 184,  50,  31) -> L = 0.125705
+- --turmeric           #E3A21A (RGB 227, 162,  26) -> L = 0.422461
+- --rule               #D9D1BD (RGB 217, 209, 189) -> L = 0.640268
+- --ok                 #2E7D4F (RGB  46, 125,  79) -> L = 0.158126
+- --warn               #B7791F (RGB 183, 121,  31) -> L = 0.238410
+- --warn-ink (remedy)  #8A560D (RGB 138,  86,  13) -> L = 0.120879
+- --err                #B8321F (RGB 184,  50,  31) -> L = 0.125705
+- --info               #2B6C8F (RGB  43, 108, 143) -> L = 0.132219
+- --surface (admin)    #F6F7F5 (RGB 246, 247, 245) -> L = 0.927069
+- --panel (admin)      #FFFFFF (RGB 255, 255, 255) -> L = 1.000000
+- --border (admin)     #DDE2DC (RGB 221, 226, 220) -> L = 0.749322
+
+### Contrast Pair Evaluation Table
+Foreground | Background | Ratio | Target | Pass >=4.5 (AA Text) | Pass >=3.0 (AA Large/UI) | Role & Notes
+-----------|------------|-------|--------|----------------------|--------------------------|-------------
+--ink (#1B2B22) | --paper (#FAF7F0) | 13.87:1 | >=12.0:1 | PASS                 | PASS                     | Primary body text on storefront background
+--ink-2 (#4A5A50) | --paper (#FAF7F0) | 6.84:1 | >=4.5:1 | PASS                 | PASS                     | Secondary text on storefront background
+--leaf (#1F3A2D) | --paper (#FAF7F0) | 11.54:1 | >=4.5:1 | PASS                 | PASS                     | Brand links / headings on storefront background
+--leaf-2 (#2F5A44) | --paper (#FAF7F0) | 7.36:1 | >=4.5:1 | PASS                 | PASS                     | Hovered brand links on storefront background
+--tomato (#D9432F) | --paper (#FAF7F0) | 4.09:1 | >=3.0:1 | FAIL                 | PASS                     | Large display price (≥19px bold / ≥24px) or graphic on paper; FAIL for small text
+--tomato-ink (#B8321F) | --paper (#FAF7F0) | 5.59:1 | >=4.5:1 | PASS                 | PASS                     | Small/normal discounted price & error text on paper (Spec §3)
+--ok (#2E7D4F) | --paper (#FAF7F0) | 4.72:1 | >=4.5:1 | PASS                 | PASS                     | Success status text/icon on paper
+--warn (#B7791F) | --paper (#FAF7F0) | 3.40:1 | >=3.0:1 | FAIL                 | PASS                     | Warning icon/border on paper (FAILS 4.5:1 for small text; use --ink or --warn-ink)
+--warn-ink (#8A560D) | --paper (#FAF7F0) | 5.74:1 | >=4.5:1 | PASS                 | PASS                     | Warning small text on paper (remediation token for <18.66px warning text)
+--err (#B8321F) | --paper (#FAF7F0) | 5.59:1 | >=4.5:1 | PASS                 | PASS                     | Error status text/icon on paper
+--info (#2B6C8F) | --paper (#FAF7F0) | 5.39:1 | >=4.5:1 | PASS                 | PASS                     | Info status text/icon on paper
+--sprout (#7FA38A) | --paper (#FAF7F0) | 2.61:1 | >=1.5:1 | FAIL                 | FAIL                     | Subtle decorative accent on paper (Spec §3: NEVER for text)
+--ink (#1B2B22) | --paper-2 (#F2EDE0) | 12.69:1 | >=4.5:1 | PASS                 | PASS                     | Body / input text on alt bands & inputs (--paper-2)
+--ink-2 (#4A5A50) | --paper-2 (#F2EDE0) | 6.26:1 | >=4.5:1 | PASS                 | PASS                     | Secondary / helper text on alt bands (--paper-2)
+--leaf (#1F3A2D) | --paper-2 (#F2EDE0) | 10.56:1 | >=4.5:1 | PASS                 | PASS                     | Brand text / links on alt bands (--paper-2)
+--leaf-2 (#2F5A44) | --paper-2 (#F2EDE0) | 6.74:1 | >=4.5:1 | PASS                 | PASS                     | Hovered brand links on alt bands (--paper-2)
+--tomato-ink (#B8321F) | --paper-2 (#F2EDE0) | 5.11:1 | >=4.5:1 | PASS                 | PASS                     | Discount price / error text on alt bands (--paper-2)
+--tomato (#D9432F) | --paper-2 (#F2EDE0) | 3.75:1 | >=3.0:1 | FAIL                 | PASS                     | Tomato accent on --paper-2 (large text / UI only)
+--ok (#2E7D4F) | --paper-2 (#F2EDE0) | 4.32:1 | >=3.0:1 | FAIL                 | PASS                     | Success status on --paper-2 (4.30:1 -> pair with --ink label)
+--warn-ink (#8A560D) | --paper-2 (#F2EDE0) | 5.26:1 | >=4.5:1 | PASS                 | PASS                     | Warning text on --paper-2
+--info (#2B6C8F) | --paper-2 (#F2EDE0) | 4.93:1 | >=4.5:1 | PASS                 | PASS                     | Info status text on --paper-2
+--paper (#FAF7F0) | --leaf (#1F3A2D) | 11.54:1 | >=4.5:1 | PASS                 | PASS                     | Primary button label (--paper on --leaf)
+#FFFFFF (#FFFFFF) | --leaf (#1F3A2D) | 12.34:1 | >=4.5:1 | PASS                 | PASS                     | Primary button label (white on --leaf)
+--paper (#FAF7F0) | --leaf-2 (#2F5A44) | 7.36:1 | >=4.5:1 | PASS                 | PASS                     | Primary button hover label (--paper on --leaf-2)
+#FFFFFF (#FFFFFF) | --leaf-2 (#2F5A44) | 7.87:1 | >=4.5:1 | PASS                 | PASS                     | Primary button hover label (white on --leaf-2)
+--ink (#1B2B22) | --turmeric (#E3A21A) | 6.68:1 | >=4.5:1 | PASS                 | PASS                     | Highlight / discount chip text (--ink on --turmeric)
+--ink (#1B2B22) | --sprout (#7FA38A) | 5.31:1 | >=4.5:1 | PASS                 | PASS                     | Subtle tag text (--ink on --sprout background)
+#FFFFFF (#FFFFFF) | --tomato-ink (#B8321F) | 5.98:1 | >=4.5:1 | PASS                 | PASS                     | Destructive button text (white on --tomato-ink)
+#FFFFFF (#FFFFFF) | --tomato (#D9432F) | 4.38:1 | >=3.0:1 | FAIL                 | PASS                     | White text on --tomato fill (4.38:1 -> use --tomato-ink #B8321F for normal text buttons)
+--ink (#1B2B22) | --surface (admin) (#F6F7F5) | 13.81:1 | >=4.5:1 | PASS                 | PASS                     | Admin primary text on --surface
+--ink-2 (#4A5A50) | --surface (admin) (#F6F7F5) | 6.81:1 | >=4.5:1 | PASS                 | PASS                     | Admin secondary text on --surface
+--leaf (#1F3A2D) | --surface (admin) (#F6F7F5) | 11.49:1 | >=4.5:1 | PASS                 | PASS                     | Admin brand accent on --surface
+--tomato-ink (#B8321F) | --surface (admin) (#F6F7F5) | 5.56:1 | >=4.5:1 | PASS                 | PASS                     | Admin error/destructive text on --surface
+--ok (#2E7D4F) | --surface (admin) (#F6F7F5) | 4.69:1 | >=4.5:1 | PASS                 | PASS                     | Admin --ok status text on --surface
+--warn-ink (#8A560D) | --surface (admin) (#F6F7F5) | 5.72:1 | >=4.5:1 | PASS                 | PASS                     | Admin warning text on --surface
+--info (#2B6C8F) | --surface (admin) (#F6F7F5) | 5.36:1 | >=4.5:1 | PASS                 | PASS                     | Admin --info status text on --surface
+--ink (#1B2B22) | --panel (admin) (#FFFFFF) | 14.84:1 | >=4.5:1 | PASS                 | PASS                     | Admin primary text on white panel
+--ink-2 (#4A5A50) | --panel (admin) (#FFFFFF) | 7.32:1 | >=4.5:1 | PASS                 | PASS                     | Admin secondary text on white panel
+--leaf (#1F3A2D) | --panel (admin) (#FFFFFF) | 12.34:1 | >=4.5:1 | PASS                 | PASS                     | Admin brand accent on white panel
+--ok (#2E7D4F) | --panel (admin) (#FFFFFF) | 5.05:1 | >=4.5:1 | PASS                 | PASS                     | Admin --ok status text on white panel
+--warn (#B7791F) | --panel (admin) (#FFFFFF) | 3.64:1 | >=3.0:1 | FAIL                 | PASS                     | Admin --warn icon/badge on white panel (3.64:1; pair with --ink or --warn-ink for text)
+--warn-ink (#8A560D) | --panel (admin) (#FFFFFF) | 6.14:1 | >=4.5:1 | PASS                 | PASS                     | Admin warning text on white panel
+--err (#B8321F) | --panel (admin) (#FFFFFF) | 5.98:1 | >=4.5:1 | PASS                 | PASS                     | Admin --err status text on white panel
+--info (#2B6C8F) | --panel (admin) (#FFFFFF) | 5.76:1 | >=4.5:1 | PASS                 | PASS                     | Admin --info status text on white panel

@@ -1,0 +1,160 @@
+# Phase 01 — GitHub REST API Verification Evidence
+Executed at: 2026-11-15T03:09:59.244Z
+Command: node verify-phase01.mjs (queries https://api.github.com/repos/<owner>/<repo>, /commits?per_page=1, /license, /tags, /contents)
+================================================================================
+
+## Repository: Giogfr/aura-storefront
+GET https://api.github.com/repos/Giogfr/aura-storefront -> HTTP 200 (final URL: https://api.github.com/repos/Giogfr/aura-storefront)
+- full_name: Giogfr/aura-storefront
+- html_url: https://github.com/Giogfr/aura-storefront
+- description: A polished, modern, modular e-commerce storefront template built with React, TypeScript, Vite, and Tailwind CSS.
+- default_branch: main
+- stargazers_count: 0
+- forks_count: 0
+- open_issues_count: 0
+- created_at: 2026-10-16T21:46:12Z
+- updated_at: 2026-10-17T00:46:09Z
+- pushed_at: 2026-10-17T00:46:06Z
+- license (repo object): MIT (MIT License)
+- latest_commit_sha: 7b36904949f74727207f84a8f2ba12edb4ad282a
+- latest_commit_date: 2026-10-17T00:46:05Z
+- latest_commit_author: Gio <idontsayidontsay@gmail.com>
+- latest_commit_message: feat: trap and restore focus in dialogs and drawers
+- license_file_path: LICENSE
+- license_spdx_id: MIT
+- license_html_url: https://github.com/Giogfr/aura-storefront/blob/main/LICENSE
+- recent_tags: none
+- root package.json name: aura-storefront, version: 1.0.0
+- dependencies: {"lucide-react":"^0.546.0","react":"^19.0.1","react-dom":"^19.0.1"}
+- devDependencies: {"@tailwindcss/vite":"^4.3.3","@types/node":"^22.14.0","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","@vitejs/plugin-react":"^6.1.1","tailwindcss":"^4.3.3","typescript":"^7.0.2","vite":"^8.3.0","vitest":"^3.2.7"}
+
+## Repository: Kiranism/next-shadcn-dashboard-starter
+GET https://api.github.com/repos/Kiranism/next-shadcn-dashboard-starter -> HTTP 200 (final URL: https://api.github.com/repos/Kiranism/next-shadcn-dashboard-starter)
+- full_name: Kiranism/next-shadcn-dashboard-starter
+- html_url: https://github.com/Kiranism/next-shadcn-dashboard-starter
+- description: Free, open source, AI-first admin dashboard template built with Next.js 16, shadcn/ui, Tailwind CSS, and TypeScript. Production-ready tables, forms, auth, and billing. MIT licensed.
+- default_branch: main
+- stargazers_count: 7275
+- forks_count: 1625
+- open_issues_count: 6
+- created_at: 2023-11-02T11:54:38Z
+- updated_at: 2026-11-14T14:56:04Z
+- pushed_at: 2026-11-08T16:08:10Z
+- license (repo object): MIT (MIT License)
+- latest_commit_sha: 47da494b89e330d884a0f9b5c37a605fbabb3987
+- latest_commit_date: 2026-11-02T11:02:26Z
+- latest_commit_author: Kiranism <iamkiran2831@gmail.com>
+- latest_commit_message: chore: replace deprecated APIs and guard against new ones
+- license_file_path: LICENSE
+- license_spdx_id: MIT
+- license_html_url: https://github.com/Kiranism/next-shadcn-dashboard-starter/blob/main/LICENSE
+- recent_tags: v2.0.0 (06e83c0), v1.0.0 (21848bd)
+- root package.json name: next-shadcn-dashboard-starter, version: 1.0.0
+- dependencies: {"@ai-sdk/react":"^4.0.142","@base-ui/react":"^1.9.0","@base-ui/utils":"0.5.0","@clerk/nextjs":"^7.9.15","@dnd-kit/core":"^6.3.1","@dnd-kit/modifiers":"^9.0.0","@dnd-kit/sortable":"^10.0.0","@dnd-kit/utilities":"^3.2.2","@sentry/nextjs":"^11.7.0","@shadcn/helpers":"^0.2.0","@shadcn/react":"^0.3.1","@tabler/icons-react":"^3.49.0","@tailwindcss/postcss":"^4.3.3","@tanstack/react-form":"^1.33.5","@tanstack/react-query":"^5.104.2","@tanstack/react-query-devtools":"^5.104.2","@tanstack/react-table":"^9.3.1","ai":"^7.0.139","class-variance-authority":"^0.7.1","clsx":"^2.1.1","cmdk":"^1.1.1","date-fns":"^4.4.0","embla-carousel-react":"^8.6.0","input-otp":"^1.5.0","kbar":"^1.0.0","match-sorter":"^8.3.0","motion":"^14.2.0","next":"16.4.2","next-themes":"^0.4.6","nextjs-toploader":"^3.9.17","nuqs":"^2.10.2","postcss":"8.5.30","react":"19.3.0","react-day-picker":"^10.0.2","react-dom":"19.3.0","react-dropzone":"^20.1.3","react-resizable-panels":"^4.14.5","react-responsive":"^10.0.1","recharts":"3.10.1","sharp":"^0.35.5","sonner":"^2.0.8","sort-by":"^1.2.0","tailwind-merge":"^3.7.0","tailwindcss":"^4.3.3","tailwindcss-animate":"^1.0.7","uuid":"^14.0.3","vaul":"^1.1.2","zod":"^4.6.7","zustand":"^5.0.15"}
+- devDependencies: {"@faker-js/faker":"^10.6.0","@types/node":"24.19.2","@types/react":"19.3.0","@types/react-dom":"19.3.0","@types/sort-by":"^1.2.3","husky":"^9.1.7","lint-staged":"^17.6.0","oxfmt":"^0.73.0","oxlint":"^1.88.0","oxlint-tsgolint":"^7.0.2005","tw-animate-css":"^1.4.0","typescript":"7.0.2"}
+
+## Repository: masondevx/orbynadmin
+GET https://api.github.com/repos/masondevx/orbynadmin -> HTTP 200 (final URL: https://api.github.com/repos/masondevx/orbynadmin)
+- full_name: masondevx/orbynadmin
+- html_url: https://github.com/masondevx/orbynadmin
+- description: Free and open-source admin dashboard template built with Next.js, Tailwind CSS and shadcn/ui. 70+ pages, dark mode, a live theme customizer, fully responsive.
+- default_branch: main
+- stargazers_count: 19
+- forks_count: 10
+- open_issues_count: 0
+- created_at: 2026-07-16T20:36:04Z
+- updated_at: 2026-11-11T21:45:01Z
+- pushed_at: 2026-07-17T14:45:24Z
+- license (repo object): MIT (MIT License)
+- latest_commit_sha: 6c2796f7baf7330ca9f4e8260a92af59cb97070d
+- latest_commit_date: 2026-07-17T14:45:12Z
+- latest_commit_author: i4GS <itsmason33@gmail.com>
+- latest_commit_message: Add crypto and industry dashboards, storefront/products data table, and UI polish
+- license_file_path: LICENSE
+- license_spdx_id: MIT
+- license_html_url: https://github.com/masondevx/orbynadmin/blob/main/LICENSE
+- recent_tags: none
+- root package.json name: orbynadmin, version: 0.1.0
+- dependencies: {"@tabler/icons-react":"^3.44.0","@tanstack/react-table":"^8.21.3","class-variance-authority":"^0.7.1","clsx":"^2.1.1","cmdk":"^1.1.1","date-fns":"^4.4.0","lucide-react":"^1.24.0","next":"16.2.10","next-themes":"^0.4.6","radix-ui":"^1.6.2","react":"19.2.4","react-day-picker":"^10.0.1","react-dom":"19.2.4","recharts":"^3.9.2","shadcn":"^4.13.0","sonner":"^2.0.7","tailwind-merge":"^3.6.0","tw-animate-css":"^1.4.0"}
+- devDependencies: {"@tailwindcss/postcss":"^4","@types/node":"^20","@types/react":"^19","@types/react-dom":"^19","eslint":"^9","eslint-config-next":"16.2.10","playwright":"^1.61.1","tailwindcss":"^4","typescript":"^5"}
+
+## Repository: shadcnstore/shadcn-dashboard-landing-template
+GET https://api.github.com/repos/shadcnstore/shadcn-dashboard-landing-template -> HTTP 200 (final URL: https://api.github.com/repos/shadcnstore/shadcn-dashboard-landing-template)
+- full_name: shadcnstore/shadcn-dashboard-landing-template
+- html_url: https://github.com/shadcnstore/shadcn-dashboard-landing-template
+- description: Free, open-source shadcn/ui dashboard and landing page template for React, with Vite and Next.js versions, Base UI and Tailwind v4.
+- default_branch: main
+- stargazers_count: 1264
+- forks_count: 266
+- open_issues_count: 1
+- created_at: 2025-09-16T10:42:53Z
+- updated_at: 2026-11-14T00:36:39Z
+- pushed_at: 2026-10-28T07:28:37Z
+- license (repo object): MIT (MIT License)
+- latest_commit_sha: 866423741fa4b62d5e9427603cb2174aedf00f80
+- latest_commit_date: 2026-10-22T12:22:47Z
+- latest_commit_author: Vrushank Brahmakshatriya <vrushankpb@gmail.com>
+- latest_commit_message: chore: pin Node 24 in .nvmrc to match CI and the 20.19+ minimum
+- license_file_path: License.md
+- license_spdx_id: MIT
+- license_html_url: https://github.com/shadcnstore/shadcn-dashboard-landing-template/blob/main/License.md
+- recent_tags: v2.0.0 (f12bbec), v1.1.0 (390daf5), v1.0.0 (7c4e3f3)
+- root package.json: HTTP 404
+- root contents: .editorconfig, .gitattributes, .github/, .gitignore, .nvmrc, .prettierignore, .prettierrc, CHANGELOG.md, License.md, README.md, docs/, nextjs-version/, vite-version/
+- nextjs-version/package.json dependencies: {"@base-ui/react":"^1.8.0","@dnd-kit/core":"^6.3.1","@dnd-kit/modifiers":"^9.0.0","@dnd-kit/sortable":"^10.0.0","@dnd-kit/utilities":"^3.2.2","@hookform/resolvers":"^5.9.1","@tailwindcss/postcss":"^4.3.3","@tanstack/react-table":"^9.2.6","class-variance-authority":"^0.7.1","cmdk":"^1.1.1","cn":"^0.4.0","date-fns":"^4.4.0","lucide-react":"^1.52.0","next":"16.4.0","next-themes":"^0.4.6","postcss":"^8.5.29","react":"19.3.0","react-day-picker":"^10.0.2","react-dom":"19.3.0","react-hook-form":"^7.89.0","react-resizable-panels":"^4.14.3","recharts":"3.8.0","zod":"^4.6.5","zustand":"^5.0.15"}
+- nextjs-version/package.json devDependencies: {"@types/node":"^26.6.4","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","eslint":"^10.12.0","eslint-config-next":"16.4.0","shadcn":"^4.21.4","tailwindcss":"^4.3.3","tw-animate-css":"^1.4.0","typescript":"^6.0.3"}
+- vite-version/package.json dependencies: {"@base-ui/react":"^1.8.0","@dnd-kit/core":"^6.3.1","@dnd-kit/modifiers":"^9.0.0","@dnd-kit/sortable":"^10.0.0","@dnd-kit/utilities":"^3.2.2","@hookform/resolvers":"^5.9.1","@tailwindcss/vite":"^4.3.3","@tanstack/react-table":"^9.2.6","class-variance-authority":"^0.7.1","cmdk":"^1.1.1","cn":"^0.4.0","date-fns":"^4.4.0","lucide-react":"^1.52.0","next-themes":"^0.4.6","react":"^19.3.0","react-day-picker":"^10.0.2","react-dom":"^19.3.0","react-hook-form":"^7.89.0","react-resizable-panels":"^4.14.3","react-router-dom":"^7.18.4","recharts":"3.10.1","tailwindcss":"^4.3.3","zod":"^4.6.5","zustand":"^5.0.15"}
+- vite-version/package.json devDependencies: {"@eslint/js":"^10.0.1","@types/node":"^26.6.4","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","@vitejs/plugin-react":"^6.1.2","eslint":"^10.12.0","eslint-plugin-react-hooks":"^7.1.1","eslint-plugin-react-refresh":"^0.5.7","globals":"^17.13.0","shadcn":"^4.21.4","tw-animate-css":"^1.4.0","typescript":"~6.0.3","typescript-eslint":"^8.71.1","vite":"^8.3.3"}
+
+## Repository: silicondeck/shadcn-dashboard-landing-template
+GET https://api.github.com/repos/silicondeck/shadcn-dashboard-landing-template -> HTTP 200 (final URL: https://api.github.com/repositories/1057889634)
+- full_name: shadcnstore/shadcn-dashboard-landing-template
+- html_url: https://github.com/shadcnstore/shadcn-dashboard-landing-template
+- description: Free, open-source shadcn/ui dashboard and landing page template for React, with Vite and Next.js versions, Base UI and Tailwind v4.
+- default_branch: main
+- stargazers_count: 1264
+- forks_count: 266
+- open_issues_count: 1
+- created_at: 2025-09-16T10:42:53Z
+- updated_at: 2026-11-14T00:36:39Z
+- pushed_at: 2026-10-28T07:28:37Z
+- license (repo object): MIT (MIT License)
+- latest_commit_sha: 866423741fa4b62d5e9427603cb2174aedf00f80
+- latest_commit_date: 2026-10-22T12:22:47Z
+- latest_commit_author: Vrushank Brahmakshatriya <vrushankpb@gmail.com>
+- latest_commit_message: chore: pin Node 24 in .nvmrc to match CI and the 20.19+ minimum
+- license_file_path: License.md
+- license_spdx_id: MIT
+- license_html_url: https://github.com/shadcnstore/shadcn-dashboard-landing-template/blob/main/License.md
+- recent_tags: v2.0.0 (f12bbec), v1.1.0 (390daf5), v1.0.0 (7c4e3f3)
+- root package.json: HTTP 404
+- root contents: .editorconfig, .gitattributes, .github/, .gitignore, .nvmrc, .prettierignore, .prettierrc, CHANGELOG.md, License.md, README.md, docs/, nextjs-version/, vite-version/
+- nextjs-version/package.json dependencies: {"@base-ui/react":"^1.8.0","@dnd-kit/core":"^6.3.1","@dnd-kit/modifiers":"^9.0.0","@dnd-kit/sortable":"^10.0.0","@dnd-kit/utilities":"^3.2.2","@hookform/resolvers":"^5.9.1","@tailwindcss/postcss":"^4.3.3","@tanstack/react-table":"^9.2.6","class-variance-authority":"^0.7.1","cmdk":"^1.1.1","cn":"^0.4.0","date-fns":"^4.4.0","lucide-react":"^1.52.0","next":"16.4.0","next-themes":"^0.4.6","postcss":"^8.5.29","react":"19.3.0","react-day-picker":"^10.0.2","react-dom":"19.3.0","react-hook-form":"^7.89.0","react-resizable-panels":"^4.14.3","recharts":"3.8.0","zod":"^4.6.5","zustand":"^5.0.15"}
+- nextjs-version/package.json devDependencies: {"@types/node":"^26.6.4","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","eslint":"^10.12.0","eslint-config-next":"16.4.0","shadcn":"^4.21.4","tailwindcss":"^4.3.3","tw-animate-css":"^1.4.0","typescript":"^6.0.3"}
+- vite-version/package.json dependencies: {"@base-ui/react":"^1.8.0","@dnd-kit/core":"^6.3.1","@dnd-kit/modifiers":"^9.0.0","@dnd-kit/sortable":"^10.0.0","@dnd-kit/utilities":"^3.2.2","@hookform/resolvers":"^5.9.1","@tailwindcss/vite":"^4.3.3","@tanstack/react-table":"^9.2.6","class-variance-authority":"^0.7.1","cmdk":"^1.1.1","cn":"^0.4.0","date-fns":"^4.4.0","lucide-react":"^1.52.0","next-themes":"^0.4.6","react":"^19.3.0","react-day-picker":"^10.0.2","react-dom":"^19.3.0","react-hook-form":"^7.89.0","react-resizable-panels":"^4.14.3","react-router-dom":"^7.18.4","recharts":"3.10.1","tailwindcss":"^4.3.3","zod":"^4.6.5","zustand":"^5.0.15"}
+- vite-version/package.json devDependencies: {"@eslint/js":"^10.0.1","@types/node":"^26.6.4","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","@vitejs/plugin-react":"^6.1.2","eslint":"^10.12.0","eslint-plugin-react-hooks":"^7.1.1","eslint-plugin-react-refresh":"^0.5.7","globals":"^17.13.0","shadcn":"^4.21.4","tw-animate-css":"^1.4.0","typescript":"~6.0.3","typescript-eslint":"^8.71.1","vite":"^8.3.3"}
+
+## Repository: satnaing/shadcn-admin
+GET https://api.github.com/repos/satnaing/shadcn-admin -> HTTP 200 (final URL: https://api.github.com/repos/satnaing/shadcn-admin)
+- full_name: satnaing/shadcn-admin
+- html_url: https://github.com/satnaing/shadcn-admin
+- description: Admin Dashboard UI built with Shadcn and Vite.
+- default_branch: main
+- stargazers_count: 16711
+- forks_count: 2508
+- open_issues_count: 29
+- created_at: 2024-01-26T02:46:42Z
+- updated_at: 2026-11-15T02:55:38Z
+- pushed_at: 2026-09-10T22:30:37Z
+- license (repo object): MIT (MIT License)
+- latest_commit_sha: e16c87f213a5ba5e45964e9b67c792105ec74d26
+- latest_commit_date: 2026-06-11T10:08:35Z
+- latest_commit_author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+- latest_commit_message: build(deps): bump @clerk/react from 6.4.2 to 6.4.3 (#303)
+- license_file_path: LICENSE
+- license_spdx_id: MIT
+- license_html_url: https://github.com/satnaing/shadcn-admin/blob/main/LICENSE
+- recent_tags: v2.2.1 (0217f8c), v2.2.0 (934561d), v2.1.0 (bae8eca), v2.0.0 (64d67d4), v1.4.2 (70cfd30)
+- root package.json name: shadcn-admin, version: 2.2.1
+- dependencies: {"@clerk/react":"^6.4.3","@hookform/resolvers":"^5.2.2","@radix-ui/react-alert-dialog":"^1.1.15","@radix-ui/react-avatar":"^1.1.11","@radix-ui/react-checkbox":"^1.3.3","@radix-ui/react-collapsible":"^1.1.12","@radix-ui/react-dialog":"^1.1.15","@radix-ui/react-direction":"^1.1.1","@radix-ui/react-dropdown-menu":"^2.1.16","@radix-ui/react-icons":"^1.3.2","@radix-ui/react-label":"^2.1.8","@radix-ui/react-popover":"^1.1.15","@radix-ui/react-radio-group":"^1.3.8","@radix-ui/react-scroll-area":"^1.2.10","@radix-ui/react-select":"^2.2.6","@radix-ui/react-separator":"^1.1.8","@radix-ui/react-slot":"^1.2.4","@radix-ui/react-switch":"^1.2.6","@radix-ui/react-tabs":"^1.1.13","@radix-ui/react-tooltip":"^1.2.8","@tailwindcss/vite":"^4.2.2","@tanstack/react-query":"^5.99.0","@tanstack/react-router":"^1.168.22","@tanstack/react-table":"^8.21.3","axios":"^1.15.0","class-variance-authority":"^0.7.1","clsx":"^2.1.1","cmdk":"1.1.1","date-fns":"^4.1.0","input-otp":"^1.4.2","lucide-react":"^1.8.0","react":"^19.2.5","react-day-picker":"9.14.0","react-dom":"^19.2.5","react-hook-form":"^7.72.1","react-top-loading-bar":"^3.0.2","recharts":"^3.8.1","sonner":"^2.0.7","tailwind-merge":"^3.5.0","tailwindcss":"^4.2.2","tw-animate-css":"^1.4.0","zod":"^4.3.6","zustand":"^5.0.12"}
+- devDependencies: {"@eslint/js":"^10.0.1","@faker-js/faker":"^10.4.0","@tanstack/eslint-plugin-query":"^5.99.0","@tanstack/react-query-devtools":"^5.99.0","@tanstack/react-router-devtools":"^1.166.13","@tanstack/router-plugin":"^1.167.22","@trivago/prettier-plugin-sort-imports":"^6.0.2","@types/node":"^25.6.0","@types/react":"^19.2.14","@types/react-dom":"^19.2.3","@vitejs/plugin-react":"^6.0.1","@vitest/browser-playwright":"^4.1.4","@vitest/coverage-v8":"^4.1.4","@vitest/ui":"^4.1.4","eslint":"^10.2.1","eslint-plugin-react-hooks":"7.1.1","eslint-plugin-react-refresh":"^0.5.2","globals":"^17.5.0","knip":"^6.4.1","playwright":"1.59.1","prettier":"^3.8.3","prettier-plugin-tailwindcss":"^0.7.2","typescript":"~6.0.3","typescript-eslint":"^8.58.2","vite":"^8.0.8","vitest":"^4.1.4","vitest-browser-react":"^2.2.0"}
