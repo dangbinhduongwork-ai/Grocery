@@ -1,0 +1,37 @@
+name: groceryhub
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      # Production default is Express per DEC-010 (free commercial license, 10 GB limit).
+      # Local development overrides this to Developer in docker-compose.override.yml.
+      MSSQL_PID: "${MSSQL_PID:-Express}"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD is required}"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - groceryhub_net
+    mem_limit: 2g
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" -b -o /dev/null"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  sqlserver_data:
+  product_images:
+
+networks:
+  groceryhub_net:
+    driver: bridge
