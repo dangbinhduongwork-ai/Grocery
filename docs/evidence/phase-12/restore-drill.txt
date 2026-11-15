@@ -1,0 +1,51 @@
+﻿================================================================================
+  GroceryHub Phase 12 - Data and Operations Verification and Restore Drill      
+================================================================================
+Timestamp: 2026-11-16 00:22:44 UTC
+Server: (localdb)\MSSQLLocalDB
+Source Database: GroceryHub
+Restored Database: GroceryHub_Ops_Restored
+Backup File: E:\25.Mykey\GroceryHub\scripts\GroceryHub_Drill.bak
+
+--- STEP 1: MIGRATION VERIFICATION ---
+  [MIGRATION APPLIED] 20261115044356_Baseline (EF Core 10.0.15)
+  [MIGRATION APPLIED] 20261115053532_IdentityAndAudit (EF Core 10.0.15)
+  [MIGRATION APPLIED] 20261115071009_CatalogInventoryPurchasing (EF Core 10.0.15)
+  [MIGRATION APPLIED] 20261115091301_CartAndOrdering (EF Core 10.0.15)
+  [MIGRATION APPLIED] 20261115124822_AddReviewsModule (EF Core 10.0.15)
+Total Migrations Verified: 5
+
+--- STEP 2: SOURCE DATABASE POPULATION AND STATS ---
+Seeding operational baseline records into GroceryHub...
+  Source Table [catalog.Categories]: 3 rows
+  Source Table [catalog.Products]: 2 rows
+  Source Table [inventory.StockItems]: 2 rows
+  Source Table [identity.AspNetRoles]: (table not found or 0 rows)
+  Source Table [identity.RoleClaims]: (table not found or 0 rows)
+  Source Table [shipping.ShippingMethods]: (table not found or 0 rows)
+  Source Table [promotions.Coupons]: 0 rows
+
+--- STEP 3: DATABASE BACKUP DRILL ---
+Backup Completed Successfully.
+Backup Size: 4.11 MB (4313088 bytes)
+
+--- STEP 4: DATABASE RESTORE DRILL ---
+Restore Completed Successfully to [GroceryHub_Ops_Restored].
+
+--- STEP 5: INTEGRITY & ROW COUNT VERIFICATION ---
+  Table [catalog.Categories]: Source = 3, Restored = 3 -> MATCH [OK]
+  Table [catalog.Products]: Source = 2, Restored = 2 -> MATCH [OK]
+  Table [inventory.StockItems]: Source = 2, Restored = 2 -> MATCH [OK]
+  Table [promotions.Coupons]: Source = 0, Restored = 0 -> MATCH [OK]
+
+Running DBCC CHECKDB on restored database...
+DBCC CHECKDB passed with 0 allocation or consistency errors.
+
+--- STEP 6: CLEANUP ---
+Temporary database [GroceryHub_Ops_Restored] dropped.
+Temporary backup file removed.
+
+================================================================================
+  RESULT: BACKUP & RESTORE DRILL PASSED (100% DATA INTEGRITY PRESERVED)        
+================================================================================
+

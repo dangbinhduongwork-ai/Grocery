@@ -1,47 +1,47 @@
 ================================================================================
 GROCERYHUB PHASE 07 — SCRIPTED E2E PURCHASING FLOW EXECUTION TRACE
-Executed At: 2026-11-15T16:32:34.9388094+00:00
+Executed At: 2026-11-15T17:26:21.8988262+00:00
 Flow: Customer Register/Login -> Add Cart -> Quote -> Checkout COD -> Staff Confirm
       -> Preparing -> Packed -> Shipping (Commit Stock) -> Delivered (COD Cash)
 ================================================================================
 
-[Step 0] Seeded Product ID: 0523dd10-147b-48f3-ad89-a1b566e11b17, Price: 160,000đ, Cost: 130,000đ, Initial OnHand: 10
+[Step 0] Seeded Product ID: 804fcba4-457c-4fcf-95c3-9847b2e48503, Price: 160,000đ, Cost: 130,000đ, Initial OnHand: 10
 
-[Step 1] Customer Registered & Logged In: customer.scripted.5f341db06f6b46b98405bf12b6141a1c@groceryhub.vn (ID: 87ac0e40-6ac1-4d21-994c-23a3c97689cf)
+[Step 1] Customer Registered & Logged In: customer.scripted.b310129a8fbe40b89f92c39036b3cb08@groceryhub.vn (ID: ec5665ee-6449-4996-920a-0905dba65ccc)
          Token acquired: Bearer eyJhbGciOiJIUzI...
 
 [Step 2] POST /api/v1/cart/items
-         Request: {"ProductId":"0523dd10-147b-48f3-ad89-a1b566e11b17","Quantity":2}
-         Response: OK - {"id":"585ce0d0-4f42-4bc4-a432-744af757f3d5","items":[{"id":"fd592324-bd34-40cb-97f8-a40eb5e1eb47","productId":"0523dd10-147b-48f3-ad89-a1b566e11b17","sku":"SKU-ST25-44D3D6","name":"Gạo ST25 Ông Cua 5kg","unit":"Gói","unitPrice":160000,"listPrice":180000,"quantity":2,"lineSubtotal":320000,"inStock":true,"lowStock":false,"availableQuantity":10}],"subtotal":320000,"couponDiscount":0,"estimatedTotal":320000,"maxQuantityPerLine":20,"warnings":[]}
+         Request: {"ProductId":"804fcba4-457c-4fcf-95c3-9847b2e48503","Quantity":2}
+         Response: OK - {"id":"8e98f270-7d8c-4f12-9cc0-82cf5e73788b","items":[{"id":"f134cb5e-0468-4bbc-a56d-64cede9b6df7","productId":"804fcba4-457c-4fcf-95c3-9847b2e48503","sku":"SKU-ST25-7CB440","name":"Gạo ST25 Ông Cua 5kg","unit":"Gói","unitPrice":160000,"listPrice":180000,"quantity":2,"lineSubtotal":320000,"inStock":true,"lowStock":false,"availableQuantity":10}],"subtotal":320000,"couponDiscount":0,"estimatedTotal":320000,"maxQuantityPerLine":20,"warnings":[]}
 
 [Step 3] GET /api/v1/cart
          Response: OK - Subtotal: 320,000đ, Items Count: 1
 
-[Step 4] POST /api/v1/me/addresses -> Created Address ID: 16a7ec2e-6599-4f43-b437-4022de0fc667 (Province: 79 - TP.HCM)
+[Step 4] POST /api/v1/me/addresses -> Created Address ID: 070278e7-4633-428b-92cf-2e28589fbf10 (Province: 79 - TP.HCM)
 
 [Step 5] POST /api/v1/checkout/quote
-         Request: {"AddressId":"16a7ec2e-6599-4f43-b437-4022de0fc667","CouponCode":null,"PaymentMethod":"COD"}
+         Request: {"AddressId":"070278e7-4633-428b-92cf-2e28589fbf10","CouponCode":null,"PaymentMethod":"COD"}
          Response: OK - Subtotal: 320,000đ, Shipping: 0đ, Total: 320,000đ, Available: [SEPAY_QR, COD]
 
 [Step 6] POST /api/v1/checkout/orders (with Idempotency-Key)
-         Idempotency-Key: 233835fccdd34db5b08c03edde2c94a9
-         Request: {"AddressId":"16a7ec2e-6599-4f43-b437-4022de0fc667","CouponCode":null,"PaymentMethod":"COD","Note":"Giao gio hanh chinh toa nha Sunwah"}
+         Idempotency-Key: db6d5cba3c554cbea08dd385aef7b59c
+         Request: {"AddressId":"070278e7-4633-428b-92cf-2e28589fbf10","CouponCode":null,"PaymentMethod":"COD","Note":"Giao gio hanh chinh toa nha Sunwah"}
          Response: Created - OrderNumber: ORD-20261115-000020, Status: Placed, PaymentStatus: Unpaid
 
          [DB State Verification] StockItems: OnHand = 10, Reserved = 2; StockReservations: Status = Active
 
-[Step 7] Operations Staff Logged In: staff.scripted.817af7e0eccc443099f06b7d50a3c0e6@groceryhub.vn (ID: 435ed277-a494-4e25-8016-a00369eeabaa) with orders.process + orders.ship
+[Step 7] Operations Staff Logged In: staff.scripted.87a4651c57cd4a579fee949da452440b@groceryhub.vn (ID: c6cd9bfb-83a3-48a8-a3aa-115fe9fed2ef) with orders.process + orders.ship
 
-[Step 8] POST /api/v1/admin/orders/7c1f1935-1f14-44fe-b549-0470af52935f/transition -> Confirmed
+[Step 8] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Confirmed
          Response: OK
 
-[Step 9] POST /api/v1/admin/orders/7c1f1935-1f14-44fe-b549-0470af52935f/transition -> Preparing
+[Step 9] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Preparing
          Response: OK
 
-[Step 10] POST /api/v1/admin/orders/7c1f1935-1f14-44fe-b549-0470af52935f/transition -> Packed
+[Step 10] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Packed
           Response: OK
 
-[Step 11] POST /api/v1/admin/orders/7c1f1935-1f14-44fe-b549-0470af52935f/transition -> Shipping
+[Step 11] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Shipping
           Response: OK
 
          [DB State Verification on Shipping]
@@ -50,14 +50,14 @@ Flow: Customer Register/Login -> Add Cart -> Quote -> Checkout COD -> Staff Conf
          StockMovements: Type = Sale, Qty = -2, UnitCost = 130,000đ
          OrderItem: UnitCostSnapshot = 130,000đ
 
-[Step 12] POST /api/v1/admin/orders/7c1f1935-1f14-44fe-b549-0470af52935f/transition -> Delivered (COD Collection)
+[Step 12] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Delivered (COD Collection)
           Collected COD Amount: 320,000đ
           Response: OK
 
          [DB State Verification on Delivered]
          Order Status: Delivered, PaymentStatus: Paid
          Payment Status: Paid
-         payments.CodCollections: Amount = 320,000đ, CollectedBy = 435ed277-a494-4e25-8016-a00369eeabaa
+         payments.CodCollections: Amount = 320,000đ, CollectedBy = c6cd9bfb-83a3-48a8-a3aa-115fe9fed2ef
 ================================================================================
 PURCHASING LIFECYCLE COMPLETED SUCCESSFULLY WITH ZERO INVARIANT VIOLATIONS.
 ================================================================================

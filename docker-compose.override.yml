@@ -1,14 +1,23 @@
-# Local development overrides (loaded automatically by `docker compose up`).
-# In production, run with `docker compose -f docker-compose.yml up -d`.
+# =============================================================================
+# GroceryHub — Local Development Overrides
+# Automatically loaded by `docker compose up` alongside docker-compose.yml.
+# For production deployments, run: `docker compose -f docker-compose.yml up -d`
+# =============================================================================
 services:
   sqlserver:
     environment:
       # Developer edition is licensed for non-production development/test only (DEC-010).
       MSSQL_PID: "${MSSQL_PID:-Developer}"
-      # Dev-only fallback placeholder; copy .env.example to .env to customize.
       MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-GroceryHub_Dev_Sql_2026!}"
     ports:
       - "127.0.0.1:${SQLSERVER_PORT:-1433}:1433"
+
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      App__PublicBaseUrl: "http://localhost:${WEB_PORT:-8080}"
+    ports:
+      - "127.0.0.1:${API_PORT:-5000}:8080"
 
   mailpit:
     image: axllent/mailpit:v1.21.8

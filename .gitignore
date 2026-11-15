@@ -69,3 +69,6 @@ tmp/
 temp/
 *.tmp
 *.bak
+backups/
+bundle-test/
+out/

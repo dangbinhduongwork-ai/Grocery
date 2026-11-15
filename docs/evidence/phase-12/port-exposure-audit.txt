@@ -1,0 +1,6 @@
+﻿Production Docker Compose Port Audit:
+  Service [sqlserver]: Exposed = False
+  Service [migrator]: Exposed = False
+  Service [api]: Exposed = False
+  Service [web]: Exposed = True
+AUDIT PASS: Only 'web' service publishes host port. Database and API are strictly internal.

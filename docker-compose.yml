@@ -1,6 +1,9 @@
 name: groceryhub
 
 services:
+  # ===========================================================================
+  # 1. Database: Microsoft SQL Server (Internal network only in production)
+  # ===========================================================================
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
     restart: unless-stopped
@@ -27,6 +30,106 @@ services:
       timeout: 5s
       retries: 10
       start_period: 20s
+
+  # ===========================================================================
+  # 2. Database Migrator: One-off EF Core Migration Bundle execution
+  # ===========================================================================
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: migrator
+    restart: on-failure
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=GroceryHub;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Encrypt=True"
+    networks:
+      - groceryhub_net
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+  # ===========================================================================
+  # 3. Backend API: ASP.NET Core 10 Modular Monolith (Internal only)
+  # ===========================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: runtime
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT:-Production}"
+      App__PublicBaseUrl: "${App__PublicBaseUrl:-https://grocery.dangbinhduong.io.vn}"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=GroceryHub;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Encrypt=True"
+      Jwt__Issuer: "${Jwt__Issuer:-https://grocery.dangbinhduong.io.vn}"
+      Jwt__Audience: "${Jwt__Audience:-https://grocery.dangbinhduong.io.vn}"
+      Jwt__SigningKey: "${Jwt__SigningKey:?Jwt__SigningKey is required}"
+      SePay__Environment: "${SePay__Environment:-Production}"
+      SePay__AccountNumber: "${SePay__AccountNumber:-0000000000}"
+      SePay__BankShortName: "${SePay__BankShortName:-MBBank}"
+      SePay__AccountName: "${SePay__AccountName:-CONG TY TNHH GROCERYHUB}"
+      SePay__PaymentCodePrefix: "${SePay__PaymentCodePrefix:-GH}"
+      SePay__Webhook__AuthMode: "${SePay__Webhook__AuthMode:-Hmac}"
+      SePay__Webhook__HmacSecret: "${SePay__Webhook__HmacSecret:-}"
+      SePay__Webhook__ApiKey: "${SePay__Webhook__ApiKey:-}"
+      SePay__Api__BaseUrl: "${SePay__Api__BaseUrl:-https://userapi.sepay.vn/v2}"
+      SePay__Api__Token: "${SePay__Api__Token:-}"
+      Payments__CodMaxAmount: "${Payments__CodMaxAmount:-2000000}"
+      Smtp__Host: "${Smtp__Host:-mailpit}"
+      Smtp__Port: "${Smtp__Port:-1025}"
+      Smtp__User: "${Smtp__User:-}"
+      Smtp__Password: "${Smtp__Password:-}"
+      Smtp__From: "${Smtp__From:-no-reply@grocery.dangbinhduong.io.vn}"
+      Storage__ImagesPath: "/app/var/product-images"
+      Seed__AdminEmail: "${Seed__AdminEmail:-admin@groceryhub.vn}"
+      Seed__AdminPassword: "${Seed__AdminPassword:-}"
+      Serilog__MinimumLevel: "${Serilog__MinimumLevel:-Information}"
+    volumes:
+      - product_images:/app/var/product-images
+    networks:
+      - groceryhub_net
+    mem_limit: 1g
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/live || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ===========================================================================
+  # 4. Web Frontend & Gateway: Nginx unprivileged SPA + API Proxy
+  # (Only service publishing a port to the host/edge proxy)
+  # ===========================================================================
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    networks:
+      - groceryhub_net
+    mem_limit: 512m
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
 volumes:
   sqlserver_data:

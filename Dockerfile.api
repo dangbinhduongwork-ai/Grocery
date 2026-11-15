@@ -1,0 +1,93 @@
+# =============================================================================
+# GroceryHub — Multi-stage Production Dockerfile for Backend API & Migrator
+# Pinned to .NET 10 LTS Ubuntu noble images
+# Non-root security user `app` (UID 1654)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Build & Package API and EF Core Migration Bundle
+# -----------------------------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
+WORKDIR /src
+
+# Copy build configuration & solution files for cached restore
+COPY ["Directory.Build.props", "./"]
+COPY ["Directory.Packages.props", "./"]
+COPY ["GroceryHub.sln", "./"]
+
+# Copy project files individually to leverage Docker layer caching
+COPY ["src/GroceryHub.SharedKernel/GroceryHub.SharedKernel.csproj", "src/GroceryHub.SharedKernel/"]
+COPY ["src/GroceryHub.Persistence/GroceryHub.Persistence.csproj", "src/GroceryHub.Persistence/"]
+COPY ["src/GroceryHub.Api/GroceryHub.Api.csproj", "src/GroceryHub.Api/"]
+COPY ["src/GroceryHub.Modules.Audit/GroceryHub.Modules.Audit.csproj", "src/GroceryHub.Modules.Audit/"]
+COPY ["src/GroceryHub.Modules.Cart/GroceryHub.Modules.Cart.csproj", "src/GroceryHub.Modules.Cart/"]
+COPY ["src/GroceryHub.Modules.Catalog/GroceryHub.Modules.Catalog.csproj", "src/GroceryHub.Modules.Catalog/"]
+COPY ["src/GroceryHub.Modules.Customers/GroceryHub.Modules.Customers.csproj", "src/GroceryHub.Modules.Customers/"]
+COPY ["src/GroceryHub.Modules.Identity/GroceryHub.Modules.Identity.csproj", "src/GroceryHub.Modules.Identity/"]
+COPY ["src/GroceryHub.Modules.Inventory/GroceryHub.Modules.Inventory.csproj", "src/GroceryHub.Modules.Inventory/"]
+COPY ["src/GroceryHub.Modules.Ordering/GroceryHub.Modules.Ordering.csproj", "src/GroceryHub.Modules.Ordering/"]
+COPY ["src/GroceryHub.Modules.Payments/GroceryHub.Modules.Payments.csproj", "src/GroceryHub.Modules.Payments/"]
+COPY ["src/GroceryHub.Modules.Promotions/GroceryHub.Modules.Promotions.csproj", "src/GroceryHub.Modules.Promotions/"]
+COPY ["src/GroceryHub.Modules.Purchasing/GroceryHub.Modules.Purchasing.csproj", "src/GroceryHub.Modules.Purchasing/"]
+COPY ["src/GroceryHub.Modules.Reporting/GroceryHub.Modules.Reporting.csproj", "src/GroceryHub.Modules.Reporting/"]
+COPY ["src/GroceryHub.Modules.Reviews/GroceryHub.Modules.Reviews.csproj", "src/GroceryHub.Modules.Reviews/"]
+
+# Restore NuGet packages
+RUN dotnet restore "src/GroceryHub.Api/GroceryHub.Api.csproj"
+
+# Copy source code and manifest
+COPY src/ src/
+COPY .config/ .config/
+
+# Publish API in Release mode
+RUN dotnet publish "src/GroceryHub.Api/GroceryHub.Api.csproj" \
+    -c Release \
+    -o /app/publish \
+    --no-restore
+
+# Restore dotnet-ef tool and build self-contained migration bundle
+RUN dotnet tool restore && \
+    dotnet ef migrations bundle \
+    --project src/GroceryHub.Persistence \
+    --startup-project src/GroceryHub.Api \
+    -o /app/bundle/efbundle \
+    --force
+
+# Copy configuration alongside efbundle
+RUN cp /app/publish/appsettings.json /app/bundle/ 2>/dev/null || true
+
+# -----------------------------------------------------------------------------
+# Stage 2a: Migrator Service (One-off container running EF Core migration bundle)
+# -----------------------------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble AS migrator
+WORKDIR /app
+
+COPY --from=build --chown=app:app /app/bundle .
+RUN chmod +x /app/efbundle
+
+USER app
+ENTRYPOINT ["./efbundle"]
+
+# -----------------------------------------------------------------------------
+# Stage 2b: Production API Runtime
+# -----------------------------------------------------------------------------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble AS runtime
+WORKDIR /app
+
+ENV ASPNETCORE_HTTP_PORTS=8080 \
+    ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_EnableDiagnostics=0
+
+# Create upload directory and grant permissions to non-root app user
+RUN mkdir -p /app/var/product-images && chown -R app:app /app/var
+
+COPY --from=build --chown=app:app /app/publish .
+
+USER app
+EXPOSE 8080
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/health/live || exit 1
+
+ENTRYPOINT ["dotnet", "GroceryHub.Api.dll"]

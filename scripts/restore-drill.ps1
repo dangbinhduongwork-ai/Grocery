@@ -94,7 +94,7 @@ function Log-Output($msg) {
 }
 
 Log-Output "================================================================================"
-Log-Output "  GroceryHub Phase 11 — Data & Operations Verification & Restore Drill         "
+Log-Output "  GroceryHub Phase 12 - Data and Operations Verification and Restore Drill      "
 Log-Output "================================================================================"
 Log-Output "Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') UTC"
 Log-Output "Server: $Server"
@@ -113,7 +113,7 @@ Log-Output "Total Migrations Verified: $($migrations.Count)"
 Log-Output ""
 
 # 2. Seed Sample Data if Needed and Check Counts
-Log-Output "--- STEP 2: SOURCE DATABASE POPULATION & STATS ---"
+Log-Output "--- STEP 2: SOURCE DATABASE POPULATION AND STATS ---"
 $tables = @(
     "catalog.Categories",
     "catalog.Products",
@@ -128,7 +128,7 @@ $tables = @(
 $catCount = [int](Exec-SqlScalar $Server "SELECT COUNT(*) FROM catalog.Categories" $SourceDb)
 if ($catCount -eq 0) {
     Log-Output "Seeding operational baseline records into $SourceDb..."
-    Exec-SqlNonQuery $Server @"
+    $seedSql = @"
 INSERT INTO catalog.Categories (Id, Name, Slug, SortOrder, IsActive, CreatedAt, UpdatedAt)
 VALUES 
     (NEWID(), N'Rau củ quả sạch', 'rau-cu-qua-sach', 1, 1, SYSUTCDATETIME(), SYSUTCDATETIME()),
@@ -145,7 +145,8 @@ FROM catalog.Categories WHERE Slug = 'sua-che-pham-sua';
 
 INSERT INTO inventory.StockItems (ProductId, OnHand, Reserved, ReorderLevel, UpdatedAt)
 SELECT Id, 100, 5, 10, SYSUTCDATETIME() FROM catalog.Products;
-"@ $SourceDb
+"@
+    Exec-SqlNonQuery $Server $seedSql $SourceDb
 }
 
 $sourceCounts = @{}
