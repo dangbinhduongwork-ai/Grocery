@@ -23,6 +23,18 @@ public sealed class AdminUnitDataVersionConfiguration : IEntityTypeConfiguration
             .HasMaxLength(60)
             .IsRequired();
 
+        builder.Property(x => x.ProvinceCount)
+            .IsRequired()
+            .HasDefaultValue(34);
+
+        builder.Property(x => x.WardCount)
+            .IsRequired()
+            .HasDefaultValue(3321);
+
+        builder.Property(x => x.ChecksumSha256)
+            .HasMaxLength(64)
+            .IsRequired(false);
+
         builder.Property(x => x.ImportedAt)
             .IsRequired();
 

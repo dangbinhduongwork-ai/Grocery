@@ -44,8 +44,11 @@ public sealed class IdentitySeederHostedService(
 
             if (autoSeed)
             {
-                _logger.LogInformation("Running idempotent Identity reference-data seeding...");
+                _logger.LogInformation("Running idempotent reference-data seeding...");
                 await IdentitySeeder.SeedIdentityAsync(db, _configuration, _timeProvider, _logger, cancellationToken);
+                await AdminUnitSeeder.SeedAdminUnitsAsync(db, _timeProvider, _logger, cancellationToken);
+                await ShippingSeeder.SeedShippingAsync(db, _timeProvider, _logger, cancellationToken);
+                await PromotionsSeeder.SeedPromotionsAsync(db, _timeProvider, _logger, cancellationToken);
             }
         }
         catch (Exception ex)
