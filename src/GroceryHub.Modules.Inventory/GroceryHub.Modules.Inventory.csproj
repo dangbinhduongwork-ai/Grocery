@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>GroceryHub.Modules.Inventory</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GroceryHub.SharedKernel\GroceryHub.SharedKernel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="GroceryHub.UnitTests" />
+    <InternalsVisibleTo Include="GroceryHub.IntegrationTests" />
+    <InternalsVisibleTo Include="GroceryHub.ArchitectureTests" />
+    <InternalsVisibleTo Include="GroceryHub.Persistence" />
+  </ItemGroup>
+</Project>
