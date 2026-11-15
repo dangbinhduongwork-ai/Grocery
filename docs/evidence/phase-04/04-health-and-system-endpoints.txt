@@ -1,0 +1,42 @@
+﻿=== PHASE 04 LIVE HEALTH & SYSTEM ENDPOINTS TEST ===
+Timestamp: 2026-11-15T12:16:59.7353774+07:00
+
+--- Running FoundationIntegrationTests ---
+  Determining projects to restore...
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.SharedKernel\GroceryHub.SharedKernel.csproj (in 129 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Inventory\GroceryHub.Modules.Inventory.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Cart\GroceryHub.Modules.Cart.csproj (in 284 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Payments\GroceryHub.Modules.Payments.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Customers\GroceryHub.Modules.Customers.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Reporting\GroceryHub.Modules.Reporting.csproj (in 284 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Purchasing\GroceryHub.Modules.Purchasing.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Promotions\GroceryHub.Modules.Promotions.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Ordering\GroceryHub.Modules.Ordering.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Reviews\GroceryHub.Modules.Reviews.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Identity\GroceryHub.Modules.Identity.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Catalog\GroceryHub.Modules.Catalog.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Audit\GroceryHub.Modules.Audit.csproj (in 283 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Persistence\GroceryHub.Persistence.csproj (in 322 ms).
+  Restored E:\25.Mykey\GroceryHub\src\GroceryHub.Api\GroceryHub.Api.csproj (in 375 ms).
+  1 of 16 projects are up-to-date for restore.
+  GroceryHub.SharedKernel -> E:\25.Mykey\GroceryHub\src\GroceryHub.SharedKernel\bin\Debug\net10.0\GroceryHub.SharedKernel.dll
+  GroceryHub.Modules.Purchasing -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Purchasing\bin\Debug\net10.0\GroceryHub.Modules.Purchasing.dll
+  GroceryHub.Modules.Reporting -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Reporting\bin\Debug\net10.0\GroceryHub.Modules.Reporting.dll
+  GroceryHub.Modules.Payments -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Payments\bin\Debug\net10.0\GroceryHub.Modules.Payments.dll
+  GroceryHub.Modules.Identity -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Identity\bin\Debug\net10.0\GroceryHub.Modules.Identity.dll
+  GroceryHub.Modules.Ordering -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Ordering\bin\Debug\net10.0\GroceryHub.Modules.Ordering.dll
+  GroceryHub.Modules.Inventory -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Inventory\bin\Debug\net10.0\GroceryHub.Modules.Inventory.dll
+  GroceryHub.Modules.Audit -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Audit\bin\Debug\net10.0\GroceryHub.Modules.Audit.dll
+  GroceryHub.Modules.Customers -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Customers\bin\Debug\net10.0\GroceryHub.Modules.Customers.dll
+  GroceryHub.Persistence -> E:\25.Mykey\GroceryHub\src\GroceryHub.Persistence\bin\Debug\net10.0\GroceryHub.Persistence.dll
+  GroceryHub.Modules.Reviews -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Reviews\bin\Debug\net10.0\GroceryHub.Modules.Reviews.dll
+  GroceryHub.Modules.Catalog -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Catalog\bin\Debug\net10.0\GroceryHub.Modules.Catalog.dll
+  GroceryHub.Modules.Promotions -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Promotions\bin\Debug\net10.0\GroceryHub.Modules.Promotions.dll
+  GroceryHub.Modules.Cart -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Cart\bin\Debug\net10.0\GroceryHub.Modules.Cart.dll
+  GroceryHub.Api -> E:\25.Mykey\GroceryHub\src\GroceryHub.Api\bin\Debug\net10.0\GroceryHub.Api.dll
+  GroceryHub.IntegrationTests -> E:\25.Mykey\GroceryHub\tests\GroceryHub.IntegrationTests\bin\Debug\net10.0\GroceryHub.IntegrationTests.dll
+Test run for E:\25.Mykey\GroceryHub\tests\GroceryHub.IntegrationTests\bin\Debug\net10.0\GroceryHub.IntegrationTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 2 s - GroceryHub.IntegrationTests.dll (net10.0)
+ExitCode: 0

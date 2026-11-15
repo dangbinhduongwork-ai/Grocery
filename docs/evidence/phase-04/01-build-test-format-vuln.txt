@@ -1,0 +1,80 @@
+﻿=== PHASE 04 GATE EVIDENCE: RESTORE, FORMAT, BUILD, VULN SCAN, TESTS ===
+Timestamp: 2026-11-15T12:18:24.1267639+07:00
+
+--- 1. dotnet restore GroceryHub.sln ---
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+ExitCode: 0
+
+--- 2. dotnet format GroceryHub.sln --verify-no-changes --no-restore ---
+ExitCode: 0
+
+--- 3. dotnet build GroceryHub.sln -warnaserror --no-restore ---
+  GroceryHub.SharedKernel -> E:\25.Mykey\GroceryHub\src\GroceryHub.SharedKernel\bin\Debug\net10.0\GroceryHub.SharedKernel.dll
+  GroceryHub.Modules.Ordering -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Ordering\bin\Debug\net10.0\GroceryHub.Modules.Ordering.dll
+  GroceryHub.Modules.Customers -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Customers\bin\Debug\net10.0\GroceryHub.Modules.Customers.dll
+  GroceryHub.Persistence -> E:\25.Mykey\GroceryHub\src\GroceryHub.Persistence\bin\Debug\net10.0\GroceryHub.Persistence.dll
+  GroceryHub.Modules.Audit -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Audit\bin\Debug\net10.0\GroceryHub.Modules.Audit.dll
+  GroceryHub.Modules.Inventory -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Inventory\bin\Debug\net10.0\GroceryHub.Modules.Inventory.dll
+  GroceryHub.Modules.Payments -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Payments\bin\Debug\net10.0\GroceryHub.Modules.Payments.dll
+  GroceryHub.Modules.Catalog -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Catalog\bin\Debug\net10.0\GroceryHub.Modules.Catalog.dll
+  GroceryHub.Modules.Purchasing -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Purchasing\bin\Debug\net10.0\GroceryHub.Modules.Purchasing.dll
+  GroceryHub.Modules.Reviews -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Reviews\bin\Debug\net10.0\GroceryHub.Modules.Reviews.dll
+  GroceryHub.Modules.Reporting -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Reporting\bin\Debug\net10.0\GroceryHub.Modules.Reporting.dll
+  GroceryHub.Modules.Identity -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Identity\bin\Debug\net10.0\GroceryHub.Modules.Identity.dll
+  GroceryHub.Modules.Cart -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Cart\bin\Debug\net10.0\GroceryHub.Modules.Cart.dll
+  GroceryHub.Modules.Promotions -> E:\25.Mykey\GroceryHub\src\GroceryHub.Modules.Promotions\bin\Debug\net10.0\GroceryHub.Modules.Promotions.dll
+  GroceryHub.UnitTests -> E:\25.Mykey\GroceryHub\tests\GroceryHub.UnitTests\bin\Debug\net10.0\GroceryHub.UnitTests.dll
+  GroceryHub.Api -> E:\25.Mykey\GroceryHub\src\GroceryHub.Api\bin\Debug\net10.0\GroceryHub.Api.dll
+  GroceryHub.ArchitectureTests -> E:\25.Mykey\GroceryHub\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll
+  GroceryHub.IntegrationTests -> E:\25.Mykey\GroceryHub\tests\GroceryHub.IntegrationTests\bin\Debug\net10.0\GroceryHub.IntegrationTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.19
+ExitCode: 0
+
+--- 4. dotnet list GroceryHub.sln package --vulnerable --include-transitive ---
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+
+The following sources were used:
+   https://api.nuget.org/v3/index.json
+   C:\Program Files (x86)\Microsoft SDKs\NuGetPackages\
+
+The given project `GroceryHub.SharedKernel` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Persistence` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Identity` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Customers` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Catalog` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Inventory` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Purchasing` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Promotions` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Cart` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Ordering` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Payments` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Reviews` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Reporting` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Modules.Audit` has no vulnerable packages given the current sources.
+The given project `GroceryHub.Api` has no vulnerable packages given the current sources.
+The given project `GroceryHub.UnitTests` has no vulnerable packages given the current sources.
+The given project `GroceryHub.ArchitectureTests` has no vulnerable packages given the current sources.
+The given project `GroceryHub.IntegrationTests` has no vulnerable packages given the current sources.
+ExitCode: 0
+
+--- 5. dotnet test GroceryHub.sln --no-build ---
+Test run for E:\25.Mykey\GroceryHub\tests\GroceryHub.ArchitectureTests\bin\Debug\net10.0\GroceryHub.ArchitectureTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for E:\25.Mykey\GroceryHub\tests\GroceryHub.IntegrationTests\bin\Debug\net10.0\GroceryHub.IntegrationTests.dll (.NETCoreApp,Version=v10.0)
+Test run for E:\25.Mykey\GroceryHub\tests\GroceryHub.UnitTests\bin\Debug\net10.0\GroceryHub.UnitTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    60, Skipped:     0, Total:    60, Duration: 66 ms - GroceryHub.UnitTests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 524 ms - GroceryHub.ArchitectureTests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 2 s - GroceryHub.IntegrationTests.dll (net10.0)
+ExitCode: 0

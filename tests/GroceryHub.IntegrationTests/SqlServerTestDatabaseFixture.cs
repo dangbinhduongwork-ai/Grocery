@@ -148,8 +148,7 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
 
         try
         {
-            _msSqlContainer = new MsSqlBuilder()
-                .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04")
                 .Build();
 
             using CancellationTokenSource cts = new(TimeSpan.FromSeconds(45));

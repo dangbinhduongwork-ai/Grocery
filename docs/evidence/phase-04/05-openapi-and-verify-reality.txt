@@ -1,0 +1,47 @@
+﻿=== PHASE 04 OPENAPI EXPORT & VERIFY-REALITY ===
+Timestamp: 2026-11-15T12:11:27.3511444+07:00
+
+--- 1. dotnet run --project src/GroceryHub.Api --no-build -- --export-openapi docs/contracts/openapi.json ---
+Unhandled exception: An error occurred trying to start process 'E:\25.Mykey\GroceryHub\src\GroceryHub.Api\bin\Debug\net10.0\GroceryHub.Api.exe' with working directory 'E:\25.Mykey\GroceryHub\src\GroceryHub.Api'. The system cannot find the file specified.
+ExitCode: 1
+
+--- 2. First 35 lines of docs/contracts/openapi.json ---
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "GroceryHub API",
+    "description": "GroceryHub Vietnamese Online Grocery Platform REST API (v1)",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "operationId": "GetHealthLive",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+
+--- 3. scripts/verify-reality.ps1 ---
+verify-reality: no violations
+ExitCode: 0
