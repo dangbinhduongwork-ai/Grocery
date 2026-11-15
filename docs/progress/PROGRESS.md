@@ -22,4 +22,4 @@
 | **10** | SePay VietQR + Webhook | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/phase-prompts/phase-10-sepay.md` | `docs/progress/phase-10-report.md` (`docs/evidence/phase-10/`) |
 | **11** | Testing and Security Hardening | **Done** | 2026-11-15 | **GO** | 2026-11-15 | `docs/phase-prompts/phase-11-testing-security.md` | `docs/progress/phase-11-report.md` (`docs/evidence/phase-11/`) |
 | **12** | Docker and Deployment | **Done** | 2026-11-16 | **GO** | 2026-11-16 | `docs/phase-prompts/phase-12-deployment.md` | `docs/progress/phase-12-report.md` (`docs/evidence/phase-12/`) |
-| **13** | Final Review and Handover | NotStarted | — | Pending | — | — | — |
+| **13** | Final Review and Handover | **Done** | 2026-11-16 | **GO** | 2026-11-16 | `docs/phase-prompts/phase-13-final-review.md` | `docs/progress/FINAL-REPORT.md` (`docs/evidence/phase-13/`) |

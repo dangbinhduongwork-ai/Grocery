@@ -1,4 +1,4 @@
-﻿# =============================================================================
+# =============================================================================
 # GroceryHub — Post-Deployment Smoke Test (PowerShell)
 # Verifies health, static SPA delivery, category listing, user auth flow,
 # product catalog query, and webhook signature rejection on a deployed stack.
