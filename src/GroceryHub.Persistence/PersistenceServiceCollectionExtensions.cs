@@ -1,4 +1,5 @@
 using GroceryHub.Persistence.Outbox;
+using GroceryHub.Persistence.Seeding;
 using GroceryHub.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -54,6 +55,7 @@ public static class PersistenceServiceCollectionExtensions
                 sp.GetService<ILogger<OutboxDispatcherProcessor>>()));
 
         services.AddHostedService<OutboxDispatcher>();
+        services.AddHostedService<IdentitySeederHostedService>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<GroceryHubDbContext>(
