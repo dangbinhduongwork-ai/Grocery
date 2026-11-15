@@ -26,5 +26,6 @@
     <PackageVersion Include="Respawn" Version="6.2.1" />
     <PackageVersion Include="Microsoft.OpenApi" Version="3.11.0" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+    <PackageVersion Include="SkiaSharp" Version="2.88.9" />
   </ItemGroup>
 </Project>

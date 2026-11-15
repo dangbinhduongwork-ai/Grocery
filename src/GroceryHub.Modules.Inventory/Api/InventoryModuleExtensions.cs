@@ -1,3 +1,7 @@
+using FluentValidation;
+using GroceryHub.Modules.Inventory.Application.Services;
+using GroceryHub.Modules.Inventory.Application.Validators;
+using GroceryHub.Modules.Inventory.Contracts;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +16,11 @@ public static class InventoryModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddScoped<InventoryAdminService>();
+        services.AddScoped<IInventoryModuleContract, InventoryModuleContract>();
+        services.AddValidatorsFromAssemblyContaining<AdjustStockRequestValidator>();
+
         return services;
     }
 
@@ -19,6 +28,9 @@ public static class InventoryModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+
+        endpoints.MapInventoryApiEndpoints();
+
         return endpoints;
     }
 }

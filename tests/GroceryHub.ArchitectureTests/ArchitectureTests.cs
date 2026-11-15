@@ -436,7 +436,7 @@ public sealed class ArchitectureTests
             : [];
 
         int index = 0;
-        while (index < il.Length)
+        while (index >= 0 && index < il.Length)
         {
             byte op = il[index++];
             if (op == 0xFE)
@@ -489,6 +489,11 @@ public sealed class ArchitectureTests
                 }
 
                 int count = BitConverter.ToInt32(il, index);
+                if (count < 0 || count > 65535 || index + 4L + (count * 4L) > il.Length)
+                {
+                    yield break;
+                }
+
                 index += 4 + (count * 4);
                 continue;
             }
