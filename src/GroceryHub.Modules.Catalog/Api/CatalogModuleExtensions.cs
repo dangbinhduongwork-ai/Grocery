@@ -28,6 +28,7 @@ public static class CatalogModuleExtensions
         services.AddScoped<CatalogQueryService>();
         services.AddScoped<CatalogAdminService>();
         services.AddScoped<ICatalogModuleContract, CatalogModuleContract>();
+        services.AddScoped<ICatalogReviewSummaryPort, CatalogReviewSummaryService>();
 
         services.AddValidatorsFromAssemblyContaining<CreateProductRequestValidator>();
 

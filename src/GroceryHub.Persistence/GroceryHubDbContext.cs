@@ -123,6 +123,8 @@ public class GroceryHubDbContext : DbContext
 
     public DbSet<CodCollection> CodCollections => Set<CodCollection>();
 
+    public DbSet<Review> Reviews => Set<Review>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);

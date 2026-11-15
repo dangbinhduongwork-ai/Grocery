@@ -1,3 +1,6 @@
+using FluentValidation;
+using GroceryHub.Modules.Reviews.Application.Services;
+using GroceryHub.Modules.Reviews.Application.Validators;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +15,10 @@ public static class ReviewsModuleExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        services.AddValidatorsFromAssemblyContaining<CreateReviewValidator>();
+        services.AddScoped<ReviewsService>();
+
         return services;
     }
 
@@ -19,6 +26,7 @@ public static class ReviewsModuleExtensions
         this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
+        ReviewsEndpoints.MapReviewsEndpoints(endpoints);
         return endpoints;
     }
 }

@@ -1,6 +1,7 @@
 using FluentValidation;
 using GroceryHub.Modules.Ordering.Application.Services;
 using GroceryHub.Modules.Ordering.Application.Validators;
+using GroceryHub.Modules.Ordering.Contracts;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ public static class OrderingModuleExtensions
 
         services.AddValidatorsFromAssemblyContaining<ShippingQuoteValidator>();
         services.AddScoped<OrderingService>();
+        services.AddScoped<IOrderVerificationContract, OrderVerificationService>();
 
         return services;
     }
