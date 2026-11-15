@@ -1,0 +1,119 @@
+================================================================================
+  GroceryHub Phase 06 - Database Check Constraints Enforcement Evidence
+================================================================================
+Executed At: 2026-11-15 08:23:44 UTC
+Target Engine: Microsoft SQL Server (LocalDB / Testcontainers)
+Verification Type: Direct Raw SQL Execution + xUnit Automated Integration Tests
+Test Suite: GroceryHub.IntegrationTests.Catalog.DatabaseCheckConstraintsIntegrationTests
+
+SUMMARY OF VERIFIED CHECK CONSTRAINTS:
+1. CK_Products_SellingPrice_ListPrice (Schema: catalog, Table: Products)
+   - Rule: [SellingPrice] <= [ListPrice]
+   - Prevents selling price exceeding list price (FR-01 / BR-01).
+   - Direct SQL violation throws SqlException (Number 547).
+
+2. CK_StockItems_Invariants (Schema: inventory, Table: StockItems)
+   - Rule: [OnHand] >= 0 AND [Reserved] >= 0 AND [Reserved] <= [OnHand]
+   - Prevents negative physical inventory (OnHand < 0) and invalid reservations (Reserved > OnHand).
+   - Enforces BR-02 (Available = OnHand - Reserved >= 0) at the database storage engine layer.
+   - Direct SQL violation throws SqlException (Number 547).
+
+--------------------------------------------------------------------------------
+TEST CASE 1: Attempt Direct SQL INSERT with SellingPrice > ListPrice
+--------------------------------------------------------------------------------
+Executed SQL:
+  INSERT INTO [catalog].[Products] (
+      [Id], [Sku], [Name], [Slug], [SearchText], [CategoryId], [Unit],
+      [ListPrice], [SellingPrice], [CostPrice], [Status], [IsFeatured],
+      [RatingAvg], [RatingCount], [SoldCount], [CreatedAt]
+  ) VALUES (
+      @ProductId, @Sku, @Name, @Slug, @SearchText, @CategoryId, @Unit,
+      50000, 100000, 30000, 'Draft', 0,
+      0.00, 0, 0, SYSDATETIMEOFFSET()
+  );
+
+Captured SqlException:
+  Number: 547
+  Class / Severity: 16
+  State: 0
+  Message:
+    The INSERT statement conflicted with the CHECK constraint "CK_Products_SellingPrice_ListPrice".
+    The conflict occurred in database "GroceryHub_IntegrationTests", table "catalog.Products".
+Result: PASSED (Rejected by SQL Server engine before write commit)
+
+--------------------------------------------------------------------------------
+TEST CASE 2: Attempt Direct SQL INSERT with Negative OnHand (OnHand = -1)
+--------------------------------------------------------------------------------
+Executed SQL:
+  INSERT INTO [inventory].[StockItems] (
+      [ProductId], [OnHand], [Reserved], [ReorderLevel], [CreatedAt]
+  ) VALUES (
+      @ProductId, -1, 0, 10, SYSDATETIMEOFFSET()
+  );
+
+Captured SqlException:
+  Number: 547
+  Class / Severity: 16
+  State: 0
+  Message:
+    The INSERT statement conflicted with the CHECK constraint "CK_StockItems_Invariants".
+    The conflict occurred in database "GroceryHub_IntegrationTests", table "inventory.StockItems".
+Result: PASSED (Rejected by SQL Server engine before write commit)
+
+--------------------------------------------------------------------------------
+TEST CASE 3: Attempt Direct SQL INSERT with Reserved > OnHand (OnHand = 10, Reserved = 15)
+--------------------------------------------------------------------------------
+Executed SQL:
+  INSERT INTO [inventory].[StockItems] (
+      [ProductId], [OnHand], [Reserved], [ReorderLevel], [CreatedAt]
+  ) VALUES (
+      @ProductId, 10, 15, 10, SYSDATETIMEOFFSET()
+  );
+
+Captured SqlException:
+  Number: 547
+  Class / Severity: 16
+  State: 0
+  Message:
+    The INSERT statement conflicted with the CHECK constraint "CK_StockItems_Invariants".
+    The conflict occurred in database "GroceryHub_IntegrationTests", table "inventory.StockItems".
+Result: PASSED (Rejected by SQL Server engine before write commit)
+
+--------------------------------------------------------------------------------
+TEST CASE 4: Attempt Direct SQL UPDATE Violating Invariants on Existing Records
+--------------------------------------------------------------------------------
+Scenario 4A: UPDATE [catalog].[Products] SET [SellingPrice] = 80000 WHERE ListPrice = 50000
+Captured SqlException:
+  Number: 547
+  Message: The UPDATE statement conflicted with the CHECK constraint "CK_Products_SellingPrice_ListPrice".
+
+Scenario 4B: UPDATE [inventory].[StockItems] SET [OnHand] = -5 WHERE ProductId = @ProductId
+Captured SqlException:
+  Number: 547
+  Message: The UPDATE statement conflicted with the CHECK constraint "CK_StockItems_Invariants".
+
+Scenario 4C: UPDATE [inventory].[StockItems] SET [Reserved] = 30 WHERE OnHand = 20
+Captured SqlException:
+  Number: 547
+  Message: The UPDATE statement conflicted with the CHECK constraint "CK_StockItems_Invariants".
+
+Result: PASSED (Updates rolling back immediately under SQL Server transaction invariants)
+
+================================================================================
+  xUnit Test Execution Log (GroceryHub.IntegrationTests)
+================================================================================
+Command:
+  dotnet test tests/GroceryHub.IntegrationTests/GroceryHub.IntegrationTests.csproj --filter "DatabaseCheckConstraintsIntegrationTests" --logger "console;verbosity=detailed"
+
+Output:
+  [xUnit.net 00:00:00.23]   Starting:    GroceryHub.IntegrationTests
+  Passed GroceryHub.IntegrationTests.Catalog.DatabaseCheckConstraintsIntegrationTests.DirectSql_NegativeOnHand_ThrowsSqlExceptionCitingStockInvariantsConstraint [172 ms]
+  Passed GroceryHub.IntegrationTests.Catalog.DatabaseCheckConstraintsIntegrationTests.DirectSql_SellingPriceGreaterThanListPrice_ThrowsSqlExceptionCitingConstraint [18 ms]
+  Passed GroceryHub.IntegrationTests.Catalog.DatabaseCheckConstraintsIntegrationTests.DirectSql_ReservedExceedingOnHand_ThrowsSqlExceptionCitingStockInvariantsConstraint [7 ms]
+  Passed GroceryHub.IntegrationTests.Catalog.DatabaseCheckConstraintsIntegrationTests.DirectSql_UpdateViolatingCheckConstraints_ThrowsSqlExceptionCitingConstraint [36 ms]
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 4.8993 Seconds
+================================================================================
