@@ -84,6 +84,12 @@ JwtOptions jwtOptions = builder.Configuration
     .GetSection(JwtOptions.SectionName)
     .Get<JwtOptions>() ?? new JwtOptions();
 
+if (builder.Environment.IsProduction() &&
+    string.Equals(jwtOptions.SecretKey, "groceryhub-dev-jwt-super-secret-signing-key-minimum-256-bits-length!", StringComparison.Ordinal))
+{
+    throw new InvalidOperationException("Production environment must override default development JWT signing key via Jwt__SecretKey configuration.");
+}
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

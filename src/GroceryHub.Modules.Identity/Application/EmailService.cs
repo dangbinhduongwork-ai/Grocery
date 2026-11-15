@@ -22,10 +22,10 @@ public sealed class EmailService : IEmailService
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
 
         _logger.LogInformation(
-            "Sending verification email to {Email} for UserId {UserId} with token {Token}",
+            "Sending verification email to {Email} for UserId {UserId}",
             email,
-            userId,
-            token);
+            userId);
+        _logger.LogDebug("Verification token for UserId {UserId}: {Token}", userId, token);
 
         return Task.CompletedTask;
     }
@@ -40,10 +40,10 @@ public sealed class EmailService : IEmailService
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
 
         _logger.LogInformation(
-            "Sending password reset email to {Email} for UserId {UserId} with token {Token}",
+            "Sending password reset email to {Email} for UserId {UserId}",
             email,
-            userId,
-            token);
+            userId);
+        _logger.LogDebug("Password reset token for UserId {UserId}: {Token}", userId, token);
 
         return Task.CompletedTask;
     }

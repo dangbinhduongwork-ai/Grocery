@@ -126,7 +126,7 @@ public sealed class AuthService
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync(ct);
 
-        string verificationToken = GenerateOpaqueToken(user.Id, user.SecurityStamp!);
+        string verificationToken = GenerateTimedOpaqueToken(user.Id, user.SecurityStamp!, _timeProvider.GetUtcNow().AddHours(24));
         await _emailService.SendVerificationEmailAsync(user.Id, user.Email, verificationToken, ct);
 
         return Result.Success(new RegisterResponse(user.Id, user.Email, VerificationRequired: true));
@@ -152,7 +152,7 @@ public sealed class AuthService
             return Result.Success(new VerifyEmailResponse(Verified: true));
         }
 
-        if (!ValidateOpaqueToken(request.Token, user.Id, user.SecurityStamp!))
+        if (!ValidateTimedOpaqueToken(request.Token, user.Id, user.SecurityStamp!))
         {
             return Result.Failure<VerifyEmailResponse>(DomainError.ValidationFailed(
                 new Dictionary<string, string[]> { ["token"] = ["Verification token is invalid or expired."] },
@@ -180,7 +180,7 @@ public sealed class AuthService
 
             if (user is not null && !user.EmailConfirmed && user.Status == UserStatus.Active && user.DeletedAt is null)
             {
-                string token = GenerateOpaqueToken(user.Id, user.SecurityStamp ??= Guid.NewGuid().ToString());
+                string token = GenerateTimedOpaqueToken(user.Id, user.SecurityStamp ??= Guid.NewGuid().ToString(), _timeProvider.GetUtcNow().AddHours(24));
                 await _emailService.SendVerificationEmailAsync(user.Id, user.Email, token, ct);
             }
         }
@@ -409,7 +409,7 @@ public sealed class AuthService
 
             if (user is not null && user.Status == UserStatus.Active && user.DeletedAt is null)
             {
-                string token = GenerateOpaqueToken(user.Id, user.SecurityStamp ??= Guid.NewGuid().ToString());
+                string token = GenerateTimedOpaqueToken(user.Id, user.SecurityStamp ??= Guid.NewGuid().ToString(), _timeProvider.GetUtcNow().AddHours(1));
                 await _emailService.SendPasswordResetEmailAsync(user.Id, user.Email, token, ct);
             }
         }
@@ -426,7 +426,7 @@ public sealed class AuthService
         User? user = await _dbContext.Users
             .FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
 
-        if (user is null || user.DeletedAt is not null || !ValidateOpaqueToken(request.Token, user.Id, user.SecurityStamp!))
+        if (user is null || user.DeletedAt is not null || !ValidateTimedOpaqueToken(request.Token, user.Id, user.SecurityStamp!))
         {
             return Result.Failure<ResetPasswordResponse>(DomainError.ValidationFailed(
                 new Dictionary<string, string[]> { ["token"] = ["Password reset token is invalid or expired."] },
@@ -592,6 +592,39 @@ public sealed class AuthService
         };
 
         response.Cookies.Append(RefreshCookieName, string.Empty, cookieOptions);
+    }
+
+    private string GenerateTimedOpaqueToken(Guid userId, string securityStamp, DateTimeOffset expiresAt)
+    {
+        long exp = expiresAt.ToUnixTimeSeconds();
+        string raw = $"{userId:N}:{exp}:{securityStamp}";
+        byte[] bytes = Encoding.UTF8.GetBytes(raw);
+        byte[] hash = SHA256.HashData(bytes);
+        return $"{exp}.{Convert.ToHexString(hash)}";
+    }
+
+    private bool ValidateTimedOpaqueToken(string providedToken, Guid userId, string securityStamp)
+    {
+        if (string.IsNullOrWhiteSpace(providedToken))
+        {
+            return false;
+        }
+
+        string[] parts = providedToken.Split('.');
+        if (parts.Length != 2 || !long.TryParse(parts[0], out long exp))
+        {
+            return ValidateOpaqueToken(providedToken, userId, securityStamp);
+        }
+
+        if (_timeProvider.GetUtcNow().ToUnixTimeSeconds() > exp)
+        {
+            return false;
+        }
+
+        string expected = GenerateTimedOpaqueToken(userId, securityStamp, DateTimeOffset.FromUnixTimeSeconds(exp));
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(providedToken),
+            Encoding.UTF8.GetBytes(expected));
     }
 
     private static string GenerateOpaqueToken(Guid userId, string securityStamp)
