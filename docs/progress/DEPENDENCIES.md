@@ -10,8 +10,10 @@ Every NuGet and npm dependency added to GroceryHub must be verified for permissi
 
 | Package Name | Version | License | SPDX | Owner / Maintainer | Purpose in GroceryHub | Verified Date |
 |---|---|---|---|---|---|---|
+| `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.0.15` | MIT | `MIT` | Microsoft | JWT Bearer authentication scheme for ASP.NET Core (`ADR-003`) | 2026-11-15 |
 | `Microsoft.AspNetCore.OpenApi` | `10.0.15` | MIT | `MIT` | Microsoft | Built-in ASP.NET Core 10 OpenAPI 3.1 document generation (`ADR-005`) | 2026-11-15 |
 | `Microsoft.EntityFrameworkCore` | `10.0.15` | MIT | `MIT` | Microsoft | Core ORM for `GroceryHubDbContext` (`ADR-002`) | 2026-11-15 |
+| `Microsoft.EntityFrameworkCore.InMemory` | `10.0.15` | MIT | `MIT` | Microsoft | In-memory database provider for isolated unit tests without container overhead | 2026-11-15 |
 | `Microsoft.EntityFrameworkCore.Relational` | `10.0.15` | MIT | `MIT` | Microsoft | Relational mapping, schemas, sequences, and migrations | 2026-11-15 |
 | `Microsoft.EntityFrameworkCore.SqlServer` | `10.0.15` | MIT | `MIT` | Microsoft | SQL Server provider for EF Core 10 | 2026-11-15 |
 | `Microsoft.EntityFrameworkCore.Design` | `10.0.15` | MIT | `MIT` | Microsoft | Design-time migration scaffolding & `dotnet ef migrations bundle` | 2026-11-15 |
