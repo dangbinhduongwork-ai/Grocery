@@ -25,6 +25,8 @@ RUN npm run build
 # -----------------------------------------------------------------------------
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 
+USER root
+
 # Remove default nginx welcome configuration
 RUN rm -rf /etc/nginx/conf.d/* /usr/share/nginx/html/*
 
@@ -33,6 +35,10 @@ COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Copy production bundle from build stage
 COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html
+
+# Ensure proper permissions and switch back to non-root user
+RUN chown -R 101:101 /usr/share/nginx/html /etc/nginx/conf.d
+USER 101
 
 EXPOSE 8080
 
