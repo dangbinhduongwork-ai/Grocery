@@ -73,37 +73,27 @@ jobs:
       - name: Run unit, architecture, and integration tests
         run: dotnet test GroceryHub.sln --no-build --logger "console;verbosity=normal" --logger "trx;LogFileName=test-results.trx"
 
-      - name: Report and push failed tests log
-        if: always()
+      - name: Report failed tests summary
+        if: failure()
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           python3 -c "
           import glob, xml.etree.ElementTree as ET
           files = glob.glob('**/TestResults/*.trx', recursive=True)
-          with open('ci-failed-tests.txt', 'w') as out:
-              out.write(f'Found {len(files)} TRX files.\n')
-              for trx in files:
-                  tree = ET.parse(trx)
-                  root = tree.getroot()
-                  ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
-                  for r in root.findall('.//t:UnitTestResult', ns):
-                      if r.attrib.get('outcome') == 'Failed':
-                          test_name = r.attrib.get('testName')
-                          err = r.find('.//t:Output/t:ErrorInfo/t:Message', ns)
-                          trace = r.find('.//t:Output/t:ErrorInfo/t:StackTrace', ns)
-                          msg = err.text if err is not None else 'No message'
-                          st = trace.text if trace is not None else ''
-                          out.write('='*70 + '\n')
-                          out.write(f'FAILED TEST: {test_name}\n')
-                          out.write(f'MESSAGE:\n{msg}\n')
-                          out.write(f'STACK:\n{st}\n')
+          failed_count = 0
+          for trx in files:
+              tree = ET.parse(trx)
+              root = tree.getroot()
+              ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
+              for r in root.findall('.//t:UnitTestResult', ns):
+                  if r.attrib.get('outcome') == 'Failed':
+                      failed_count += 1
+                      test_name = r.attrib.get('testName')
+                      err = r.find('.//t:Output/t:ErrorInfo/t:Message', ns)
+                      msg = err.text if err is not None else 'No message'
+                      print(f'::error title=Failed Test::{test_name}: {msg}')
+          if failed_count == 0:
+              print('All tests passed!')
           "
-          cat ci-failed-tests.txt
-          git checkout -B ci-test-failure-log
-          git add ci-failed-tests.txt
-          git commit -m "ci: log failed tests" || true
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-test-failure-log || true
 
       - name: Upload test results (TRX)
         if: always()

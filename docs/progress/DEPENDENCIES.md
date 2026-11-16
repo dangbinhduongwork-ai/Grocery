@@ -34,6 +34,7 @@ Every NuGet and npm dependency added to GroceryHub must be verified for permissi
 | `Microsoft.OpenApi` | `3.11.0` | MIT | `MIT` | Microsoft | Secure OpenAPI object model resolving GHSA-v5pm-xwqc-g5wc | 2026-11-15 |
 | `System.Security.Cryptography.Pkcs` | `10.0.15` | MIT | `MIT` | Microsoft | Secure PKCS cryptography resolving GHSA-846f-f764-76mx | 2026-11-15 |
 | `SkiaSharp` | `2.88.9` | MIT | `MIT` | Microsoft / .NET Foundation | Cross-platform 2D graphics and image sanitization/re-encoding (`NFR-008`) | 2026-11-15 |
+| `SkiaSharp.NativeAssets.Linux.NoDependencies` | `2.88.9` | MIT | `MIT` | Microsoft / .NET Foundation | Native Linux `libSkiaSharp.so` runtime assets for container & Linux CI runners (`NFR-008`) | 2026-11-16 |
 
 ## 2. Local CLI Tools (`.config/dotnet-tools.json` — Added in Phase 04)
 
