@@ -49,6 +49,11 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
         }
         else
         {
+            if (!OperatingSystem.IsWindows())
+            {
+                throw new InvalidOperationException("Failed to start Docker SQL Server container for integration tests on Linux/macOS. Ensure Docker daemon is accessible and image mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04 is available.");
+            }
+
             await EnsureLocalDbRunningAsync();
             _localDbMasterConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True;";
 
@@ -175,7 +180,7 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
             _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04")
                 .Build();
 
-            using CancellationTokenSource cts = new(TimeSpan.FromSeconds(45));
+            using CancellationTokenSource cts = new(TimeSpan.FromMinutes(3));
             await _msSqlContainer.StartAsync(cts.Token);
             return true;
         }

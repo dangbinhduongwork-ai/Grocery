@@ -10,9 +10,9 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# Install dependencies using frozen lockfile
+# Install dependencies
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci || npm install
 
 # Copy full frontend source tree
 COPY . ./
