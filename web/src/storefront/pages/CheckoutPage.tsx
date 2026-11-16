@@ -361,11 +361,11 @@ export const CheckoutPage: React.FC = () => {
               </div>
             )}
 
-            {/* New Address Form (2-level VN dropdowns) */}
+            {/* New Address Form */}
             {showNewAddressForm && (
               <form onSubmit={handleSaveAddress} className="space-y-4 pt-2">
                 <h3 className="text-xs font-semibold text-ink uppercase tracking-wider">
-                  Nhập địa chỉ giao hàng mới (Chuẩn hành chính 2 cấp)
+                  Nhập địa chỉ nhận hàng mới
                 </h3>
 
                 {addressError && (
@@ -642,7 +642,11 @@ export const CheckoutPage: React.FC = () => {
               </p>
               <p className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-leaf stroke-[1.5]" />
-                <span>Kiểm tra hàng trước khi thanh toán tiền mặt</span>
+                <span>
+                  {paymentMethod === 'COD'
+                    ? 'Kiểm tra hàng trước khi thanh toán tiền mặt'
+                    : 'Đảm bảo hoàn tiền 100% nếu sản phẩm không đúng chất lượng'}
+                </span>
               </p>
             </div>
           </div>

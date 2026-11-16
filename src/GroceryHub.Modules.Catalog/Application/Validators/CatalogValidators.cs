@@ -123,3 +123,37 @@ public sealed class UpdateBrandRequestValidator : AbstractValidator<UpdateBrandR
             .MaximumLength(150).WithMessage("Slug cannot exceed 150 characters.");
     }
 }
+
+public sealed class CreateBannerRequestValidator : AbstractValidator<CreateBannerRequest>
+{
+    public CreateBannerRequestValidator()
+    {
+        RuleFor(static x => x.Title)
+            .NotEmpty().WithMessage("Tiêu đề banner không được để trống.")
+            .MaximumLength(200).WithMessage("Tiêu đề không được vượt quá 200 ký tự.");
+
+        RuleFor(static x => x.ImageKey)
+            .NotEmpty().WithMessage("Hình ảnh banner không được để trống.")
+            .MaximumLength(500).WithMessage("Đường dẫn hình ảnh không được vượt quá 500 ký tự.");
+
+        RuleFor(static x => x.SortOrder)
+            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải lớn hơn hoặc bằng 0.");
+    }
+}
+
+public sealed class UpdateBannerRequestValidator : AbstractValidator<UpdateBannerRequest>
+{
+    public UpdateBannerRequestValidator()
+    {
+        RuleFor(static x => x.Title)
+            .NotEmpty().WithMessage("Tiêu đề banner không được để trống.")
+            .MaximumLength(200).WithMessage("Tiêu đề không được vượt quá 200 ký tự.");
+
+        RuleFor(static x => x.ImageKey)
+            .NotEmpty().WithMessage("Hình ảnh banner không được để trống.")
+            .MaximumLength(500).WithMessage("Đường dẫn hình ảnh không được vượt quá 500 ký tự.");
+
+        RuleFor(static x => x.SortOrder)
+            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải lớn hơn hoặc bằng 0.");
+    }
+}

@@ -2,9 +2,11 @@ import React, { useState } from 'react'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
+import { CaptchaWidget } from '@/shared/components/CaptchaWidget'
 import { vi } from '@/shared/i18n/vi'
 import { useRouter } from '@/app/router'
-import { UserPlus, Lock, Mail, Phone, User, AlertCircle, ArrowRight } from 'lucide-react'
+import { cn } from '@/shared/utils/cn'
+import { UserPlus, Lock, Mail, Phone, User, AlertCircle, ArrowRight, Check, X } from 'lucide-react'
 
 export const RegisterPage: React.FC = () => {
   const { navigate, searchParams } = useRouter()
@@ -15,10 +17,18 @@ export const RegisterPage: React.FC = () => {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [captchaInput, setCaptchaInput] = useState('')
+  const [isCaptchaValid, setIsCaptchaValid] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const redirectUrl = searchParams.get('redirect') || '/'
+
+  const passwordRules = [
+    { id: 'len', label: 'Tối thiểu 8 ký tự', valid: password.length >= 8, required: true },
+    { id: 'strength', label: 'Khuyên dùng kết hợp chữ và số để tăng bảo mật', valid: (/[a-zA-Z]/.test(password) && /[0-9]/.test(password)) || password.length >= 10, required: false },
+  ]
+  const isPasswordValid = password.length >= 8
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,13 +37,19 @@ export const RegisterPage: React.FC = () => {
       return
     }
 
+    if (!isPasswordValid) {
+      const missing = passwordRules.filter((r) => !r.valid).map((r) => r.label)
+      setError(`Mật khẩu chưa đạt yêu cầu: ${missing.join(', ')}`)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('Mật khẩu xác nhận không khớp.')
       return
     }
 
-    if (password.length < 8) {
-      setError('Mật khẩu phải có tối thiểu 8 ký tự.')
+    if (!isCaptchaValid) {
+      setError('Vui lòng nhập đúng mã xác thực Captcha bảo mật.')
       return
     }
 
@@ -43,7 +59,11 @@ export const RegisterPage: React.FC = () => {
     try {
       const result = await register(email.trim(), password, fullName.trim(), phone.trim())
       if (result.success) {
-        navigate(redirectUrl)
+        // Tự động chuyển hướng sang giao diện đăng nhập với thông tin email đã điền sẵn
+        const loginUrl = `/login?registered=1&email=${encodeURIComponent(email.trim())}${
+          redirectUrl !== '/' ? `&redirect=${encodeURIComponent(redirectUrl)}` : ''
+        }`
+        navigate(loginUrl)
       } else {
         setError(result.error || 'Đăng ký không thành công. Email hoặc số điện thoại có thể đã tồn tại.')
       }
@@ -137,7 +157,7 @@ export const RegisterPage: React.FC = () => {
               <Lock className="w-4 h-4 text-ink-2 absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
               <Input
                 type="password"
-                placeholder="Tối thiểu 8 ký tự"
+                placeholder="Tối thiểu 8 ký tự trở lên"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-9 h-10 text-xs bg-paper font-mono"
@@ -145,6 +165,33 @@ export const RegisterPage: React.FC = () => {
                 required
               />
             </div>
+
+            {/* Live Password Checklist & Feedback */}
+            {password.length > 0 && (
+              <div className="mt-2 p-2.5 rounded-xl bg-paper border border-rule space-y-1 animate-fade-in">
+                {passwordRules.map((rule) => (
+                  <div
+                    key={rule.id}
+                    className={cn(
+                      "flex items-center gap-1.5 text-[11px] transition-colors",
+                      rule.valid ? "text-leaf font-medium" : (rule.required ? "text-tomato font-medium" : "text-ink-2")
+                    )}
+                  >
+                    {rule.valid ? (
+                      <Check className="w-3.5 h-3.5 text-leaf shrink-0 stroke-[2.5]" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-tomato shrink-0 stroke-[2.5]" />
+                    )}
+                    <span>{rule.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {password.length === 0 && (
+              <p className="text-[11px] text-ink-2 mt-1">
+                Yêu cầu mật khẩu: tối thiểu từ 8 ký tự trở lên.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -163,7 +210,28 @@ export const RegisterPage: React.FC = () => {
                 required
               />
             </div>
+            {confirmPassword.length > 0 && (
+              <div className="flex items-center gap-1.5 text-[11px] mt-1.5">
+                {password === confirmPassword ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-leaf stroke-[2.5]" />
+                    <span className="text-leaf font-medium">Mật khẩu xác nhận đã khớp</span>
+                  </>
+                ) : (
+                  <>
+                    <X className="w-3.5 h-3.5 text-tomato stroke-[2.5]" />
+                    <span className="text-tomato font-medium">Mật khẩu xác nhận chưa khớp</span>
+                  </>
+                )}
+              </div>
+            )}
           </div>
+
+          <CaptchaWidget
+            value={captchaInput}
+            onChange={setCaptchaInput}
+            onValidate={setIsCaptchaValid}
+          />
 
           <Button
             type="submit"

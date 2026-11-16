@@ -45,8 +45,11 @@ internal static class CatalogEndpoints
 
         group.MapGet("/products", async (
             [FromQuery] string? q,
+            [FromQuery] string? search,
             [FromQuery] string? categorySlug,
+            [FromQuery] Guid? categoryId,
             [FromQuery] string? brandSlug,
+            [FromQuery] Guid? brandId,
             [FromQuery] long? minPrice,
             [FromQuery] long? maxPrice,
             [FromQuery] bool? inStockOnly,
@@ -57,9 +60,10 @@ internal static class CatalogEndpoints
             CatalogQueryService queryService,
             CancellationToken ct) =>
         {
+            string? searchKeyword = !string.IsNullOrWhiteSpace(q) ? q : search;
             bool filterInStock = (inStockOnly ?? false) || (inStock ?? false);
             var result = await queryService.SearchProductsAsync(
-                q,
+                searchKeyword,
                 categorySlug,
                 brandSlug,
                 minPrice,
@@ -68,7 +72,9 @@ internal static class CatalogEndpoints
                 sort,
                 page ?? 1,
                 pageSize ?? 24,
-                ct);
+                ct,
+                categoryId,
+                brandId);
 
             return TypedResults.Ok(result.Value);
         })
@@ -130,6 +136,18 @@ internal static class CatalogEndpoints
         .WithName("GetStorefrontHome")
         .WithSummary("Get storefront home aggregate data")
         .Produces<HomeStorefrontDto>(StatusCodes.Status200OK)
+        .AllowAnonymous();
+
+        group.MapGet("/settings/ui", async (
+            CatalogAdminService adminService,
+            CancellationToken ct) =>
+        {
+            var settings = await adminService.GetUiDesignSettingsAsync(ct);
+            return TypedResults.Ok(settings);
+        })
+        .WithName("GetStorefrontUiSettings")
+        .WithSummary("Get active UI design settings, marquee announcements and slogans")
+        .Produces<UiDesignSettingsDto>(StatusCodes.Status200OK)
         .AllowAnonymous();
 
         group.MapGet("/catalog/images/{key}", async (
@@ -299,6 +317,25 @@ internal static class CatalogEndpoints
         .Produces<ProductStatusResponse>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogWrite);
+
+        // DELETE /admin/products/{id}
+        group.MapDelete("/products/{id:guid}", async (
+            Guid id,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await adminService.DeleteProductAsync(id, ct);
+            return result.IsSuccess
+                ? TypedResults.NoContent()
+                : ToProblem(context, result.Error);
+        })
+        .WithName("DeleteAdminProduct")
+        .WithSummary("Soft delete a product from the catalog")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status403Forbidden)
         .RequireAuthorization(CatalogWrite);
 
@@ -606,6 +643,172 @@ internal static class CatalogEndpoints
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status409Conflict)
         .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogWrite);
+
+        // GET /admin/banners
+        group.MapGet("/banners", async (
+            CatalogAdminService adminService,
+            CancellationToken ct) =>
+        {
+            var banners = await adminService.GetAdminBannersAsync(ct);
+            return TypedResults.Ok(banners);
+        })
+        .WithName("GetAdminBanners")
+        .WithSummary("Get all promotional banners for administration")
+        .Produces<IReadOnlyList<AdminBannerDto>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogRead);
+
+        // GET /admin/banners/{id}
+        group.MapGet("/banners/{id:guid}", async (
+            Guid id,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await adminService.GetAdminBannerByIdAsync(id, ct);
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : ToProblem(context, result.Error);
+        })
+        .WithName("GetAdminBannerById")
+        .WithSummary("Get banner by ID")
+        .Produces<AdminBannerDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogRead);
+
+        // POST /admin/banners
+        group.MapPost("/banners", async (
+            [FromBody] CreateBannerRequest request,
+            IValidator<CreateBannerRequest> validator,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var validation = await validator.ValidateAsync(request, ct);
+            if (!validation.IsValid)
+            {
+                return ToValidationProblem(context, validation);
+            }
+
+            var result = await adminService.CreateBannerAsync(request, ct);
+            return result.IsSuccess
+                ? TypedResults.Created($"/api/v1/admin/banners/{result.Value.Id}", result.Value)
+                : ToProblem(context, result.Error);
+        })
+        .WithName("CreateAdminBanner")
+        .WithSummary("Create promotional banner")
+        .Produces<AdminBannerDto>(StatusCodes.Status201Created)
+        .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogWrite);
+
+        // PUT /admin/banners/{id}
+        group.MapPut("/banners/{id:guid}", async (
+            Guid id,
+            [FromBody] UpdateBannerRequest request,
+            IValidator<UpdateBannerRequest> validator,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var validation = await validator.ValidateAsync(request, ct);
+            if (!validation.IsValid)
+            {
+                return ToValidationProblem(context, validation);
+            }
+
+            var result = await adminService.UpdateBannerAsync(id, request, ct);
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : ToProblem(context, result.Error);
+        })
+        .WithName("UpdateAdminBanner")
+        .WithSummary("Update banner")
+        .Produces<AdminBannerDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogWrite);
+
+        // DELETE /admin/banners/{id}
+        group.MapDelete("/banners/{id:guid}", async (
+            Guid id,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await adminService.DeleteBannerAsync(id, ct);
+            return result.IsSuccess
+                ? TypedResults.NoContent()
+                : ToProblem(context, result.Error);
+        })
+        .WithName("DeleteAdminBanner")
+        .WithSummary("Delete banner")
+        .Produces(StatusCodes.Status204NoContent)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogWrite);
+
+        // POST /admin/banners/upload-image
+        group.MapPost("/banners/upload-image", async (
+            IFormFile file,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            if (file == null || file.Length == 0)
+            {
+                return ToProblem(context, DomainError.Validation("Image.Required", "Vui lòng chọn tệp hình ảnh để tải lên."));
+            }
+
+            await using var stream = file.OpenReadStream();
+            var result = await adminService.UploadBannerImageAsync(stream, file.ContentType, file.Length, ct);
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : ToProblem(context, result.Error);
+        })
+        .WithName("UploadAdminBannerImage")
+        .WithSummary("Upload and sanitize banner image")
+        .Produces<BannerImageUploadResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .DisableAntiforgery()
+        .RequireAuthorization(CatalogWrite);
+
+        // GET /admin/settings/ui
+        group.MapGet("/settings/ui", async (
+            CatalogAdminService adminService,
+            CancellationToken ct) =>
+        {
+            var settings = await adminService.GetUiDesignSettingsAsync(ct);
+            return TypedResults.Ok(settings);
+        })
+        .WithName("GetAdminUiSettings")
+        .WithSummary("Get UI design settings for administration")
+        .Produces<UiDesignSettingsDto>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .RequireAuthorization(CatalogRead);
+
+        // PUT /admin/settings/ui
+        group.MapPut("/settings/ui", async (
+            [FromBody] UiDesignSettingsDto request,
+            ClaimsPrincipal user,
+            CatalogAdminService adminService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var userId = GetUserId(user);
+            var result = await adminService.UpdateUiDesignSettingsAsync(request, userId, ct);
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : ToProblem(context, result.Error);
+        })
+        .WithName("UpdateAdminUiSettings")
+        .WithSummary("Update UI design settings (announcements, slogans)")
+        .Produces<UiDesignSettingsDto>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status403Forbidden)
         .RequireAuthorization(CatalogWrite);
 

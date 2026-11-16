@@ -3,6 +3,8 @@ import {
   Plus,
   RefreshCw,
   Edit,
+  Trash2,
+  Package,
 } from 'lucide-react'
 import { api } from '@/shared/api/client'
 import { formatVnd } from '@/shared/utils/formatVnd'
@@ -24,6 +26,7 @@ interface ProductItem {
   status: string
   onHand?: number
   available?: number
+  primaryImageUrl?: string | null
 }
 
 export const AdminProductsPage: React.FC = () => {
@@ -57,7 +60,50 @@ export const AdminProductsPage: React.FC = () => {
     void fetchProducts()
   }, [fetchProducts])
 
+  const handleDeleteProduct = async (id: string, name: string) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${name}"? Sản phẩm sẽ được chuyển sang trạng thái lưu trữ và ngừng kinh doanh.`)) {
+      return
+    }
+
+    try {
+      const res = await (api.DELETE as any)('/api/v1/admin/products/{id}', {
+        params: { path: { id } },
+      })
+
+      if (res.error) {
+        // Fallback: update status to Archived if DELETE isn't ready
+        await api.PUT('/api/v1/admin/products/{id}/status', {
+          params: { path: { id } },
+          body: { status: 'Archived' },
+        })
+      }
+
+      await fetchProducts()
+    } catch {
+      alert('Đã có lỗi xảy ra khi xóa sản phẩm.')
+    }
+  }
+
   const columns: Column<ProductItem>[] = [
+    {
+      key: 'image',
+      title: 'Ảnh',
+      className: 'w-14 text-center',
+      render: p => (
+        <div className="w-11 h-11 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+          {p.primaryImageUrl ? (
+            <img
+              src={p.primaryImageUrl}
+              alt={p.name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <Package className="w-5 h-5 text-slate-300" strokeWidth={1.5} />
+          )}
+        </div>
+      ),
+    },
     {
       key: 'sku',
       title: 'Mã SKU',
@@ -134,14 +180,24 @@ export const AdminProductsPage: React.FC = () => {
       render: p => (
         <div className="flex items-center justify-end gap-1.5">
           {canWrite && (
-            <button
-              type="button"
-              onClick={() => router.push(`/admin/products/${p.id}/edit`)}
-              className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-leaf hover:bg-leaf/5 transition-colors"
-              title="Chỉnh sửa sản phẩm"
-            >
-              <Edit className="w-4 h-4" strokeWidth={1.5} />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => router.push(`/admin/products/${p.id}/edit`)}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-leaf hover:bg-leaf/5 transition-colors"
+                title="Chỉnh sửa sản phẩm"
+              >
+                <Edit className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDeleteProduct(p.id, p.name)}
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                title="Xóa sản phẩm"
+              >
+                <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+            </>
           )}
         </div>
       ),

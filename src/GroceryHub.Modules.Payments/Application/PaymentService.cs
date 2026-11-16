@@ -167,6 +167,37 @@ public sealed class PaymentService : IPaymentService
         bool canRetry = string.Equals(order.Status, OrderStatusConstants.PendingPayment, StringComparison.OrdinalIgnoreCase) &&
                         totalAttemptsCount < maxAttempts;
 
+        string transferContent = string.IsNullOrWhiteSpace(_options.TransferContentPrefix)
+            ? normalizedCode
+            : $"{_options.TransferContentPrefix}{normalizedCode}";
+
+        string qrUrl = _qrUrlBuilder.BuildQrUrl(
+            _options.AccountNumber,
+            _options.BankShortName,
+            attempt.Payment.Amount,
+            transferContent);
+
+        var qrDetails = new QrPaymentDetailsDto(
+            qrUrl,
+            _options.BankShortName,
+            _options.AccountNumber,
+            _options.AccountName,
+            attempt.Payment.Amount,
+            transferContent,
+            attempt.ExpiresAt
+        );
+
+        var attemptDto = new PaymentAttemptDto(
+            attempt.Id,
+            attempt.PaymentId,
+            attempt.PaymentCode,
+            attempt.AttemptNumber,
+            attempt.Amount,
+            attempt.Status,
+            attempt.ExpiresAt,
+            qrDetails
+        );
+
         var dto = new PaymentStatusResponseDto(
             normalizedCode,
             attempt.Payment.Status,
@@ -177,7 +208,11 @@ public sealed class PaymentService : IPaymentService
             attempt.ExpiresAt,
             canRetry,
             attempt.AttemptNumber,
-            maxAttempts
+            maxAttempts,
+            order.Id,
+            order.OrderNumber,
+            attemptDto,
+            qrDetails
         );
 
         return Result.Success(dto);

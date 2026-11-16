@@ -8,6 +8,7 @@ import { Button } from '@/shared/ui/Button'
 import { vi } from '@/shared/i18n/vi'
 import { useCart } from '@/shared/cart/CartContext'
 import { useRouter } from '@/app/router'
+import { useUiSettings, UI_SETTINGS_EVENT } from '@/shared/hooks/useUiSettings'
 import {
   Sparkles,
   TrendingUp,
@@ -32,6 +33,7 @@ interface BannerItem {
 export const HomePage: React.FC = () => {
   const { navigate } = useRouter()
   const { addToCart } = useCart()
+  const { settings: uiSettings } = useUiSettings()
 
   const [homeData, setHomeData] = useState<StorefrontHomeData | null>(null)
   const [categories, setCategories] = useState<CategoryTreeItem[]>([])
@@ -57,8 +59,8 @@ export const HomePage: React.FC = () => {
           setBanners([
             {
               id: '1',
-              title: 'Nông Sản Tươi Ngon Chuẩn VietGAP',
-              subtitle: 'Giao nhanh 2h tại Hà Nội & TP. Hồ Chí Minh. Miễn phí vận chuyển từ 299.000đ',
+              title: uiSettings.heroTitle || 'Nông Sản Tươi Ngon Chuẩn VietGAP',
+              subtitle: uiSettings.heroSubtitle || 'Giao nhanh 2h tại Hà Nội & TP. Hồ Chí Minh. Miễn phí vận chuyển từ 299.000đ',
               imageUrl: '',
               linkUrl: '/c/rau-cu-qua',
             },
@@ -83,6 +85,17 @@ export const HomePage: React.FC = () => {
 
   useEffect(() => {
     void loadData()
+
+    const handleUpdate = () => {
+      void loadData()
+    }
+
+    window.addEventListener(UI_SETTINGS_EVENT, handleUpdate)
+    window.addEventListener('groceryhub:banners-updated', handleUpdate)
+    return () => {
+      window.removeEventListener(UI_SETTINGS_EVENT, handleUpdate)
+      window.removeEventListener('groceryhub:banners-updated', handleUpdate)
+    }
   }, [])
 
   // Auto rotate banner every 6 seconds
@@ -141,24 +154,40 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-10 sm:space-y-12">
       {/* Hero Banner Section */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-leaf to-[#144723] text-paper shadow-md">
-        <div className="p-6 sm:p-10 md:p-14 max-w-2xl relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-paper/15 text-paper text-xs font-semibold backdrop-blur-xs">
-            <Sparkles className="w-3.5 h-3.5 stroke-[1.5]" />
-            <span>Nông sản tươi sạch mỗi ngày</span>
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-leaf to-[#144723] text-paper shadow-md min-h-[320px] sm:min-h-[380px] md:min-h-[420px] flex items-center">
+        {currentBanner?.imageUrl && (
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <img
+              src={currentBanner.imageUrl}
+              alt={currentBanner.title}
+              className="w-full h-full object-cover object-center scale-100 transition-all duration-700"
+            />
+            {/* Gradient phủ mờ nhẹ bên trái để chữ trắng dễ đọc, còn lại 2/3 diện tích banner hiển thị nguyên bản 100% màu sắc ảnh tải lên */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/40 to-transparent sm:w-3/5 w-full" />
           </div>
-          <h1 className="font-display font-bold text-2xl sm:text-4xl md:text-5xl leading-tight text-paper">
-            {currentBanner?.title ?? 'Nông Sản Tươi Ngon Chuẩn VietGAP'}
+        )}
+        <div className="p-6 sm:p-10 md:p-14 max-w-2xl relative z-10 space-y-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-paper/20 text-paper text-xs font-semibold backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 stroke-[1.5]" />
+            <span>{uiSettings.heroBadge || 'Nông sản tươi sạch mỗi ngày'}</span>
+          </div>
+          <h1 className="font-display font-bold text-2xl sm:text-4xl md:text-5xl leading-tight text-paper drop-shadow-md">
+            {currentBanner?.title ?? uiSettings.heroTitle ?? 'Nông Sản Tươi Ngon Chuẩn VietGAP'}
           </h1>
-          <p className="text-sm sm:text-base text-paper/90 leading-relaxed font-sans max-w-xl">
-            {currentBanner?.subtitle ??
-              'Hệ thống cung cấp thực phẩm an toàn, rõ nguồn gốc cho bữa ăn gia đình tràn đầy sức khỏe.'}
-          </p>
+          {currentBanner?.subtitle ? (
+            <p className="text-sm sm:text-base text-paper/95 leading-relaxed font-sans max-w-xl drop-shadow-sm">
+              {currentBanner.subtitle}
+            </p>
+          ) : uiSettings.heroSubtitle ? (
+            <p className="text-sm sm:text-base text-paper/95 leading-relaxed font-sans max-w-xl drop-shadow-sm">
+              {uiSettings.heroSubtitle}
+            </p>
+          ) : null}
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <Button
               variant="outline"
               size="lg"
-              className="bg-paper text-leaf border-none hover:bg-paper-2 font-semibold shadow-xs"
+              className="bg-paper text-leaf border-none hover:bg-paper-2 font-semibold shadow-xs cursor-pointer"
               onClick={() => navigate(currentBanner?.linkUrl || '/c/rau-cu-qua')}
             >
               <span>{vi.home.shopNow}</span>
@@ -167,7 +196,7 @@ export const HomePage: React.FC = () => {
             <Button
               variant="ghost"
               size="lg"
-              className="text-paper hover:bg-paper/15 border border-paper/30"
+              className="text-paper hover:bg-paper/20 border border-paper/40 cursor-pointer backdrop-blur-xs"
               onClick={() => navigate('/c/tat-ca')}
             >
               Xem tất cả danh mục
@@ -219,8 +248,8 @@ export const HomePage: React.FC = () => {
         <div className="flex items-center gap-3 p-3.5 rounded-xl bg-paper-2 border border-rule">
           <Headphones className="w-6 h-6 text-leaf shrink-0 stroke-[1.5]" />
           <div>
-            <h4 className="text-xs sm:text-sm font-semibold text-ink">Hỗ trợ 7:00 - 21:00</h4>
-            <p className="text-[11px] text-ink-2">Hotline tư vấn: 1900 8888</p>
+            <h4 className="text-xs sm:text-sm font-semibold text-ink">Hỗ trợ 7:00 - 22:00</h4>
+            <p className="text-[11px] text-ink-2">Hotline tư vấn: 0865 087 784</p>
           </div>
         </div>
       </section>
@@ -230,7 +259,7 @@ export const HomePage: React.FC = () => {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-display font-semibold text-xl sm:text-2xl text-ink">
-              Đi chợ theo quầy hàng (Aisles)
+              Đi chợ theo gian hàng
             </h2>
             <button
               type="button"

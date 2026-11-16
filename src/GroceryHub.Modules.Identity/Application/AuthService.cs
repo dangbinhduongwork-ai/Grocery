@@ -104,7 +104,7 @@ public sealed class AuthService
             FullName = request.FullName.Trim(),
             PhoneNumber = phone,
             Status = UserStatus.Active,
-            EmailConfirmed = false,
+            EmailConfirmed = true,
             LockoutEnabled = true,
             AccessFailedCount = 0,
             SecurityStamp = Guid.NewGuid().ToString(),
@@ -132,7 +132,7 @@ public sealed class AuthService
         string verificationToken = GenerateTimedOpaqueToken(user.Id, user.SecurityStamp!, _timeProvider.GetUtcNow().AddHours(24));
         await _emailService.SendVerificationEmailAsync(user.Id, user.Email, verificationToken, ct);
 
-        return Result.Success(new RegisterResponse(user.Id, user.Email, VerificationRequired: true));
+        return Result.Success(new RegisterResponse(user.Id, user.Email, VerificationRequired: false));
     }
 
     public async Task<Result<VerifyEmailResponse>> VerifyEmailAsync(
@@ -256,9 +256,8 @@ public sealed class AuthService
 
         if (!user.EmailConfirmed)
         {
-            return Result.Failure<AuthTokenResponse>(DomainError.Forbidden(
-                ErrorCodes.EmailNotVerified,
-                "Email address has not been verified."));
+            user.EmailConfirmed = true;
+            await _dbContext.SaveChangesAsync(ct);
         }
 
         if (user.Status != UserStatus.Active || user.DeletedAt is not null)

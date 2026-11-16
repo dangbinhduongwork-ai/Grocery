@@ -2,25 +2,34 @@ import React, { useState } from 'react'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
+import { CaptchaWidget } from '@/shared/components/CaptchaWidget'
 import { vi } from '@/shared/i18n/vi'
 import { useRouter } from '@/app/router'
-import { LogIn, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react'
+import { LogIn, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export const LoginPage: React.FC = () => {
   const { navigate, searchParams } = useRouter()
   const { login } = useAuth()
 
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => searchParams.get('email') || '')
   const [password, setPassword] = useState('')
+  const [captchaInput, setCaptchaInput] = useState('')
+  const [isCaptchaValid, setIsCaptchaValid] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const redirectUrl = searchParams.get('redirect') || '/'
+  const isRegisteredSuccess = searchParams.get('registered') === '1'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) {
       setError('Vui lòng nhập đầy đủ email và mật khẩu')
+      return
+    }
+
+    if (!isCaptchaValid) {
+      setError('Vui lòng nhập đúng mã xác thực Captcha bảo mật bên dưới')
       return
     }
 
@@ -57,6 +66,13 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
 
+        {isRegisteredSuccess && !error && (
+          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 stroke-[1.5]" />
+            <span>Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.</span>
+          </div>
+        )}
+
         {error && (
           <div className="p-3.5 rounded-xl bg-[#FDECE8] border border-[#FADCD5] text-xs text-tomato flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 stroke-[1.5]" />
@@ -64,9 +80,9 @@ export const LoginPage: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 notranslate" translate="no">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-ink block">
+            <label className="text-xs font-semibold text-ink block notranslate" translate="no">
               {vi.auth.email}
             </label>
             <div className="relative">
@@ -85,13 +101,14 @@ export const LoginPage: React.FC = () => {
 
           <div className="space-y-1">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-ink block">
+              <label className="text-xs font-semibold text-ink block notranslate" translate="no">
                 {vi.auth.password}
               </label>
               <button
                 type="button"
                 onClick={() => navigate('/forgot-password')}
-                className="text-[11px] text-leaf hover:underline cursor-pointer"
+                className="text-[11px] text-leaf hover:underline cursor-pointer notranslate"
+                translate="no"
               >
                 Quên mật khẩu?
               </button>
@@ -109,6 +126,12 @@ export const LoginPage: React.FC = () => {
               />
             </div>
           </div>
+
+          <CaptchaWidget
+            value={captchaInput}
+            onChange={setCaptchaInput}
+            onValidate={setIsCaptchaValid}
+          />
 
           <Button
             type="submit"

@@ -3,6 +3,7 @@ import {
   Eye,
   RefreshCw,
   Truck,
+  Printer,
 } from 'lucide-react'
 import { api } from '@/shared/api/client'
 import { formatVnd } from '@/shared/utils/formatVnd'
@@ -10,6 +11,7 @@ import { formatDateTime } from '@/shared/utils/dateTime'
 import { useRouter } from '@/app/router'
 import { StatusChip } from '../components/StatusChip'
 import { DataTable, Column } from '../components/DataTable'
+import { OrderInvoiceModal, InvoiceOrderData } from '../components/OrderInvoiceModal'
 
 interface OrderListItem {
   id: string
@@ -40,6 +42,26 @@ export const AdminOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<OrderListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState('ALL')
+  const [invoiceOrder, setInvoiceOrder] = useState<InvoiceOrderData | null>(null)
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
+  const [loadingInvoiceId, setLoadingInvoiceId] = useState<string | null>(null)
+
+  const handleOpenInvoice = async (orderId: string) => {
+    try {
+      setLoadingInvoiceId(orderId)
+      const res = await api.GET('/api/v1/admin/orders/{id}', {
+        params: { path: { id: orderId } },
+      })
+      if (res.data) {
+        setInvoiceOrder(res.data as unknown as InvoiceOrderData)
+        setIsInvoiceOpen(true)
+      }
+    } catch {
+      // Fallback
+    } finally {
+      setLoadingInvoiceId(null)
+    }
+  }
 
   const fetchOrders = useCallback(async () => {
     setIsLoading(true)
@@ -136,11 +158,21 @@ export const AdminOrdersPage: React.FC = () => {
         <div className="flex items-center justify-end gap-1.5">
           <button
             type="button"
+            onClick={() => void handleOpenInvoice(o.id)}
+            disabled={loadingInvoiceId === o.id}
+            className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-leaf hover:border-leaf/30 hover:bg-leaf/5 transition-colors cursor-pointer"
+            title="In phiếu giao hàng & hóa đơn"
+          >
+            <Printer className={`w-4 h-4 ${loadingInvoiceId === o.id ? 'animate-spin' : ''}`} strokeWidth={1.5} />
+          </button>
+          <button
+            type="button"
             onClick={() => router.push(`/admin/orders/${o.id}`)}
-            className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-leaf hover:border-leaf/30 hover:bg-leaf/5 transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-leaf hover:border-leaf/30 hover:bg-leaf/5 transition-colors text-xs font-semibold cursor-pointer"
             title="Xem chi tiết đơn hàng"
           >
-            <Eye className="w-4 h-4" strokeWidth={1.5} />
+            <Eye className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <span>Chi tiết</span>
           </button>
         </div>
       ),
@@ -206,6 +238,13 @@ export const AdminOrdersPage: React.FC = () => {
         pageSize={15}
         isLoading={isLoading}
         emptyMessage="Không có đơn hàng nào phù hợp với bộ lọc hiện tại"
+      />
+
+      {/* Delivery Invoice Modal */}
+      <OrderInvoiceModal
+        order={invoiceOrder}
+        isOpen={isInvoiceOpen}
+        onClose={() => setIsInvoiceOpen(false)}
       />
     </div>
   )

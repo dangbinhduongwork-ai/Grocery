@@ -3,6 +3,8 @@ import {
   Plus,
   RefreshCw,
   X,
+  Edit,
+  Trash2,
 } from 'lucide-react'
 import { api } from '@/shared/api/client'
 import { formatVnd } from '@/shared/utils/formatVnd'
@@ -29,7 +31,7 @@ export const AdminCouponsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // Form
+  // Create Form State
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
   const [type, setType] = useState<'Percent' | 'FixedAmount' | 'FreeShipping'>('Percent')
@@ -38,6 +40,18 @@ export const AdminCouponsPage: React.FC = () => {
   const [startsAt, setStartsAt] = useState(new Date().toISOString().slice(0, 16))
   const [endsAt, setEndsAt] = useState(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 16))
   const [usageLimit, setUsageLimit] = useState(100)
+
+  // Edit Form State
+  const [editingCoupon, setEditingCoupon] = useState<CouponItem | null>(null)
+  const [editCode, setEditCode] = useState('')
+  const [editName, setEditName] = useState('')
+  const [editType, setEditType] = useState<'Percent' | 'FixedAmount' | 'FreeShipping'>('Percent')
+  const [editValue, setEditValue] = useState(10)
+  const [editMinSubtotal, setEditMinSubtotal] = useState(200000)
+  const [editStartsAt, setEditStartsAt] = useState('')
+  const [editEndsAt, setEditEndsAt] = useState('')
+  const [editUsageLimit, setEditUsageLimit] = useState(100)
+  const [editIsActive, setEditIsActive] = useState(true)
 
   const fetchCoupons = useCallback(async () => {
     setIsLoading(true)
@@ -69,7 +83,7 @@ export const AdminCouponsPage: React.FC = () => {
       const res = await api.POST('/api/v1/admin/coupons', {
         body: {
           code: code.toUpperCase().trim(),
-          name,
+          name: name.trim(),
           description: null,
           type,
           value,
@@ -94,6 +108,75 @@ export const AdminCouponsPage: React.FC = () => {
       }
     } catch {
       alert('Lỗi kết nối máy chủ.')
+    }
+  }
+
+  // Open Edit Dialog
+  const openEditCoupon = (c: CouponItem) => {
+    setEditingCoupon(c)
+    setEditCode(c.code)
+    setEditName(c.name)
+    setEditType(c.type as 'Percent' | 'FixedAmount' | 'FreeShipping')
+    setEditValue(c.value)
+    setEditMinSubtotal(c.minSubtotal)
+    setEditStartsAt(new Date(c.startsAt).toISOString().slice(0, 16))
+    setEditEndsAt(new Date(c.endsAt).toISOString().slice(0, 16))
+    setEditUsageLimit(c.usageLimit ?? 0)
+    setEditIsActive(c.isActive)
+  }
+
+  // Handle Update Coupon
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingCoupon || !editCode.trim() || !editName.trim()) return
+
+    try {
+      const res = await api.PUT('/api/v1/admin/coupons/{id}', {
+        params: { path: { id: editingCoupon.id } },
+        body: {
+          code: editCode.toUpperCase().trim(),
+          name: editName.trim(),
+          description: null,
+          type: editType,
+          value: editValue,
+          maxDiscount: null,
+          minSubtotal: editMinSubtotal,
+          startsAt: new Date(editStartsAt).toISOString(),
+          endsAt: new Date(editEndsAt).toISOString(),
+          usageLimit: editUsageLimit > 0 ? editUsageLimit : null,
+          perUserLimit: null,
+          isActive: editIsActive,
+          scopes: null,
+        },
+      })
+
+      if (res.error) {
+        alert((res.error as { detail?: string })?.detail ?? 'Cập nhật mã thất bại.')
+      } else {
+        setEditingCoupon(null)
+        await fetchCoupons()
+      }
+    } catch {
+      alert('Lỗi khi cập nhật mã giảm giá.')
+    }
+  }
+
+  // Handle Delete Coupon
+  const handleDelete = async (id: string, code: string) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa mã giảm giá "${code}"?`)) return
+
+    try {
+      const res = await api.DELETE('/api/v1/admin/coupons/{id}', {
+        params: { path: { id } },
+      })
+
+      if (res.error) {
+        alert((res.error as { detail?: string })?.detail ?? 'Không thể xóa mã giảm giá.')
+      } else {
+        await fetchCoupons()
+      }
+    } catch {
+      alert('Lỗi khi xóa mã giảm giá.')
     }
   }
 
@@ -152,6 +235,30 @@ export const AdminCouponsPage: React.FC = () => {
         </span>
       ),
     },
+    {
+      key: 'actions',
+      title: 'Thao tác',
+      render: c => (
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => openEditCoupon(c)}
+            className="p-1.5 text-slate-500 hover:text-leaf hover:bg-slate-100 rounded-lg transition-colors"
+            title="Chỉnh sửa mã giảm giá"
+          >
+            <Edit className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDelete(c.id, c.code)}
+            className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+            title="Xóa mã giảm giá"
+          >
+            <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -160,7 +267,7 @@ export const AdminCouponsPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 font-display">Mã giảm giá & Khuyến mãi</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Cấu hình mã voucher giảm theo %, số tiền cố định, miễn phí ship kèm hạn mức và điều kiện áp dụng (BR-04).
+            Quản lý phiếu giảm giá, điều kiện áp dụng và giới hạn lượt sử dụng.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -170,7 +277,7 @@ export const AdminCouponsPage: React.FC = () => {
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-leaf text-white text-xs font-semibold hover:bg-leaf-2 transition-colors shadow-xs"
           >
             <Plus className="w-4 h-4" strokeWidth={1.5} />
-            Tạo mã giảm giá mới
+            Tạo mã giảm giá
           </button>
           <button
             type="button"
@@ -188,57 +295,63 @@ export const AdminCouponsPage: React.FC = () => {
         data={coupons}
         columns={columns}
         keyExtractor={c => c.id}
-        searchPlaceholder="Tìm kiếm mã coupon hoặc tên chương trình..."
+        searchPlaceholder="Tìm theo mã hoặc tên chương trình..."
         searchableKey={c => `${c.code} ${c.name}`}
-        pageSize={15}
+        pageSize={10}
         isLoading={isLoading}
         emptyMessage="Chưa có mã giảm giá nào"
       />
 
+      {/* Create Modal Dialog */}
       {isDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900 font-display">Tạo mã giảm giá mới</h2>
-              <button type="button" onClick={() => setIsDialogOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button
+                type="button"
+                onClick={() => setIsDialogOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
                 <X className="w-5 h-5" strokeWidth={1.5} />
               </button>
             </div>
-            <form onSubmit={handleCreate} className="space-y-3 text-xs">
+
+            <form onSubmit={handleCreate} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Mã Code (Chữ in hoa) *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Mã Coupon *</label>
                   <input
                     type="text"
                     required
                     value={code}
                     onChange={e => setCode(e.target.value.toUpperCase())}
-                    placeholder="HELLOSUMMER"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                    placeholder="VD: FREESHIP50"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Loại giảm giá *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Loại giảm giá</label>
                   <select
                     value={type}
                     onChange={e => setType(e.target.value as 'Percent' | 'FixedAmount' | 'FreeShipping')}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                   >
-                    <option value="Percent">Giảm theo %</option>
-                    <option value="FixedAmount">Số tiền cố định (VND)</option>
+                    <option value="Percent">Phần trăm (%)</option>
+                    <option value="FixedAmount">Số tiền cố định (₫)</option>
                     <option value="FreeShipping">Miễn phí vận chuyển</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Tên chương trình *</label>
+                <label className="block font-semibold text-slate-700 mb-1">Tên chương trình khuyến mãi *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="Khuyến mãi chào hè 2026"
+                  placeholder="VD: Tri ân khách hàng tháng 11"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                 />
               </div>
@@ -246,76 +359,225 @@ export const AdminCouponsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
-                    {type === 'Percent' ? 'Tỷ lệ giảm (%)' : 'Số tiền giảm (VND)'}
+                    {type === 'Percent' ? 'Mức giảm (%)' : 'Số tiền giảm (₫)'} *
                   </label>
                   <input
                     type="number"
+                    min="1"
                     required
-                    min={1}
                     value={value}
                     onChange={e => setValue(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Đơn tối thiểu (VND)</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Đơn tối thiểu (₫) *</label>
                   <input
                     type="number"
+                    min="0"
+                    step="1000"
                     required
-                    min={0}
                     value={minSubtotal}
                     onChange={e => setMinSubtotal(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Bắt đầu</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Ngày bắt đầu *</label>
                   <input
                     type="datetime-local"
+                    required
                     value={startsAt}
                     onChange={e => setStartsAt(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Kết thúc</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Ngày kết thúc *</label>
                   <input
                     type="datetime-local"
+                    required
                     value={endsAt}
                     onChange={e => setEndsAt(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Số lượt sử dụng tối đa</label>
+                <label className="block font-semibold text-slate-700 mb-1">Giới hạn tổng lượt dùng (để 0 nếu không giới hạn)</label>
                 <input
                   type="number"
-                  min={0}
+                  min="0"
                   value={usageLimit}
                   onChange={e => setUsageLimit(Number(e.target.value))}
-                  placeholder="0 = Không giới hạn"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsDialogOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-leaf text-white font-semibold hover:bg-leaf-2 shadow-xs"
+                  className="px-4 py-1.5 rounded-lg bg-leaf text-white font-semibold hover:bg-leaf-2 shadow-xs"
                 >
                   Tạo mã
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal Dialog */}
+      {editingCoupon && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-slate-900 font-display">Chỉnh sửa mã giảm giá</h2>
+              <button
+                type="button"
+                onClick={() => setEditingCoupon(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" strokeWidth={1.5} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Mã Coupon *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editCode}
+                    onChange={e => setEditCode(e.target.value.toUpperCase())}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Loại giảm giá</label>
+                  <select
+                    value={editType}
+                    onChange={e => setEditType(e.target.value as 'Percent' | 'FixedAmount' | 'FreeShipping')}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  >
+                    <option value="Percent">Phần trăm (%)</option>
+                    <option value="FixedAmount">Số tiền cố định (₫)</option>
+                    <option value="FreeShipping">Miễn phí vận chuyển</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Tên chương trình khuyến mãi *</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    {editType === 'Percent' ? 'Mức giảm (%)' : 'Số tiền giảm (₫)'} *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={editValue}
+                    onChange={e => setEditValue(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Đơn tối thiểu (₫) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    required
+                    value={editMinSubtotal}
+                    onChange={e => setEditMinSubtotal(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Ngày bắt đầu *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={editStartsAt}
+                    onChange={e => setEditStartsAt(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Ngày kết thúc *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={editEndsAt}
+                    onChange={e => setEditEndsAt(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Giới hạn tổng lượt dùng (để 0 nếu không giới hạn)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editUsageLimit}
+                  onChange={e => setEditUsageLimit(Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="editIsActive"
+                  checked={editIsActive}
+                  onChange={e => setEditIsActive(e.target.checked)}
+                  className="w-4 h-4 text-leaf rounded focus:ring-leaf"
+                />
+                <label htmlFor="editIsActive" className="font-semibold text-slate-700 cursor-pointer">
+                  Kích hoạt mã giảm giá này
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingCoupon(null)}
+                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 rounded-lg bg-leaf text-white font-semibold hover:bg-leaf-2 shadow-xs"
+                >
+                  Lưu thay đổi
                 </button>
               </div>
             </form>

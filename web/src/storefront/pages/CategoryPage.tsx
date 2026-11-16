@@ -86,7 +86,10 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug }) => {
           sort,
         }
         if (currentCategory) {
+          queryParams.categorySlug = currentCategory.slug
           queryParams.categoryId = currentCategory.id
+        } else if (categorySlug && categorySlug !== 'tat-ca') {
+          queryParams.categorySlug = categorySlug
         }
         if (inStock) {
           queryParams.inStockOnly = 'true'

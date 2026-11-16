@@ -97,7 +97,19 @@ public sealed class LocalFileStorage : IFileStorage
 
     public string GetPublicUrl(string storageKey)
     {
-        string safeName = Path.GetFileName(storageKey ?? string.Empty);
+        if (string.IsNullOrWhiteSpace(storageKey))
+        {
+            return string.Empty;
+        }
+
+        if (storageKey.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            storageKey.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            storageKey.StartsWith("/"))
+        {
+            return storageKey;
+        }
+
+        string safeName = Path.GetFileName(storageKey);
         return $"{_publicBaseUrl}/{Uri.EscapeDataString(safeName)}";
     }
 }

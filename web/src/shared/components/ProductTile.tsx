@@ -37,21 +37,21 @@ export const ProductTile: React.FC<ProductTileProps> = ({
   return (
     <article
       className={cn(
-        'group relative flex flex-col justify-between rounded-[10px] border border-rule bg-paper p-3 transition-all hover:border-leaf/50 hover:shadow-xs',
+        'group relative flex flex-col justify-between rounded-2xl border border-rule/70 bg-white p-3 sm:p-3.5 shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-leaf/40 hover:shadow-md',
         className
       )}
     >
       <div>
         <div
           onClick={() => onSelect?.(product.slug)}
-          className="relative aspect-square w-full overflow-hidden rounded-[8px] bg-paper-2 cursor-pointer flex items-center justify-center mb-2.5"
+          className="relative aspect-square w-full overflow-hidden rounded-xl bg-paper-2/70 cursor-pointer flex items-center justify-center mb-2.5 p-1"
         >
           {product.primaryImageUrl ? (
             <img
               src={product.primaryImageUrl}
               alt={product.name}
               loading="lazy"
-              className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover object-center rounded-lg transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-ink-2/40">
@@ -83,7 +83,7 @@ export const ProductTile: React.FC<ProductTileProps> = ({
         {/* Title */}
         <h3
           onClick={() => onSelect?.(product.slug)}
-          className="text-sm font-medium text-ink line-clamp-2 hover:text-leaf transition-colors cursor-pointer leading-snug mb-1"
+          className="text-sm font-semibold text-ink line-clamp-2 hover:text-leaf transition-colors cursor-pointer leading-snug mb-1"
           title={product.name}
         >
           {product.name}
@@ -95,7 +95,7 @@ export const ProductTile: React.FC<ProductTileProps> = ({
         )}
       </div>
 
-      <div className="mt-3 pt-2 border-t border-rule/50 flex flex-col gap-2">
+      <div className="mt-3 pt-2.5 border-t border-rule/40 flex flex-col gap-2">
         <PriceTag
           sellingPrice={product.sellingPrice}
           listPrice={product.listPrice}
@@ -111,7 +111,7 @@ export const ProductTile: React.FC<ProductTileProps> = ({
             e.stopPropagation()
             onAddToCart?.(product)
           }}
-          className="w-full text-xs hover:bg-leaf hover:text-paper hover:border-leaf"
+          className="w-full text-xs rounded-xl font-medium border-rule hover:bg-leaf hover:text-paper hover:border-leaf transition-colors cursor-pointer"
         >
           <ShoppingBag className="w-3.5 h-3.5 stroke-[1.5]" />
           Thêm vào giỏ

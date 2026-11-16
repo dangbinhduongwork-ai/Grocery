@@ -6,6 +6,7 @@ import { RouterProvider, useRouter, matchPath } from '@/app/router'
 import { StorefrontLayout } from '@/storefront/layout/StorefrontLayout'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { Button } from '@/shared/ui/Button'
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary'
 import { AlertCircle } from 'lucide-react'
 
 // Code-split Storefront route pages
@@ -47,6 +48,7 @@ const AdminReviewsPage = lazy(() => import('@/admin/pages/AdminReviewsPage').the
 const AdminReportsPage = lazy(() => import('@/admin/pages/AdminReportsPage').then((m) => ({ default: m.AdminReportsPage })))
 const AdminAuditLogsPage = lazy(() => import('@/admin/pages/AdminAuditLogsPage').then((m) => ({ default: m.AdminAuditLogsPage })))
 const AdminSettingsPage = lazy(() => import('@/admin/pages/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })))
+const AdminUiDesignPage = lazy(() => import('@/admin/pages/AdminUiDesignPage').then((m) => ({ default: m.AdminUiDesignPage })))
 
 const RouteLoading: React.FC = () => (
   <div className="py-12 space-y-6 max-w-4xl mx-auto animate-pulse">
@@ -248,6 +250,14 @@ const AppContent: React.FC = () => {
         )
       }
 
+      if (pathname === '/admin/ui-design' || pathname === '/admin/banners') {
+        return (
+          <AdminRouteGuard requiredPermission="catalog.write">
+            <AdminUiDesignPage />
+          </AdminRouteGuard>
+        )
+      }
+
       return (
         <div className="p-12 text-center text-slate-500">
           <h2 className="text-lg font-bold text-slate-800">404 - Không tìm thấy trang quản trị</h2>
@@ -265,7 +275,9 @@ const AppContent: React.FC = () => {
     return (
       <Suspense fallback={<RouteLoading />}>
         <AdminLayout>
-          {renderAdminRoute()}
+          <ErrorBoundary>
+            {renderAdminRoute()}
+          </ErrorBoundary>
         </AdminLayout>
       </Suspense>
     )
@@ -359,7 +371,9 @@ const AppContent: React.FC = () => {
   return (
     <StorefrontLayout currentPath={pathname} onNavigate={(to) => navigate(to)}>
       <Suspense fallback={<RouteLoading />}>
-        {renderCurrentRoute()}
+        <ErrorBoundary>
+          {renderCurrentRoute()}
+        </ErrorBoundary>
       </Suspense>
     </StorefrontLayout>
   )

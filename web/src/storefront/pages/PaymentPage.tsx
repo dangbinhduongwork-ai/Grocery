@@ -137,10 +137,11 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
   })
 
   useEffect(() => {
-    if (!paymentData?.attempt?.expiresAt) return
+    const rawExpiresAt = (paymentData as any)?.attempt?.expiresAt || (paymentData as any)?.expiresAt
+    if (!rawExpiresAt) return
 
     const updateCountdown = () => {
-      const expiresAt = new Date(paymentData.attempt.expiresAt).getTime()
+      const expiresAt = new Date(rawExpiresAt).getTime()
       const now = Date.now()
       const diff = expiresAt - now
 
@@ -156,7 +157,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
     updateCountdown()
     const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
-  }, [paymentData?.attempt?.expiresAt])
+  }, [(paymentData as any)?.attempt?.expiresAt, (paymentData as any)?.expiresAt])
 
   // Copy to clipboard helper
   const handleCopy = (text: string, fieldName: string) => {
@@ -189,13 +190,19 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
     }
   }
 
+  const isCancelled = paymentData?.orderStatus === 'Cancelled'
   const isPaid = useMemo(() => {
     return paymentData?.status === 'Paid' || paymentData?.orderStatus === 'Confirmed'
   }, [paymentData])
 
   const isExpired = useMemo(() => {
-    return timeLeft.isExpired || paymentData?.status === 'Expired' || paymentData?.attempt?.status === 'Expired'
-  }, [timeLeft.isExpired, paymentData])
+    return (
+      timeLeft.isExpired ||
+      paymentData?.status === 'Expired' ||
+      (paymentData as any)?.attempt?.status === 'Expired' ||
+      isCancelled
+    )
+  }, [timeLeft.isExpired, paymentData, isCancelled])
 
   if (authLoading || (loading && !paymentData)) {
     return (
@@ -272,7 +279,21 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
     )
   }
 
-  const qr = paymentData?.attempt?.qr
+  const fallbackBank = 'MBBank'
+  const fallbackAccountNumber = '2222226062005'
+  const fallbackAccountName = 'DANG BINH DUONG'
+  const amount = paymentData?.amount ?? 0
+  const paymentCodeVal = paymentData?.paymentCode ?? paymentCode ?? ''
+
+  const rawQr = (paymentData as any)?.attempt?.qr || (paymentData as any)?.qr
+  const qr = {
+    bank: (rawQr?.bank && String(rawQr.bank).trim()) || fallbackBank,
+    accountNumber: (rawQr?.accountNumber && String(rawQr.accountNumber).trim()) || fallbackAccountNumber,
+    accountName: (rawQr?.accountName && String(rawQr.accountName).trim()) || fallbackAccountName,
+    amount: rawQr?.amount || amount,
+    content: rawQr?.content || paymentCodeVal,
+    url: rawQr?.url || `https://qr.sepay.vn/img?acc=${encodeURIComponent((rawQr?.accountNumber && String(rawQr.accountNumber).trim()) || fallbackAccountNumber)}&bank=${encodeURIComponent((rawQr?.bank && String(rawQr.bank).trim()) || fallbackBank)}&amount=${rawQr?.amount || amount}&des=${encodeURIComponent(rawQr?.content || paymentCodeVal)}&template=compact&download=false`,
+  }
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4 space-y-6">
@@ -280,7 +301,10 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
       <div className="flex items-center justify-between border-b border-rule pb-4">
         <button
           type="button"
-          onClick={() => router.navigate(`/orders/${paymentData?.orderId}`)}
+          onClick={() => {
+            const dest = (paymentData as any)?.orderId ? `/orders/${(paymentData as any).orderId}` : '/orders'
+            router.navigate(dest)
+          }}
           className="inline-flex items-center gap-1.5 text-xs text-ink-2 hover:text-ink font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Quay lại đơn hàng
@@ -294,20 +318,25 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
       <div className="text-center space-y-1">
         <h1 className="text-xl font-bold text-ink">Quét mã VietQR để thanh toán</h1>
         <p className="text-xs text-ink-2">
-          Đơn hàng <span className="font-mono font-bold text-ink">{paymentData?.orderNumber}</span> • Tổng tiền:{' '}
+          Đơn hàng <span className="font-mono font-bold text-ink">{(paymentData as any)?.orderNumber || paymentData?.paymentCode}</span> • Tổng tiền:{' '}
           <span className="font-bold text-leaf font-mono">{formatVnd(paymentData?.amount ?? 0)}</span>
         </p>
       </div>
 
       {/* Countdown Timer or Expired Banner */}
       <div className="flex justify-center">
-        {isExpired ? (
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-tomato/10 text-tomato rounded-full text-xs font-semibold">
+        {isCancelled ? (
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-tomato/10 text-tomato border border-tomato/20 rounded-full text-xs font-semibold">
+            <AlertCircle className="w-4 h-4 stroke-[2]" />
+            Đơn hàng đã tự động hủy do quá hạn thanh toán (30 phút)
+          </div>
+        ) : isExpired ? (
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-tomato/10 text-tomato border border-tomato/20 rounded-full text-xs font-semibold">
             <AlertCircle className="w-4 h-4 stroke-[2]" />
             Mã QR đã hết hạn thanh toán
           </div>
         ) : (
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-leaf/10 text-leaf rounded-full text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-leaf/10 text-leaf border border-leaf/20 rounded-full text-xs font-semibold">
             <Clock className="w-4 h-4 animate-spin-slow stroke-[2]" />
             Mã QR còn hiệu lực trong:{' '}
             <span className="font-mono font-bold text-sm">
@@ -328,35 +357,47 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 flex flex-col items-center justify-center space-y-4">
-            {qr?.url ? (
-              <div className="relative p-2 bg-white rounded-xl border border-rule/80 shadow-inner">
-                <img
-                  src={qr.url}
-                  alt={`VietQR ${paymentData?.paymentCode}`}
-                  className={`w-52 h-52 object-contain transition-opacity duration-300 ${
-                    isExpired ? 'opacity-25 grayscale' : 'opacity-100'
-                  }`}
-                />
-                {isExpired && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-paper/80 rounded-xl backdrop-blur-xs">
-                    <p className="text-xs font-bold text-tomato mb-2">Đã hết hạn</p>
+            <div className="relative p-2 bg-white rounded-xl border border-rule/80 shadow-inner flex items-center justify-center min-h-[220px]">
+              <img
+                src={qr.url}
+                alt={`VietQR ${paymentCodeVal}`}
+                className={`w-52 h-52 object-contain transition-opacity duration-300 ${
+                  isExpired ? 'opacity-30 grayscale' : 'opacity-100'
+                }`}
+              />
+              {isExpired && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-paper/90 rounded-xl backdrop-blur-xs text-center">
+                  <AlertCircle className="w-7 h-7 text-tomato mb-1 stroke-[1.5]" />
+                  <p className="text-xs font-bold text-tomato mb-1">
+                    {isCancelled ? 'Đơn hàng đã hủy' : 'Mã QR đã hết hạn'}
+                  </p>
+                  <p className="text-[11px] text-ink-2 max-w-[200px] mb-3">
+                    {isCancelled
+                      ? 'Đơn hàng bị hủy do quá 30 phút chưa thanh toán. Vui lòng đặt đơn hàng mới.'
+                      : 'Quá thời hạn quét mã 30 phút. Bấm bên dưới để tạo mã mới.'}
+                  </p>
+                  {isCancelled ? (
+                    <Button
+                      size="sm"
+                      onClick={() => router.navigate('/')}
+                      className="text-xs bg-leaf hover:bg-leaf/90 text-white shadow-xs"
+                    >
+                      Tiếp tục mua sắm
+                    </Button>
+                  ) : (
                     <Button
                       size="sm"
                       onClick={handleNewAttempt}
                       disabled={isGeneratingAttempt}
-                      className="text-xs bg-leaf hover:bg-leaf/90 text-white"
+                      className="text-xs bg-leaf hover:bg-leaf/90 text-white shadow-xs"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 mr-1 ${isGeneratingAttempt ? 'animate-spin' : ''}`} />
                       Tạo lại mã QR
                     </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-52 h-52 flex items-center justify-center bg-paper-2 rounded-xl border border-dashed border-rule text-xs text-ink-2">
-                Không thể tải mã QR
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
 
             <p className="text-[11px] text-ink-2 max-w-xs leading-relaxed">
               Mở App ngân hàng bất kỳ (Vietcombank, MB, Techcombank...) quét mã để chuyển khoản tức thì không cần nhập số tài khoản.
@@ -469,30 +510,58 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ paymentCode }) => {
 
           {/* Action Buttons */}
           <div className="space-y-2">
-            <Button
-              className="w-full h-11 bg-leaf hover:bg-leaf/90 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-2"
-              onClick={() => fetchStatus(true)}
-              disabled={checking}
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${checking ? 'animate-spin' : ''}`} />
-              {checking ? 'Đang kiểm tra từ ngân hàng...' : 'Tôi đã chuyển khoản'}
-            </Button>
-
-            <div className="flex items-center justify-between text-[11px] text-ink-2 px-1">
-              <span>
-                Lần thử: {paymentData?.attempt?.attemptNumber ?? 1} / 5
-              </span>
-              {isExpired && (
-                <button
-                  type="button"
-                  onClick={handleNewAttempt}
-                  disabled={isGeneratingAttempt}
-                  className="text-leaf font-bold hover:underline"
+            {isCancelled ? (
+              <div className="p-3 bg-tomato/5 border border-tomato/20 rounded-xl space-y-2">
+                <div className="flex items-start gap-2 text-xs text-tomato">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    <strong>Đơn hàng đã hết hạn:</strong> Quá 30 phút chưa thanh toán nên đơn hàng đã tự động hủy. Nếu quý khách đã chuyển khoản thành công từ tài khoản ngân hàng, vui lòng liên hệ hotline/Zalo <strong>0865 087 784</strong> để được nhân viên đối soát hoàn tiền hoặc tạo đơn ngay!
+                  </p>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    className="flex-1 h-9 bg-leaf hover:bg-leaf/90 text-white font-semibold text-xs"
+                    onClick={() => router.navigate('/')}
+                  >
+                    Mua sắm đơn mới
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="flex-1 h-9 text-xs"
+                    onClick={() => router.navigate('/orders')}
+                  >
+                    Xem đơn hàng
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Button
+                  className="w-full h-11 bg-leaf hover:bg-leaf/90 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-2"
+                  onClick={() => fetchStatus(true)}
+                  disabled={checking}
                 >
-                  Tạo mã QR mới
-                </button>
-              )}
-            </div>
+                  <RefreshCw className={`w-3.5 h-3.5 ${checking ? 'animate-spin' : ''}`} />
+                  {checking ? 'Đang kiểm tra từ ngân hàng...' : 'Tôi đã chuyển khoản'}
+                </Button>
+
+                <div className="flex items-center justify-between text-[11px] text-ink-2 px-1">
+                  <span>
+                    Lần thử: {paymentData?.attempt?.attemptNumber ?? 1} / 5
+                  </span>
+                  {isExpired && (
+                    <button
+                      type="button"
+                      onClick={handleNewAttempt}
+                      disabled={isGeneratingAttempt}
+                      className="text-leaf font-bold hover:underline"
+                    >
+                      Tạo mã QR mới
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

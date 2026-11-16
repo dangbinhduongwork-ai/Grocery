@@ -15,6 +15,8 @@ import {
   Truck,
   Building2,
   X,
+  Store,
+  Palette,
 } from 'lucide-react'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/shared/auth'
@@ -74,7 +76,9 @@ export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> 
       { id: 'profit-report', title: 'Báo cáo lợi nhuận & COGS', category: 'Báo cáo', path: '/admin/reports/profit', icon: BarChart3, permission: 'reports.profit' },
 
       { id: 'coupons', title: 'Mã giảm giá', category: 'Khuyến mãi', path: '/admin/coupons', icon: Tag, permission: 'promotions.manage' },
+      { id: 'ui-design', title: 'Banner & Giao diện Storefront', category: 'Khuyến mãi', path: '/admin/ui-design', icon: Palette, permission: 'catalog.write' },
 
+      { id: 'back-to-shop', title: 'Quay lại Cửa hàng (Shop)', category: 'Hệ thống', path: '/', icon: Store },
       { id: 'staff', title: 'Quản lý nhân viên', category: 'Hệ thống', path: '/admin/staff', icon: Users, permission: 'staff.read' },
       { id: 'roles', title: 'Phân quyền & Vai trò', category: 'Hệ thống', path: '/admin/roles', icon: Shield, permission: 'roles.manage' },
       { id: 'audit', title: 'Nhật ký kiểm toán (Audit Logs)', category: 'Hệ thống', path: '/admin/audit-logs', icon: FileText, permission: 'audit.read' },

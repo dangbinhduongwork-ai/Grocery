@@ -44,6 +44,7 @@ public static class CatalogModuleExtensions
 
         endpoints.MapCatalogStorefrontEndpoints();
         endpoints.MapCatalogAdminEndpoints();
+        endpoints.MapAiEndpoints();
 
         return endpoints;
     }

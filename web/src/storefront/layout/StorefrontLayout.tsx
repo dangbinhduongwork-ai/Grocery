@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { DeliveryStrip } from '@/shared/components/DeliveryStrip'
+import { ZaloContactButton } from '@/shared/components/ZaloContactButton'
+import { AIChatBot } from '@/shared/components/AIChatBot'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { useCart } from '@/shared/cart/CartContext'
 import { vi } from '@/shared/i18n/vi'
@@ -12,7 +14,19 @@ import {
   Layers,
   LogOut,
   Menu,
-  X
+  X,
+  ShieldCheck,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  QrCode,
+  Truck,
+  RotateCcw,
+  Home,
+  LayoutGrid,
+  ChevronRight,
 } from 'lucide-react'
 
 interface StorefrontLayoutProps {
@@ -26,7 +40,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   currentPath = '/',
   onNavigate,
 }) => {
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isStaff, logout } = useAuth()
   const { itemCount } = useCart()
   const [searchQuery, setSearchQuery] = useState('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -81,21 +95,23 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 
           {/* Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Design Route Pill (Dev tool) */}
-            <button
-              type="button"
-              onClick={() => onNavigate?.('/__design')}
-              title={vi.nav.designSystem}
-              className={cn(
-                "hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer",
-                currentPath === '/__design'
-                  ? "bg-leaf text-paper"
-                  : "bg-[#E8EDE5] text-leaf hover:bg-[#D8E3D4]"
-              )}
-            >
-              <Layers className="w-3.5 h-3.5 stroke-[1.5]" />
-              <span>UI Design</span>
-            </button>
+            {/* Design Route Pill (Dev tool - only for staff) */}
+            {isStaff && (
+              <button
+                type="button"
+                onClick={() => onNavigate?.('/__design')}
+                title={vi.nav.designSystem}
+                className={cn(
+                  "hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer",
+                  currentPath === '/__design'
+                    ? "bg-leaf text-paper"
+                    : "bg-[#E8EDE5] text-leaf hover:bg-[#D8E3D4]"
+                )}
+              >
+                <Layers className="w-3.5 h-3.5 stroke-[1.5]" />
+                <span>UI Design</span>
+              </button>
+            )}
 
             {/* My Orders */}
             {isAuthenticated && (
@@ -111,6 +127,24 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
               >
                 <Package className="w-4 h-4 text-leaf stroke-[1.5]" />
                 <span>{vi.nav.orders}</span>
+              </button>
+            )}
+
+            {/* Admin Back-Office Link */}
+            {isStaff && (
+              <button
+                type="button"
+                onClick={() => onNavigate?.('/admin')}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer",
+                  currentPath.startsWith('/admin')
+                    ? "bg-leaf text-paper"
+                    : "bg-tomato/10 text-tomato hover:bg-tomato/20"
+                )}
+                title="Trang quản trị Admin"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 stroke-[1.5]" />
+                <span>Quản trị</span>
               </button>
             )}
 
@@ -207,65 +241,467 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         </div>
       </header>
 
+      {/* Mobile Slide-in Drawer Menu (md:hidden) */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
+          />
+
+          {/* Drawer Panel */}
+          <div className="fixed inset-y-0 left-0 w-[84vw] max-w-xs bg-paper border-r border-rule shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200">
+            <div>
+              {/* Drawer Header */}
+              <div className="p-4 bg-leaf text-paper flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center font-display font-bold text-lg">
+                    G
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-base leading-tight">GroceryHub</h3>
+                    <p className="text-[11px] text-paper/80 leading-tight">Nông sản tươi sạch mỗi ngày</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* User Bar */}
+              <div className="p-4 border-b border-rule bg-paper-2">
+                {isAuthenticated ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-leaf/15 text-leaf font-bold flex items-center justify-center text-sm">
+                        {user?.fullName?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="text-xs">
+                        <p className="font-semibold text-ink line-clamp-1">{user?.fullName}</p>
+                        <p className="text-[11px] text-ink-2 line-clamp-1">{user?.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        void logout()
+                      }}
+                      className="p-1.5 text-ink-2 hover:text-tomato cursor-pointer"
+                      title="Đăng xuất"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        onNavigate?.('/login')
+                      }}
+                      className="h-9 rounded-xl bg-leaf text-paper font-semibold text-xs flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      <span>Đăng nhập</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        onNavigate?.('/register')
+                      }}
+                      className="h-9 rounded-xl border border-rule bg-white text-ink font-semibold text-xs flex items-center justify-center cursor-pointer"
+                    >
+                      Đăng ký
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation Items */}
+              <div className="p-3 space-y-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    onNavigate?.('/')
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-colors text-left cursor-pointer",
+                    currentPath === '/' ? "bg-leaf text-paper font-semibold" : "text-ink hover:bg-paper-2"
+                  )}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Home className="w-4 h-4 stroke-[1.8]" />
+                    <span>Trang chủ</span>
+                  </span>
+                  <ChevronRight className="w-4 h-4 opacity-50" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    onNavigate?.('/c/tat-ca')
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-colors text-left cursor-pointer",
+                    currentPath.startsWith('/c/') ? "bg-leaf text-paper font-semibold" : "text-ink hover:bg-paper-2"
+                  )}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <LayoutGrid className="w-4 h-4 stroke-[1.8]" />
+                    <span>Tất cả gian hàng</span>
+                  </span>
+                  <ChevronRight className="w-4 h-4 opacity-50" />
+                </button>
+
+                <div className="pt-2 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-ink-2/70">
+                  Gian hàng nổi bật
+                </div>
+
+                {[
+                  { name: 'Rau củ quả sạch VietGAP', slug: 'rau-cu-qua', icon: '🥦' },
+                  { name: 'Thịt tươi, Cá & Trứng gà', slug: 'thit-ca-trung', icon: '🥩' },
+                  { name: 'Sữa & Chế phẩm dinh dưỡng', slug: 'sua-che-pham', icon: '🥛' },
+                  { name: 'Gạo ST25 & Gia vị truyền thống', slug: 'do-kho-gia-vi', icon: '🌾' },
+                  { name: 'Trái cây đặc sản nhiệt đới', slug: 'trai-cay-nhap-khau', icon: '🍎' },
+                ].map((cat) => (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      onNavigate?.(`/c/${cat.slug}`)
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-ink hover:bg-paper-2 transition-colors text-left cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{cat.icon}</span>
+                      <span>{cat.name}</span>
+                    </span>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
+                ))}
+
+                <div className="pt-2 pb-1 px-3 text-[10px] font-bold uppercase tracking-wider text-ink-2/70 border-t border-rule/50 mt-2">
+                  Tiện ích khách hàng
+                </div>
+
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      onNavigate?.('/orders')
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-ink hover:bg-paper-2 transition-colors text-left cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Package className="w-4 h-4 text-leaf stroke-[1.8]" />
+                      <span>Đơn hàng của tôi</span>
+                    </span>
+                    <ChevronRight className="w-4 h-4 opacity-50" />
+                  </button>
+                )}
+
+                {isStaff && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      onNavigate?.('/admin')
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium bg-tomato/10 text-tomato hover:bg-tomato/20 transition-colors text-left cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <ShieldCheck className="w-4 h-4 stroke-[1.8]" />
+                      <span className="font-semibold">Trang quản trị Admin</span>
+                    </span>
+                    <ChevronRight className="w-4 h-4 opacity-50" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Drawer Footer */}
+            <div className="p-4 border-t border-rule bg-paper-2 text-xs space-y-2">
+              <a
+                href="https://zalo.me/0865087784"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full h-9 rounded-xl bg-[#0068FF] hover:bg-[#0057d6] text-white font-semibold flex items-center justify-center gap-2 shadow-2xs"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Chat Zalo: 0865 087 784</span>
+              </a>
+              <p className="text-[11px] text-ink-2 text-center">
+                Thôn 9, Suối Hai, Ba Vì, Hà Nội
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Page Content */}
-      <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 py-6">
+      <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 py-4 sm:py-6 pb-24 md:pb-6">
         {children}
       </main>
 
       {/* Storefront Footer */}
-      <footer className="border-t border-rule bg-paper-2 mt-12 py-10 text-ink-2 text-xs sm:text-sm">
-        <div className="max-w-[1240px] mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-[6px] bg-leaf text-paper flex items-center justify-center font-display font-bold text-base">
+      <footer className="border-t border-rule bg-paper-2 mt-16 text-ink-2 text-xs">
+        {/* Core Commitments Bar */}
+        <div className="border-b border-rule bg-paper py-6">
+          <div className="max-w-[1240px] mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-leaf/10 text-leaf flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 stroke-[1.5]" />
+              </div>
+              <div>
+                <h5 className="font-semibold text-ink text-xs">100% Nông sản VietGAP</h5>
+                <p className="text-[11px] text-ink-2">Nguồn gốc rõ ràng, kiểm định nghiêm ngặt</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-leaf/10 text-leaf flex items-center justify-center shrink-0">
+                <Truck className="w-5 h-5 stroke-[1.5]" />
+              </div>
+              <div>
+                <h5 className="font-semibold text-ink text-xs">Giao hỏa tốc 2 giờ</h5>
+                <p className="text-[11px] text-ink-2">Thùng giữ lạnh chuyên dụng tận cửa</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-leaf/10 text-leaf flex items-center justify-center shrink-0">
+                <RotateCcw className="w-5 h-5 stroke-[1.5]" />
+              </div>
+              <div>
+                <h5 className="font-semibold text-ink text-xs">Đổi trả trong 24 giờ</h5>
+                <p className="text-[11px] text-ink-2">1 đổi 1 hoặc hoàn tiền nếu không tươi ngon</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-leaf/10 text-leaf flex items-center justify-center shrink-0">
+                <QrCode className="w-5 h-5 stroke-[1.5]" />
+              </div>
+              <div>
+                <h5 className="font-semibold text-ink text-xs">Thanh toán VietQR 24/7</h5>
+                <p className="text-[11px] text-ink-2">Khớp lệnh tự động & bảo mật tuyệt đối</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Footer Links & Info */}
+        <div className="max-w-[1240px] mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Column 1: Brand & Contact Info */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-leaf text-paper flex items-center justify-center font-display font-bold text-lg shadow-xs">
                 G
               </div>
-              <span className="font-display font-bold text-lg text-leaf">
+              <span className="font-display font-bold text-xl text-leaf tracking-tight">
                 {vi.appName}
               </span>
             </div>
-            <p className="text-xs text-ink-2/80 leading-relaxed mb-3">
-              Hệ thống cung cấp nông sản, thực phẩm tươi sạch đạt chuẩn an toàn vệ sinh thực phẩm cho gia đình Việt.
+            <p className="text-xs text-ink-2 leading-relaxed">
+              Chuỗi cung ứng thực phẩm tươi sạch hàng đầu — mang nguồn thực phẩm an toàn, tươi ngon từ nông trại hữu cơ chuẩn VietGAP đến bàn ăn gia đình bạn.
             </p>
-            <p className="text-xs font-semibold text-ink">Hotline: 1900 8888 (7:00 - 21:00)</p>
-          </div>
 
-          <div>
-            <h4 className="font-semibold text-ink mb-3 font-display">Danh mục sản phẩm</h4>
-            <ul className="space-y-1.5 text-xs text-ink-2">
-              <li className="hover:text-leaf cursor-pointer" onClick={() => onNavigate?.('/c/rau-cu-qua')}>Rau củ hữu cơ</li>
-              <li className="hover:text-leaf cursor-pointer" onClick={() => onNavigate?.('/c/thit-trung-hai-san')}>Thịt tươi & Hải sản</li>
-              <li className="hover:text-leaf cursor-pointer" onClick={() => onNavigate?.('/c/trai-cay-tuoi')}>Trái cây bốn mùa</li>
-              <li className="hover:text-leaf cursor-pointer" onClick={() => onNavigate?.('/c/gao-va-ngu-coc')}>Gạo sạch & Ngũ cốc</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold text-ink mb-3 font-display">Chính sách & Hỗ trợ</h4>
-            <ul className="space-y-1.5 text-xs text-ink-2">
-              <li className="hover:text-leaf cursor-pointer">Chính sách giao hàng trong 2h</li>
-              <li className="hover:text-leaf cursor-pointer">Chính sách đổi trả trong 24h</li>
-              <li className="hover:text-leaf cursor-pointer">Phương thức thanh toán</li>
-              <li className="hover:text-leaf cursor-pointer">Cam kết nguồn gốc xuất xứ</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold text-ink mb-3 font-display">Phương thức thanh toán</h4>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="px-2 py-1 rounded-[4px] border border-rule bg-white text-xs font-medium text-ink">
-                COD (Tiền mặt)
-              </span>
-              <span className="px-2 py-1 rounded-[4px] border border-rule bg-white text-xs font-medium text-ink">
-                VietQR (SePay)
-              </span>
+            <div className="space-y-2 pt-2 border-t border-rule/60 text-xs">
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-leaf shrink-0" />
+                <span>Hotline / Zalo:</span>
+                <a href="tel:0865087784" className="font-bold text-ink hover:text-leaf font-mono">0865 087 784</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-leaf shrink-0" />
+                <span>Email CSKH:</span>
+                <a href="mailto:dangbinhduong.work@gmail.com" className="font-semibold text-ink hover:text-leaf">dangbinhduong.work@gmail.com</a>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-leaf shrink-0 mt-0.5" />
+                <span>Địa chỉ: Thôn 9, Xã Suối Hai, Huyện Ba Vì, Hà Nội (Giao hàng toàn quốc)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-leaf shrink-0" />
+                <span>Giờ mở cửa: 7:00 - 22:00 (Cả Thứ 7, CN)</span>
+              </div>
             </div>
-            <p className="text-xs text-ink-2/70">
-              © 2026 GroceryHub Vietnam. Tất cả quyền được bảo lưu.
-            </p>
+          </div>
+
+          {/* Column 2: Product Categories */}
+          <div>
+            <h4 className="font-semibold text-ink mb-3 text-xs uppercase tracking-wider font-display">Danh mục sản phẩm</h4>
+            <ul className="space-y-2 text-xs text-ink-2">
+              <li className="hover:text-leaf cursor-pointer transition-colors" onClick={() => onNavigate?.('/c/rau-cu-qua')}>
+                • Rau củ quả hữu cơ VietGAP
+              </li>
+              <li className="hover:text-leaf cursor-pointer transition-colors" onClick={() => onNavigate?.('/c/thit-ca-trung')}>
+                • Thịt heo, bò tươi & thủy hải sản sạch
+              </li>
+              <li className="hover:text-leaf cursor-pointer transition-colors" onClick={() => onNavigate?.('/c/sua-che-pham')}>
+                • Sữa hạt & chế phẩm sữa dinh dưỡng
+              </li>
+              <li className="hover:text-leaf cursor-pointer transition-colors" onClick={() => onNavigate?.('/c/do-kho-gia-vi')}>
+                • Gạo ST25, đồ khô & gia vị truyền thống
+              </li>
+              <li className="hover:text-leaf cursor-pointer transition-colors" onClick={() => onNavigate?.('/c/trai-cay-nhap-khau')}>
+                • Trái cây đặc sản nhiệt đới 3 miền
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Customer Care & Policies */}
+          <div>
+            <h4 className="font-semibold text-ink mb-3 text-xs uppercase tracking-wider font-display">Chính sách & Hỗ trợ</h4>
+            <ul className="space-y-2 text-xs text-ink-2">
+              <li className="hover:text-leaf cursor-pointer transition-colors">Chính sách giao hàng siêu tốc 2h</li>
+              <li className="hover:text-leaf cursor-pointer transition-colors">Chính sách đổi trả trong vòng 24h</li>
+              <li className="hover:text-leaf cursor-pointer transition-colors">Chính sách bảo mật thông tin khách hàng</li>
+              <li className="hover:text-leaf cursor-pointer transition-colors">Quy định giải quyết khiếu nại & đối soát</li>
+              <li className="hover:text-leaf cursor-pointer transition-colors">Hướng dẫn thanh toán quét mã SePay VietQR</li>
+            </ul>
+          </div>
+
+          {/* Column 4: Certifications & Payment Partners */}
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-ink mb-2 text-xs uppercase tracking-wider font-display">Phương thức thanh toán</h4>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2.5 py-1.5 rounded-lg border border-rule bg-white text-xs font-semibold text-ink flex items-center gap-1.5 shadow-2xs">
+                  <QrCode className="w-3.5 h-3.5 text-leaf" /> VietQR Napas 24/7
+                </span>
+                <span className="px-2.5 py-1.5 rounded-lg border border-rule bg-white text-xs font-semibold text-ink flex items-center gap-1.5 shadow-2xs">
+                  COD (Tiền mặt)
+                </span>
+                <span className="px-2.5 py-1.5 rounded-lg border border-rule bg-white text-xs font-semibold text-ink flex items-center gap-1.5 shadow-2xs">
+                  MBBank
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-ink mb-2 text-xs uppercase tracking-wider font-display">Chứng nhận & An toàn</h4>
+              <div className="flex flex-wrap gap-2">
+                <div className="px-2.5 py-1 rounded-md bg-leaf/10 border border-leaf/20 text-[11px] font-semibold text-leaf flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 stroke-[2]" /> VietGAP Certified
+                </div>
+                <div className="px-2.5 py-1 rounded-md bg-sprout/20 border border-sprout text-[11px] font-semibold text-leaf flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 stroke-[2]" /> ISO 22000:2018
+                </div>
+                <div className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-700 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 stroke-[2]" /> Đã Đăng Ký Bộ Công Thương
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Copyright Bar */}
+        <div className="border-t border-rule bg-paper py-4 text-center text-xs text-ink-2">
+          <div className="max-w-[1240px] mx-auto px-4 flex items-center justify-center">
+            <p>© 2026 GroceryHub</p>
           </div>
         </div>
       </footer>
+
+      {/* Sticky Mobile Bottom Navigation Bar (md:hidden, hidden on PDP where sticky buy bar takes over) */}
+      {!currentPath.startsWith('/p/') && (
+        <nav
+          aria-label="Thanh điều hướng nhanh trên di động"
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-rule px-1.5 py-1 flex items-center justify-around shadow-lg pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        >
+          <button
+            type="button"
+            onClick={() => onNavigate?.('/')}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors cursor-pointer min-w-[56px]",
+              currentPath === '/' ? "text-leaf font-bold" : "text-ink-2 hover:text-ink"
+            )}
+          >
+            <Home className="w-5 h-5 stroke-[1.8]" />
+            <span className="text-[10px] mt-0.5">Trang chủ</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors cursor-pointer min-w-[56px]",
+              mobileMenuOpen ? "text-leaf font-bold" : "text-ink-2 hover:text-ink"
+            )}
+          >
+            <LayoutGrid className="w-5 h-5 stroke-[1.8]" />
+            <span className="text-[10px] mt-0.5">Danh mục</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (currentPath !== '/c/tat-ca') {
+                onNavigate?.('/c/tat-ca')
+              }
+            }}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors cursor-pointer min-w-[56px]",
+              currentPath.startsWith('/c/') ? "text-leaf font-bold" : "text-ink-2 hover:text-ink"
+            )}
+          >
+            <Search className="w-5 h-5 stroke-[1.8]" />
+            <span className="text-[10px] mt-0.5">Tìm kiếm</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate?.('/cart')}
+            className={cn(
+              "relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors cursor-pointer min-w-[56px]",
+              currentPath === '/cart' ? "text-leaf font-bold" : "text-ink-2 hover:text-ink"
+            )}
+          >
+            <div className="relative">
+              <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1.5 -right-2.5 bg-tomato text-white text-[10px] font-bold rounded-full min-w-4 h-4 px-1 flex items-center justify-center tabular-nums shadow-xs">
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] mt-0.5">Giỏ hàng</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate?.(isAuthenticated ? '/account' : '/login')}
+            className={cn(
+              "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors cursor-pointer min-w-[56px]",
+              currentPath.startsWith('/account') || currentPath === '/login'
+                ? "text-leaf font-bold"
+                : "text-ink-2 hover:text-ink"
+            )}
+          >
+            <User className="w-5 h-5 stroke-[1.8]" />
+            <span className="text-[10px] mt-0.5">
+              {isAuthenticated ? 'Tài khoản' : 'Đăng nhập'}
+            </span>
+          </button>
+        </nav>
+      )}
+
+      {/* Floating Action Buttons */}
+      <ZaloContactButton phone="0865087784" />
+      <AIChatBot />
     </div>
   )
 }

@@ -63,6 +63,7 @@ builder.Services
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddProblemDetails(options =>
 {

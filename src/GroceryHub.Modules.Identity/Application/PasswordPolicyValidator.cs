@@ -5,7 +5,7 @@ namespace GroceryHub.Modules.Identity.Application;
 
 public sealed class PasswordPolicyValidator : IPasswordPolicyValidator
 {
-    public const int MinimumLength = 10;
+    public const int MinimumLength = 8;
 
     public Result Validate(string? password)
     {
@@ -14,36 +14,16 @@ public sealed class PasswordPolicyValidator : IPasswordPolicyValidator
             return Result.Failure(DomainError.ValidationFailed(
                 new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["Password"] = ["Password is required."]
+                    ["Password"] = ["Mật khẩu không được để trống."]
                 },
-                "Password is required."));
+                "Mật khẩu không được để trống."));
         }
 
         List<string> errors = [];
 
         if (password.Length < MinimumLength)
         {
-            errors.Add($"Password must be at least {MinimumLength} characters long.");
-        }
-
-        if (!password.Any(char.IsUpper))
-        {
-            errors.Add("Password must contain at least one uppercase letter.");
-        }
-
-        if (!password.Any(char.IsLower))
-        {
-            errors.Add("Password must contain at least one lowercase letter.");
-        }
-
-        if (!password.Any(char.IsDigit))
-        {
-            errors.Add("Password must contain at least one digit.");
-        }
-
-        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
-        {
-            errors.Add("Password must contain at least one non-alphanumeric character.");
+            errors.Add($"Mật khẩu phải có độ dài từ {MinimumLength} ký tự trở lên.");
         }
 
         if (errors.Count > 0)
@@ -53,7 +33,7 @@ public sealed class PasswordPolicyValidator : IPasswordPolicyValidator
                 {
                     ["Password"] = [.. errors]
                 },
-                "Password does not meet complexity requirements."));
+                "Mật khẩu không đủ độ dài yêu cầu (từ 8 ký tự trở lên)."));
         }
 
         return Result.Success();

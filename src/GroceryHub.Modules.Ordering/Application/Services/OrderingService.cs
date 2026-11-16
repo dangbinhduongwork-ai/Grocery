@@ -101,16 +101,20 @@ public sealed class OrderingService
             .ThenInclude(z => z!.ShippingRates)
             .FirstOrDefaultAsync(szp => szp.ProvinceCode == provinceCode && szp.Zone != null && szp.Zone.IsActive, ct);
 
-        if (zoneMapping?.Zone is null)
-        {
-            return Result.Failure<ShippingQuoteResponse>(DomainError.Validation(
-                ErrorCodes.AddressNotServiceable,
-                $"Province '{province.FullName}' is not currently in a serviceable shipping zone."));
-        }
+        long baseFee = 25_000L;
+        long freeThreshold = DefaultFreeShippingThreshold;
+        string zoneName = "Toàn quốc (Tiêu chuẩn)";
 
-        var rate = zoneMapping.Zone.ShippingRates.FirstOrDefault(r => r.IsActive);
-        long baseFee = rate?.BaseFee ?? 25_000L;
-        long freeThreshold = rate?.FreeShippingThreshold ?? DefaultFreeShippingThreshold;
+        if (zoneMapping?.Zone is not null)
+        {
+            zoneName = zoneMapping.Zone.Name;
+            var rate = zoneMapping.Zone.ShippingRates.FirstOrDefault(r => r.IsActive);
+            if (rate is not null)
+            {
+                baseFee = rate.BaseFee;
+                freeThreshold = rate.FreeShippingThreshold;
+            }
+        }
 
         long fee = request.Subtotal >= freeThreshold ? 0L : baseFee;
         long remaining = Math.Max(0, freeThreshold - request.Subtotal);
@@ -119,7 +123,7 @@ public sealed class OrderingService
             province.Code,
             province.FullName,
             Serviceable: true,
-            zoneMapping.Zone.Name,
+            zoneName,
             fee,
             freeThreshold,
             remaining));

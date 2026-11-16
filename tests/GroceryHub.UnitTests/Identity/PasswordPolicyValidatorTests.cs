@@ -11,6 +11,8 @@ public class PasswordPolicyValidatorTests
     [InlineData("Passw0rd!123")]
     [InlineData("Str0ng!P@ssw0rd")]
     [InlineData("Groc3ryHub#Secure2026")]
+    [InlineData("password123")]
+    [InlineData("12345678")]
     public void Validate_ValidPassword_ReturnsSuccess(string password)
     {
         var result = _validator.Validate(password);
@@ -35,51 +37,11 @@ public class PasswordPolicyValidatorTests
     [Fact]
     public void Validate_TooShort_ReturnsFailure()
     {
-        // 9 characters (length < 10)
-        var result = _validator.Validate("P@ss1234");
+        // 5 characters (length < 8)
+        var result = _validator.Validate("12345");
 
         Assert.True(result.IsFailure);
         Assert.Equal("VALIDATION_FAILED", result.Error.Code);
-        Assert.Contains(result.Error.FieldErrors!["Password"], msg => msg.Contains("at least 10 characters", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public void Validate_MissingUppercase_ReturnsFailure()
-    {
-        var result = _validator.Validate("p@ssword1234");
-
-        Assert.True(result.IsFailure);
-        Assert.Equal("VALIDATION_FAILED", result.Error.Code);
-        Assert.Contains(result.Error.FieldErrors!["Password"], msg => msg.Contains("uppercase", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public void Validate_MissingLowercase_ReturnsFailure()
-    {
-        var result = _validator.Validate("P@SSWORD1234");
-
-        Assert.True(result.IsFailure);
-        Assert.Equal("VALIDATION_FAILED", result.Error.Code);
-        Assert.Contains(result.Error.FieldErrors!["Password"], msg => msg.Contains("lowercase", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public void Validate_MissingDigit_ReturnsFailure()
-    {
-        var result = _validator.Validate("P@sswordLong!");
-
-        Assert.True(result.IsFailure);
-        Assert.Equal("VALIDATION_FAILED", result.Error.Code);
-        Assert.Contains(result.Error.FieldErrors!["Password"], msg => msg.Contains("digit", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public void Validate_MissingNonAlphanumeric_ReturnsFailure()
-    {
-        var result = _validator.Validate("Password1234");
-
-        Assert.True(result.IsFailure);
-        Assert.Equal("VALIDATION_FAILED", result.Error.Code);
-        Assert.Contains(result.Error.FieldErrors!["Password"], msg => msg.Contains("non-alphanumeric", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Error.FieldErrors!["Password"], msg => msg.Contains("8 ký tự", StringComparison.OrdinalIgnoreCase));
     }
 }

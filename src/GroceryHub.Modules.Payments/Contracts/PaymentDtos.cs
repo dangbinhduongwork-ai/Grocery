@@ -48,7 +48,11 @@ public sealed record PaymentStatusResponseDto(
     DateTimeOffset? ExpiresAt,
     bool CanRetry,
     int AttemptNumber,
-    int MaxAttempts
+    int MaxAttempts,
+    Guid? OrderId = null,
+    string? OrderNumber = null,
+    PaymentAttemptDto? Attempt = null,
+    QrPaymentDetailsDto? Qr = null
 );
 
 public sealed record PaymentTransactionDto(

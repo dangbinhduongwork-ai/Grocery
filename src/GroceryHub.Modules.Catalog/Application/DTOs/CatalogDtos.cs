@@ -86,6 +86,53 @@ public record BannerDto(
     string Placement,
     int SortOrder);
 
+public record AdminBannerDto(
+    Guid Id,
+    string Title,
+    string? Subtitle,
+    string ImageKey,
+    string ImageUrl,
+    string? LinkUrl,
+    string Placement,
+    int SortOrder,
+    bool IsActive,
+    DateTimeOffset? StartsAt,
+    DateTimeOffset? EndsAt,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt);
+
+public record CreateBannerRequest(
+    string Title,
+    string? Subtitle,
+    string ImageKey,
+    string? LinkUrl,
+    string? Placement,
+    int SortOrder,
+    bool IsActive,
+    DateTimeOffset? StartsAt,
+    DateTimeOffset? EndsAt);
+
+public record UpdateBannerRequest(
+    string Title,
+    string? Subtitle,
+    string ImageKey,
+    string? LinkUrl,
+    string? Placement,
+    int SortOrder,
+    bool IsActive,
+    DateTimeOffset? StartsAt,
+    DateTimeOffset? EndsAt);
+
+public record BannerImageUploadResponse(
+    string ImageKey,
+    string ImageUrl);
+
+public record UiDesignSettingsDto(
+    IReadOnlyList<string> Announcements,
+    string? HeroBadge,
+    string? HeroTitle,
+    string? HeroSubtitle);
+
 public record HomeStorefrontDto(
     IReadOnlyList<BannerDto> Banners,
     IReadOnlyList<CategoryTreeDto> Categories,
@@ -115,7 +162,8 @@ public record AdminProductListItemDto(
     int Available,
     int SoldCount,
     DateTimeOffset CreatedAt,
-    string RowVersion);
+    string RowVersion,
+    string? PrimaryImageUrl = null);
 
 public record ProductPriceHistoryDto(
     Guid Id,

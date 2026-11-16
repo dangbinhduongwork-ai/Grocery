@@ -4,8 +4,12 @@ import {
   Save,
   AlertCircle,
   CheckCircle2,
+  Upload,
+  Trash2,
+  Star,
+  Image as ImageIcon,
 } from 'lucide-react'
-import { api } from '@/shared/api/client'
+import { api, getAccessToken } from '@/shared/api/client'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/shared/auth'
 
@@ -17,6 +21,14 @@ interface CategoryOption {
 interface BrandOption {
   id: string
   name: string
+}
+
+interface ProductImageItem {
+  id: string
+  url: string
+  altText?: string | null
+  sortOrder: number
+  isPrimary: boolean
 }
 
 export const AdminProductFormPage: React.FC<{ id?: string }> = ({ id }) => {
@@ -47,6 +59,9 @@ export const AdminProductFormPage: React.FC<{ id?: string }> = ({ id }) => {
   const [shortDescription, setShortDescription] = useState('')
   const [description, setDescription] = useState('')
   const [isFeatured, setIsFeatured] = useState(false)
+  const [images, setImages] = useState<ProductImageItem[]>([])
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [imageMsg, setImageMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   const canSeeCost = hasPermission('catalog.cost.read')
 
@@ -90,6 +105,9 @@ export const AdminProductFormPage: React.FC<{ id?: string }> = ({ id }) => {
           setShortDescription(String(p.shortDescription ?? ''))
           setDescription(String(p.description ?? ''))
           setIsFeatured(Boolean(p.isFeatured))
+          if (Array.isArray(p.images)) {
+            setImages(p.images as unknown as ProductImageItem[])
+          }
         }
       } catch {
         setErrorMsg('Không thể tải thông tin sản phẩm.')
@@ -99,6 +117,133 @@ export const AdminProductFormPage: React.FC<{ id?: string }> = ({ id }) => {
     }
     void loadProduct()
   }, [id])
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !id) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setImageMsg({ type: 'err', text: 'Kích thước file ảnh không được vượt quá 5MB.' })
+      return
+    }
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      setImageMsg({ type: 'err', text: 'Định dạng ảnh không hỗ trợ. Vui lòng chọn file JPEG, PNG hoặc WebP.' })
+      return
+    }
+
+    setIsUploadingImage(true)
+    setImageMsg(null)
+
+    try {
+      const token = getAccessToken()
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('isPrimary', String(images.length === 0))
+
+      const res = await fetch(`/api/v1/admin/products/${id}/images`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null)
+        setImageMsg({ type: 'err', text: errJson?.detail || 'Không thể tải ảnh lên. Vui lòng thử lại.' })
+      } else {
+        const uploadedImg = await res.json() as ProductImageItem
+        setImages(prev => [...prev, uploadedImg])
+        setImageMsg({ type: 'ok', text: 'Tải ảnh sản phẩm thành công!' })
+      }
+    } catch {
+      setImageMsg({ type: 'err', text: 'Lỗi kết nối khi tải ảnh lên máy chủ.' })
+    } finally {
+      setIsUploadingImage(false)
+      e.target.value = ''
+    }
+  }
+
+  const handleSetPrimary = async (imageId: string) => {
+    if (!id) return
+    try {
+      const token = getAccessToken()
+      const body = JSON.stringify({
+        imageOrders: images.map((img, idx) => ({
+          imageId: img.id,
+          sortOrder: img.id === imageId ? 0 : idx + 1,
+          isPrimary: img.id === imageId,
+        })),
+      })
+      const res = await fetch(`/api/v1/admin/products/${id}/images/order`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body,
+        credentials: 'include',
+      })
+      if (res.ok) {
+        setImages(prev =>
+          prev.map(img => ({
+            ...img,
+            isPrimary: img.id === imageId,
+          }))
+        )
+        setImageMsg({ type: 'ok', text: 'Đã đặt làm ảnh đại diện sản phẩm.' })
+      }
+    } catch {
+      setImageMsg({ type: 'err', text: 'Không thể cập nhật ảnh đại diện.' })
+    }
+  }
+
+  const handleDeleteImage = async (imageId: string) => {
+    if (!id) return
+    if (!window.confirm('Bạn có chắc chắn muốn xóa ảnh này?')) return
+
+    try {
+      const token = getAccessToken()
+      const res = await fetch(`/api/v1/admin/products/${id}/images/${imageId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include',
+      })
+      if (res.ok) {
+        setImages(prev => prev.filter(img => img.id !== imageId))
+        setImageMsg({ type: 'ok', text: 'Đã xóa ảnh thành công.' })
+      } else {
+        setImageMsg({ type: 'err', text: 'Không thể xóa ảnh này.' })
+      }
+    } catch {
+      setImageMsg({ type: 'err', text: 'Lỗi kết nối khi xóa ảnh.' })
+    }
+  }
+
+  const handleDeleteProduct = async () => {
+    if (!id || !window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${name}"? Sản phẩm sẽ được chuyển vào mục lưu trữ và gỡ khỏi gian hàng.`)) {
+      return
+    }
+
+    try {
+      const res = await (api.DELETE as any)('/api/v1/admin/products/{id}', {
+        params: { path: { id } },
+      })
+
+      if (res.error) {
+        // Fallback: update status to Archived
+        await api.PUT('/api/v1/admin/products/{id}/status', {
+          params: { path: { id } },
+          body: { status: 'Archived' },
+        })
+      }
+
+      router.push('/admin/products')
+    } catch {
+      alert('Đã có lỗi xảy ra khi xóa sản phẩm.')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -372,6 +517,116 @@ export const AdminProductFormPage: React.FC<{ id?: string }> = ({ id }) => {
           )}
         </div>
 
+        {/* Product Images (Gallery & Upload) */}
+        {isEdit && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-leaf" strokeWidth={1.5} />
+                  Hình ảnh sản phẩm ({images.length})
+                </h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Định dạng hỗ trợ: JPEG, PNG, WebP (Tối đa 5MB). Ảnh có nhãn "Ảnh chính" sẽ được ưu tiên hiển thị trên storefront.
+                </p>
+              </div>
+
+              {/* Upload Button */}
+              <div>
+                <label className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-leaf text-white text-xs font-semibold hover:bg-leaf-2 transition-colors cursor-pointer shadow-2xs">
+                  <Upload className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <span>{isUploadingImage ? 'Đang tải lên...' : 'Tải ảnh mới từ máy'}</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={isUploadingImage}
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Image Notification Message */}
+            {imageMsg && (
+              <div
+                className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                  imageMsg.type === 'ok'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : 'bg-rose-50 text-rose-800 border border-rose-200'
+                }`}
+              >
+                {imageMsg.type === 'ok' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                )}
+                <span>{imageMsg.text}</span>
+              </div>
+            )}
+
+            {/* Images Grid */}
+            {images.length === 0 ? (
+              <div className="py-8 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                <ImageIcon className="w-8 h-8 text-slate-300 mx-auto mb-2" strokeWidth={1.5} />
+                <p className="text-xs font-medium text-slate-600">Sản phẩm này chưa có hình ảnh nào.</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Bấm nút "Tải ảnh mới từ máy" ở trên để bổ sung hình ảnh cho sản phẩm.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                {images.map((img) => (
+                  <div
+                    key={img.id}
+                    className={`relative rounded-xl border overflow-hidden group bg-slate-50 ${
+                      img.isPrimary ? 'border-leaf ring-2 ring-leaf/20' : 'border-slate-200'
+                    }`}
+                  >
+                    <div className="aspect-square w-full overflow-hidden bg-white flex items-center justify-center p-1">
+                      <img
+                        src={img.url}
+                        alt={img.altText || name}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+
+                    {/* Primary Badge */}
+                    {img.isPrimary && (
+                      <span className="absolute top-1.5 left-1.5 px-2 py-0.5 bg-leaf text-white text-[10px] font-bold rounded-md shadow-xs flex items-center gap-1">
+                        <Star className="w-2.5 h-2.5 fill-current" />
+                        Ảnh chính
+                      </span>
+                    )}
+
+                    {/* Controls */}
+                    <div className="p-2 bg-white border-t border-slate-100 flex items-center justify-between gap-1">
+                      {!img.isPrimary ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimary(img.id)}
+                          className="text-[10px] text-slate-600 hover:text-leaf hover:underline font-semibold cursor-pointer"
+                        >
+                          Đặt làm ảnh chính
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-medium">Mặc định</span>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteImage(img.id)}
+                        className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors ml-auto cursor-pointer"
+                        title="Xóa ảnh"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Descriptions & Options */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100 pb-2">
@@ -429,22 +684,36 @@ export const AdminProductFormPage: React.FC<{ id?: string }> = ({ id }) => {
         </div>
 
         {/* Submit Bar */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => router.push('/admin/products')}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
-          >
-            Hủy bỏ
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-leaf text-white text-xs font-semibold hover:bg-leaf-2 transition-colors shadow-xs disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" strokeWidth={1.5} />
-            {isSubmitting ? 'Đang lưu...' : isEdit ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
-          </button>
+        <div className="flex items-center justify-between gap-3 pt-2">
+          {isEdit ? (
+            <button
+              type="button"
+              onClick={handleDeleteProduct}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+              Xóa sản phẩm này
+            </button>
+          ) : (
+            <div />
+          )}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push('/admin/products')}
+              className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+            >
+              Hủy bỏ
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-leaf text-white text-xs font-semibold hover:bg-leaf-2 transition-colors shadow-xs disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" strokeWidth={1.5} />
+              {isSubmitting ? 'Đang lưu...' : isEdit ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
+            </button>
+          </div>
         </div>
       </form>
     </div>

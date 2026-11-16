@@ -525,7 +525,7 @@ public sealed class CartService : ICartService, ICartMergeService
 
             string? primaryImageUrl = string.IsNullOrWhiteSpace(storageKey)
                 ? null
-                : $"/uploads/{Path.GetFileName(storageKey)}";
+                : $"/api/v1/catalog/images/{Path.GetFileName(storageKey)}";
 
             lineViews.Add(new CartItemViewDto(
                 item.Id,

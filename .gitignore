@@ -67,8 +67,12 @@ Desktop.ini
 # Temporary scratch files
 tmp/
 temp/
+temp_images/
+temp_product_images/
 *.tmp
 *.bak
 backups/
 bundle-test/
 out/
+cloudflared.exe
+*.exe

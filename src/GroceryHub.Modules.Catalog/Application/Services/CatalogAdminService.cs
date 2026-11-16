@@ -109,7 +109,9 @@ public sealed class CatalogAdminService
                 RowVersion = Convert.ToBase64String(x.Product.RowVersion),
                 OnHand = x.Stock != null ? x.Stock.OnHand : 0,
                 Reserved = x.Stock != null ? x.Stock.Reserved : 0,
-                ReorderLevel = x.Stock != null ? x.Stock.ReorderLevel : 10
+                ReorderLevel = x.Stock != null ? x.Stock.ReorderLevel : 10,
+                PrimaryImageKey = x.Product.Images.Where(static img => img.IsPrimary).Select(static img => img.StorageKey).FirstOrDefault()
+                    ?? x.Product.Images.OrderBy(static img => img.SortOrder).Select(static img => img.StorageKey).FirstOrDefault()
             })
             .ToListAsync(ct);
 
@@ -117,6 +119,9 @@ public sealed class CatalogAdminService
         {
             int available = Math.Max(0, x.OnHand - x.Reserved);
             bool isLow = available <= x.ReorderLevel;
+            string? primaryImageUrl = !string.IsNullOrWhiteSpace(x.PrimaryImageKey)
+                ? _fileStorage.GetPublicUrl(x.PrimaryImageKey)
+                : null;
 
             return new AdminProductListItemDto(
                 x.Id,
@@ -139,7 +144,8 @@ public sealed class CatalogAdminService
                 available,
                 x.SoldCount,
                 x.CreatedAt,
-                x.RowVersion);
+                x.RowVersion,
+                primaryImageUrl);
         }).ToList();
 
         return Result.Success(PagedResponse<AdminProductListItemDto>.Create(
@@ -474,6 +480,25 @@ public sealed class CatalogAdminService
             product.Id,
             product.Status,
             Convert.ToBase64String(product.RowVersion)));
+    }
+
+    public async Task<Result> DeleteProductAsync(
+        Guid id,
+        CancellationToken ct = default)
+    {
+        var product = await _dbContext.Products.FindAsync([id], ct);
+        if (product == null || product.DeletedAt != null)
+        {
+            return Result.Failure(DomainError.NotFound(ErrorCodes.NotFound, $"Product '{id}' was not found."));
+        }
+
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+        product.DeletedAt = now;
+        product.Status = ProductStatus.Archived;
+        product.UpdatedAt = now;
+
+        await _dbContext.SaveChangesAsync(ct);
+        return Result.Success();
     }
 
     public async Task<Result<ProductPriceResponse>> UpdateProductPriceAsync(
@@ -1067,5 +1092,234 @@ public sealed class CatalogAdminService
         await _dbContext.SaveChangesAsync(ct);
 
         return Result.Success();
+    }
+
+    // Banners Management
+    public async Task<IReadOnlyList<AdminBannerDto>> GetAdminBannersAsync(CancellationToken ct = default)
+    {
+        var banners = await _dbContext.Banners
+            .AsNoTracking()
+            .OrderBy(static b => b.SortOrder)
+            .ThenByDescending(static b => b.CreatedAt)
+            .ToListAsync(ct);
+
+        return banners.Select(b => new AdminBannerDto(
+            b.Id,
+            b.Title,
+            b.Subtitle,
+            b.ImageKey,
+            _fileStorage.GetPublicUrl(b.ImageKey),
+            b.LinkUrl,
+            b.Placement,
+            b.SortOrder,
+            b.IsActive,
+            b.StartsAt,
+            b.EndsAt,
+            b.CreatedAt,
+            b.UpdatedAt)).ToList();
+    }
+
+    public async Task<Result<AdminBannerDto>> GetAdminBannerByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var b = await _dbContext.Banners.FindAsync([id], ct);
+        if (b == null)
+        {
+            return Result.Failure<AdminBannerDto>(DomainError.NotFound(ErrorCodes.NotFound, $"Banner '{id}' was not found."));
+        }
+
+        return Result.Success(new AdminBannerDto(
+            b.Id,
+            b.Title,
+            b.Subtitle,
+            b.ImageKey,
+            _fileStorage.GetPublicUrl(b.ImageKey),
+            b.LinkUrl,
+            b.Placement,
+            b.SortOrder,
+            b.IsActive,
+            b.StartsAt,
+            b.EndsAt,
+            b.CreatedAt,
+            b.UpdatedAt));
+    }
+
+    public async Task<Result<AdminBannerDto>> CreateBannerAsync(CreateBannerRequest request, CancellationToken ct = default)
+    {
+        var now = _timeProvider.GetUtcNow();
+        var banner = new Banner
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title.Trim(),
+            Subtitle = string.IsNullOrWhiteSpace(request.Subtitle) ? null : request.Subtitle.Trim(),
+            ImageKey = request.ImageKey.Trim(),
+            LinkUrl = string.IsNullOrWhiteSpace(request.LinkUrl) ? null : request.LinkUrl.Trim(),
+            Placement = string.IsNullOrWhiteSpace(request.Placement) ? BannerPlacement.HomeHero : request.Placement.Trim(),
+            SortOrder = request.SortOrder,
+            IsActive = request.IsActive,
+            StartsAt = request.StartsAt,
+            EndsAt = request.EndsAt,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        _dbContext.Banners.Add(banner);
+        await _dbContext.SaveChangesAsync(ct);
+
+        return Result.Success(new AdminBannerDto(
+            banner.Id,
+            banner.Title,
+            banner.Subtitle,
+            banner.ImageKey,
+            _fileStorage.GetPublicUrl(banner.ImageKey),
+            banner.LinkUrl,
+            banner.Placement,
+            banner.SortOrder,
+            banner.IsActive,
+            banner.StartsAt,
+            banner.EndsAt,
+            banner.CreatedAt,
+            banner.UpdatedAt));
+    }
+
+    public async Task<Result<AdminBannerDto>> UpdateBannerAsync(Guid id, UpdateBannerRequest request, CancellationToken ct = default)
+    {
+        var banner = await _dbContext.Banners.FindAsync([id], ct);
+        if (banner == null)
+        {
+            return Result.Failure<AdminBannerDto>(DomainError.NotFound(ErrorCodes.NotFound, $"Banner '{id}' was not found."));
+        }
+
+        banner.Title = request.Title.Trim();
+        banner.Subtitle = string.IsNullOrWhiteSpace(request.Subtitle) ? null : request.Subtitle.Trim();
+        banner.ImageKey = request.ImageKey.Trim();
+        banner.LinkUrl = string.IsNullOrWhiteSpace(request.LinkUrl) ? null : request.LinkUrl.Trim();
+        banner.Placement = string.IsNullOrWhiteSpace(request.Placement) ? BannerPlacement.HomeHero : request.Placement.Trim();
+        banner.SortOrder = request.SortOrder;
+        banner.IsActive = request.IsActive;
+        banner.StartsAt = request.StartsAt;
+        banner.EndsAt = request.EndsAt;
+        banner.UpdatedAt = _timeProvider.GetUtcNow();
+
+        await _dbContext.SaveChangesAsync(ct);
+
+        return Result.Success(new AdminBannerDto(
+            banner.Id,
+            banner.Title,
+            banner.Subtitle,
+            banner.ImageKey,
+            _fileStorage.GetPublicUrl(banner.ImageKey),
+            banner.LinkUrl,
+            banner.Placement,
+            banner.SortOrder,
+            banner.IsActive,
+            banner.StartsAt,
+            banner.EndsAt,
+            banner.CreatedAt,
+            banner.UpdatedAt));
+    }
+
+    public async Task<Result> DeleteBannerAsync(Guid id, CancellationToken ct = default)
+    {
+        var banner = await _dbContext.Banners.FindAsync([id], ct);
+        if (banner == null)
+        {
+            return Result.Failure(DomainError.NotFound(ErrorCodes.NotFound, $"Banner '{id}' was not found."));
+        }
+
+        _dbContext.Banners.Remove(banner);
+        await _dbContext.SaveChangesAsync(ct);
+
+        return Result.Success();
+    }
+
+    public async Task<Result<BannerImageUploadResponse>> UploadBannerImageAsync(
+        Stream stream,
+        string claimedMimeType,
+        long reportedLength,
+        CancellationToken ct = default)
+    {
+        var result = await _imageUploadService.ProcessAndStoreImageAsync(
+            stream,
+            claimedMimeType,
+            reportedLength,
+            ct);
+
+        if (!result.IsSuccess)
+        {
+            return Result.Failure<BannerImageUploadResponse>(result.Error);
+        }
+
+        string imageUrl = _fileStorage.GetPublicUrl(result.Value.StorageKey);
+        return Result.Success(new BannerImageUploadResponse(result.Value.StorageKey, imageUrl));
+    }
+
+    // UI Design Settings Management
+    public async Task<UiDesignSettingsDto> GetUiDesignSettingsAsync(CancellationToken ct = default)
+    {
+        var setting = await _dbContext.Settings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(static s => s.Key == "UiDesignSettings", ct);
+
+        if (setting != null && !string.IsNullOrWhiteSpace(setting.Value))
+        {
+            try
+            {
+                var parsed = System.Text.Json.JsonSerializer.Deserialize<UiDesignSettingsDto>(setting.Value);
+                if (parsed != null)
+                {
+                    return parsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse UiDesignSettings from database.");
+            }
+        }
+
+        return new UiDesignSettingsDto(
+            Announcements:
+            [
+                "Giao hàng hỏa tốc trong 2 giờ tại nội thành",
+                "100% Nông sản tươi sạch chuẩn VietGAP, rõ xuất xứ",
+                "Miễn phí vận chuyển cho đơn hàng từ 300.000 ₫",
+                "Cam kết đổi trả trong 24 giờ nếu hàng không tươi ngon",
+                "Hotline / Zalo tư vấn: 0865 087 784 (7:00 - 22:00)"
+            ],
+            HeroBadge: "Nông sản tươi sạch mỗi ngày",
+            HeroTitle: "Nông Sản Tươi Ngon Chuẩn VietGAP",
+            HeroSubtitle: "Hệ thống cung cấp thực phẩm an toàn, rõ nguồn gốc cho bữa ăn gia đình tràn đầy sức khỏe."
+        );
+    }
+
+    public async Task<Result<UiDesignSettingsDto>> UpdateUiDesignSettingsAsync(
+        UiDesignSettingsDto request,
+        Guid? updatedBy,
+        CancellationToken ct = default)
+    {
+        var setting = await _dbContext.Settings.FirstOrDefaultAsync(static s => s.Key == "UiDesignSettings", ct);
+        var json = System.Text.Json.JsonSerializer.Serialize(request);
+        var now = _timeProvider.GetUtcNow();
+
+        if (setting == null)
+        {
+            setting = new Setting
+            {
+                Key = "UiDesignSettings",
+                Value = json,
+                Description = "Custom storefront announcements, marquee text and slogans",
+                UpdatedBy = updatedBy,
+                UpdatedAt = now
+            };
+            _dbContext.Settings.Add(setting);
+        }
+        else
+        {
+            setting.Value = json;
+            setting.UpdatedBy = updatedBy;
+            setting.UpdatedAt = now;
+        }
+
+        await _dbContext.SaveChangesAsync(ct);
+        return Result.Success(request);
     }
 }

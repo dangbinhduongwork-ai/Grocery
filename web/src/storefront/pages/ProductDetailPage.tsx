@@ -360,7 +360,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlu
           </div>
 
           {/* Delivery Promise */}
-          <DeliveryStrip />
+          <DeliveryStrip marquee={false} />
 
           {/* Quantity & Actions */}
           <div className="space-y-3 pt-2">
@@ -675,17 +675,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlu
               {/* OrderItemId */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-ink block">
-                  Mã dòng đơn hàng đã nhận (OrderItemId) <span className="text-tomato">*</span>
+                  Mã xác nhận mua hàng (Đơn đã giao thành công) <span className="text-tomato">*</span>
                 </label>
                 <Input
-                  placeholder="Nhập OrderItemId từ chi tiết đơn hàng đã giao"
+                  placeholder="Nhập mã đơn hàng hoặc mã dòng hàng đã nhận"
                   value={reviewOrderItemId}
                   onChange={(e) => setReviewOrderItemId(e.target.value)}
                   className="text-xs h-9"
                   required
                 />
-                <span className="text-[11px] text-ink-2 block">
-                  Mỗi mặt hàng trong đơn đã giao có thể đánh giá một lần.
+                <span className="text-[11px] text-ink-2/80 block leading-relaxed">
+                  💡 <strong>Gợi ý:</strong> Bạn có thể vào <strong>Đơn hàng của tôi</strong> → Chọn đơn hàng đã nhận thành công → Bấm đánh giá trực tiếp để tự động điền mã xác nhận.
                 </span>
               </div>
 
@@ -737,6 +737,52 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlu
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Mobile Sticky Buy / Add to Cart Bar (md:hidden) */}
+      {product && (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-rule px-4 py-2.5 flex items-center justify-between gap-3 shadow-2xl pb-[max(0.6rem,env(safe-area-inset-bottom))]">
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-baseline gap-1">
+              <span className="text-base font-bold text-leaf font-mono leading-tight">
+                {formatVnd(Number(product.sellingPrice))}
+              </span>
+              {product.unit && (
+                <span className="text-[10px] text-ink-2">/{product.unit}</span>
+              )}
+            </div>
+            {product.listPrice && Number(product.listPrice) > Number(product.sellingPrice) ? (
+              <span className="text-[10px] text-ink-2 line-through leading-tight">
+                {formatVnd(Number(product.listPrice))}
+              </span>
+            ) : (
+              <span className="text-[10px] text-leaf font-medium leading-tight">
+                {product.inStock ? 'Còn hàng' : 'Tạm hết'}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              disabled={!product.inStock || isAdding}
+              onClick={() => void handleAddToCart(false)}
+              className="h-10 px-3 rounded-xl border border-leaf text-leaf font-semibold text-xs flex items-center gap-1.5 hover:bg-leaf/10 active:scale-95 disabled:opacity-40 cursor-pointer transition-transform"
+            >
+              <ShoppingBag className="w-4 h-4 stroke-[1.8]" />
+              <span>Thêm giỏ</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={!product.inStock || isAdding}
+              onClick={() => void handleAddToCart(true)}
+              className="h-10 px-4 rounded-xl bg-leaf text-white font-bold text-xs shadow-md hover:bg-leaf/90 active:scale-95 disabled:opacity-40 cursor-pointer flex items-center gap-1 transition-transform"
+            >
+              <span>Mua ngay</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

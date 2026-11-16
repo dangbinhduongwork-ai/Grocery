@@ -15,10 +15,11 @@ import {
   LogOut,
   Menu,
   Building2,
-  ExternalLink,
   Truck,
   CreditCard,
   RotateCcw,
+  Palette,
+  Store,
 } from 'lucide-react'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/shared/auth'
@@ -75,8 +76,9 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
       },
       {
         id: 'marketing',
-        title: 'Khuyến mãi',
+        title: 'Marketing & Giao diện',
         items: [
+          { id: 'ui-design', title: 'Banner & Giao diện', path: '/admin/ui-design', icon: Palette, permission: 'catalog.write' },
           { id: 'coupons', title: 'Mã giảm giá', path: '/admin/coupons', icon: Tag, permission: 'promotions.manage' },
         ],
       },
@@ -164,15 +166,15 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
 
         {/* User profile & actions */}
         <div className="flex items-center gap-3">
-          <a
-            href="/"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-leaf font-medium px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+          <button
+            type="button"
+            onClick={() => router.push('/')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-leaf/10 text-leaf hover:bg-leaf hover:text-white font-medium text-xs transition-all cursor-pointer border border-leaf/20 shadow-2xs"
+            title="Quay lại giao diện cửa hàng (Shop)"
           >
-            <span>Storefront</span>
-            <ExternalLink className="w-3.5 h-3.5" strokeWidth={1.5} />
-          </a>
+            <Store className="w-4 h-4" strokeWidth={1.75} />
+            <span className="font-semibold">Quay lại Shop</span>
+          </button>
 
           <div className="h-6 w-px bg-slate-200 hidden sm:block" />
 
@@ -209,6 +211,19 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           } shrink-0 bg-white border-r border-slate-200 transition-all duration-200 overflow-y-auto flex flex-col justify-between`}
         >
           <div className="p-3 space-y-4">
+            {/* Quick Back to Store Button */}
+            <div>
+              <button
+                type="button"
+                onClick={() => router.push('/')}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-leaf bg-leaf/10 hover:bg-leaf hover:text-white transition-all cursor-pointer border border-leaf/20 shadow-2xs"
+                title="Quay lại giao diện cửa hàng"
+              >
+                <Store className="w-4 h-4 shrink-0" strokeWidth={1.75} />
+                {sidebarOpen && <span>Quay lại Shop</span>}
+              </button>
+            </div>
+
             {/* Dashboard Link */}
             <div>
               <button

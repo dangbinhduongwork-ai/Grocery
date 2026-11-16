@@ -7,6 +7,7 @@ import {
   CreditCard,
   Truck,
   Boxes,
+  Bot,
 } from 'lucide-react'
 import { api } from '@/shared/api/client'
 
@@ -29,8 +30,8 @@ interface StoreSettings {
 export const AdminSettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<StoreSettings>({
     storeName: 'GroceryHub Vietnam',
-    supportPhone: '1900 1234',
-    supportEmail: 'hotro@groceryhub.vn',
+    supportPhone: '0865 087 784',
+    supportEmail: 'dangbinhduong.work@gmail.com',
     sePayEnabled: false,
     bankShortName: 'MBBANK',
     bankAccountNumber: '0987654321',
@@ -41,6 +42,49 @@ export const AdminSettingsPage: React.FC = () => {
     codMaxAmount: 5000000,
     maxQuantityPerLine: 20,
     defaultLowStockThreshold: 10,
+  })
+
+  // AI Chatbot Settings (persisted in localStorage)
+  const envKey = (import.meta.env.VITE_AI_API_KEY as string) || (import.meta.env.VITE_GEMINI_API_KEY as string) || ''
+  const isSkKey = envKey.startsWith('sk-')
+
+  const [aiProvider, setAiProvider] = useState<'gemini' | 'openai' | 'custom'>(() => {
+    try {
+      const cfg = localStorage.getItem('groceryhub_ai_config')
+      if (cfg) {
+        const parsed = JSON.parse(cfg)
+        const key = parsed.apiKey || envKey
+        if (key.startsWith('sk-') && parsed.provider === 'gemini') return 'openai'
+        return parsed.provider || (isSkKey ? 'openai' : 'openai')
+      }
+    } catch {}
+    return 'openai'
+  })
+  const [aiEndpoint, setAiEndpoint] = useState(() => {
+    try {
+      const cfg = localStorage.getItem('groceryhub_ai_config')
+      if (cfg) return JSON.parse(cfg).endpointUrl || 'https://api.xingchiapi.com'
+    } catch {}
+    return (import.meta.env.VITE_AI_ENDPOINT as string) || 'https://api.xingchiapi.com'
+  })
+  const [aiModel, setAiModel] = useState(() => {
+    try {
+      const cfg = localStorage.getItem('groceryhub_ai_config')
+      if (cfg) {
+        const parsed = JSON.parse(cfg)
+        if (parsed.model && parsed.model !== 'gemini-2.5-flash' && parsed.model !== 'gpt-4o-mini') {
+          return parsed.model
+        }
+      }
+    } catch {}
+    return (import.meta.env.VITE_AI_MODEL as string) || 'gpt-6.1-sol'
+  })
+  const [aiApiKey, setAiApiKey] = useState(() => {
+    try {
+      const cfg = localStorage.getItem('groceryhub_ai_config')
+      if (cfg) return JSON.parse(cfg).apiKey || envKey
+    } catch {}
+    return envKey
   })
 
   const [isLoading, setIsLoading] = useState(true)
@@ -71,6 +115,21 @@ export const AdminSettingsPage: React.FC = () => {
     setSuccessMsg(null)
 
     try {
+      // Save AI Chatbot configuration
+      const cleanAiConfig = {
+        provider: aiProvider,
+        endpointUrl:
+          aiEndpoint.trim() ||
+          (aiProvider === 'openai'
+            ? 'https://api.openai.com/v1/chat/completions'
+            : 'https://generativelanguage.googleapis.com/v1beta/models'),
+        model:
+          aiModel.trim() ||
+          (aiProvider === 'openai' ? 'gpt-6.1-sol' : 'gemini-2.5-flash'),
+        apiKey: aiApiKey.trim(),
+      }
+      localStorage.setItem('groceryhub_ai_config', JSON.stringify(cleanAiConfig))
+
       const res = await api.PUT('/api/v1/admin/settings', {
         body: {
           ...settings,
@@ -255,6 +314,86 @@ export const AdminSettingsPage: React.FC = () => {
                 onChange={e => setSettings({ ...settings, bankAccountName: e.target.value.toUpperCase() })}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono uppercase focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* AI Chatbot Configuration (Universal for Any AI Provider) */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+              <Bot className="w-4 h-4 text-leaf" strokeWidth={1.5} />
+              Cấu hình Trợ lý ảo AI Chatbot (Hỗ trợ mọi nhà cung cấp AI)
+            </h2>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-leaf/10 text-leaf font-semibold">
+              Admin Only
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Hệ thống hỗ trợ linh hoạt <b>mọi nhà cung cấp AI</b> (Google Gemini, OpenAI ChatGPT, DeepSeek, Groq, OpenRouter hoặc Custom Proxy). Chỉ Quản trị viên mới có thể xem và cấu hình API này.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Nhà cung cấp AI (Provider)</label>
+              <select
+                value={aiProvider}
+                onChange={(e) => {
+                  const p = e.target.value as 'gemini' | 'openai' | 'custom'
+                  setAiProvider(p)
+                  if (p === 'openai') {
+                    setAiEndpoint('https://api.xingchiapi.com')
+                    setAiModel('gpt-6.1-sol')
+                  } else if (p === 'gemini') {
+                    setAiEndpoint('https://generativelanguage.googleapis.com/v1beta/models')
+                    setAiModel('gemini-2.5-flash')
+                  }
+                }}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+              >
+                <option value="openai">OpenAI / Proxy tương thích (Mặc định: gpt-6.1-sol)</option>
+                <option value="gemini">Google Gemini (Model: gemini-2.5-flash / gemini-2.0-flash)</option>
+                <option value="custom">Endpoint Tùy Chỉnh (Custom Proxy / Ollama / Local AI)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Tên mô hình AI (Model Name)</label>
+              <input
+                type="text"
+                value={aiModel}
+                onChange={(e) => setAiModel(e.target.value)}
+                placeholder={aiProvider === 'gemini' ? 'gemini-2.5-flash' : 'gpt-6.1-sol'}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+              />
+            </div>
+
+            {aiProvider !== 'gemini' && (
+              <div className="sm:col-span-2">
+                <label className="block font-semibold text-slate-700 mb-1">Endpoint URL (POST)</label>
+                <input
+                  type="text"
+                  value={aiEndpoint}
+                  onChange={(e) => setAiEndpoint(e.target.value)}
+                  placeholder="https://api.xingchiapi.com hoặc https://api.openai.com/v1/chat/completions"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+                />
+              </div>
+            )}
+
+            <div className="sm:col-span-2">
+              <label className="block font-semibold text-slate-700 mb-1">Khóa API Key</label>
+              <input
+                type="password"
+                value={aiApiKey}
+                onChange={(e) => setAiApiKey(e.target.value)}
+                placeholder="Dán mã API Key của bạn tại đây (AIzaSy..., sk-proj..., sk-...). Bỏ trống để dùng kịch bản offline."
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                🔒 Chỉ Quản trị viên mới có thể xem và lưu khóa này. Khách hàng thông thường chưa đăng nhập không thể sử dụng chatbot và không thể truy cập khóa này.
+              </span>
             </div>
           </div>
         </div>

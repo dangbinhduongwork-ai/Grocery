@@ -100,7 +100,9 @@ public sealed class CatalogQueryService
         string? sort,
         int page,
         int pageSize,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        Guid? categoryId = null,
+        Guid? brandId = null)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize <= 0 ? 24 : pageSize, 1, 100);
@@ -111,11 +113,32 @@ public sealed class CatalogQueryService
 
         if (!string.IsNullOrWhiteSpace(q))
         {
-            string normalizedQ = VietnameseTextNormalizer.NormalizeForSearch(q);
-            query = query.Where(p => p.SearchText.Contains(normalizedQ) || p.Name.Contains(q) || p.Sku.Contains(q));
+            string trimmedQ = q.Trim();
+            string normalizedQ = VietnameseTextNormalizer.NormalizeForSearch(trimmedQ);
+            string[] words = normalizedQ.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length > 1)
+            {
+                // Must match all keywords
+                foreach (string word in words)
+                {
+                    string w = word;
+                    query = query.Where(p => p.SearchText.Contains(w) || p.Name.Contains(w));
+                }
+            }
+            else
+            {
+                query = query.Where(p => p.SearchText.Contains(normalizedQ) || p.Name.Contains(trimmedQ) || p.Sku.Contains(trimmedQ));
+            }
         }
 
-        if (!string.IsNullOrWhiteSpace(categorySlug))
+        if (categoryId.HasValue && categoryId.Value != Guid.Empty)
+        {
+            var descendantCategoryIds = await GetDescendantCategoryIdsAsync(categoryId.Value, ct);
+            descendantCategoryIds.Add(categoryId.Value);
+            query = query.Where(p => descendantCategoryIds.Contains(p.CategoryId));
+        }
+        else if (!string.IsNullOrWhiteSpace(categorySlug))
         {
             var category = await _dbContext.Categories
                 .AsNoTracking()
@@ -133,7 +156,11 @@ public sealed class CatalogQueryService
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(brandSlug))
+        if (brandId.HasValue && brandId.Value != Guid.Empty)
+        {
+            query = query.Where(p => p.BrandId == brandId.Value);
+        }
+        else if (!string.IsNullOrWhiteSpace(brandSlug))
         {
             query = query.Where(p => p.Brand != null && p.Brand.Slug == brandSlug);
         }

@@ -79,8 +79,11 @@ ENV ASPNETCORE_HTTP_PORTS=8080 \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_EnableDiagnostics=0
 
-# Create upload directory and grant permissions to non-root app user
-RUN mkdir -p /app/var/product-images && chown -R app:app /app/var
+# Install curl for container health checks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+# Create upload directories and grant permissions to non-root app user
+RUN mkdir -p /app/var/product-images /app/uploads && chown -R app:app /app/var /app/uploads
 
 COPY --from=build --chown=app:app /app/publish .
 
