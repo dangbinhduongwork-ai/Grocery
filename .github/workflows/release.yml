@@ -41,6 +41,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}
           tags: |
+            type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
@@ -51,6 +52,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}
           tags: |
+            type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
@@ -81,8 +83,11 @@ jobs:
 
       - name: Run Trivy Vulnerability Scanner (API Image)
         uses: aquasecurity/trivy-action@master
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.ref_name }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ steps.meta-api.outputs.version }}
           format: "table"
           exit-code: "0"
           ignore-unfixed: true
@@ -91,8 +96,11 @@ jobs:
 
       - name: Run Trivy Vulnerability Scanner (Web Image)
         uses: aquasecurity/trivy-action@master
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:${{ github.ref_name }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:${{ steps.meta-web.outputs.version }}
           format: "table"
           exit-code: "0"
           ignore-unfixed: true
