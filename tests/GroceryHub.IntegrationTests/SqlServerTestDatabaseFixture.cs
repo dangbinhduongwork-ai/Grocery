@@ -39,7 +39,16 @@ public sealed class SqlServerTestDatabaseFixture : IAsyncLifetime
 
         if (await TryStartDockerSqlServerAsync())
         {
-            SqlConnectionStringBuilder builder = new(_msSqlContainer!.GetConnectionString())
+            string masterConnectionString = _msSqlContainer!.GetConnectionString();
+            await using (SqlConnection masterConnection = new(masterConnectionString))
+            {
+                await masterConnection.OpenAsync();
+                await using SqlCommand createDbCommand = masterConnection.CreateCommand();
+                createDbCommand.CommandText = $"CREATE DATABASE [{DatabaseName}];";
+                await createDbCommand.ExecuteNonQueryAsync();
+            }
+
+            SqlConnectionStringBuilder builder = new(masterConnectionString)
             {
                 InitialCatalog = DatabaseName,
                 MultipleActiveResultSets = true,

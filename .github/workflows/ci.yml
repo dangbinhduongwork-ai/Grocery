@@ -71,7 +71,7 @@ jobs:
         run: docker pull mcr.microsoft.com/mssql/server:2022-CU16-ubuntu-22.04
 
       - name: Run unit, architecture, and integration tests
-        run: dotnet test GroceryHub.sln --no-build --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test GroceryHub.sln --no-build --logger "console;verbosity=normal" --logger "trx;LogFileName=test-results.trx"
 
       - name: Upload test results (TRX)
         if: always()
