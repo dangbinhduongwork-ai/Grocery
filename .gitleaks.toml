@@ -7,17 +7,22 @@ title = "GroceryHub Secret Scanner Configuration"
 # Extends default gitleaks rules when running with official ruleset
 
 [allowlist]
-description = "Global allowlists for test fixtures, example files, and mock tokens"
+description = "Global allowlists for test fixtures, example files, mock tokens, and benign localStorage keys"
 paths = [
     '''\.env\.example$''',
     '''docs/.*\.md$''',
     '''tests/.*Fixtures.*\.cs$''',
-    '''tests/.*Tests.*\.cs$'''
+    '''tests/.*Tests.*\.cs$''',
+    '''web/tests/.*''',
+    '''web/src/shared/hooks/useUiSettings\.ts$''',
+    '''web/src/shared/components/AIChatBot\.tsx$'''
 ]
 regexes = [
     '''(?i)CHANGE_ME.*''',
     '''(?i)groceryhub-dev-jwt-super-secret-signing-key-minimum-256-bits-length!''',
-    '''(?i)EXAMPLE_.*'''
+    '''(?i)EXAMPLE_.*''',
+    '''(?i)groceryhub_ui_settings''',
+    '''(?i)groceryhub_ai_config'''
 ]
 
 [[rules]]

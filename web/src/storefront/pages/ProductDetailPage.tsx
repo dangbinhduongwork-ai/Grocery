@@ -685,7 +685,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlu
                   required
                 />
                 <span className="text-[11px] text-ink-2/80 block leading-relaxed">
-                  💡 <strong>Gợi ý:</strong> Bạn có thể vào <strong>Đơn hàng của tôi</strong> → Chọn đơn hàng đã nhận thành công → Bấm đánh giá trực tiếp để tự động điền mã xác nhận.
+                  <strong>Gợi ý:</strong> Bạn có thể vào <strong>Đơn hàng của tôi</strong> → Chọn đơn hàng đã nhận thành công → Bấm đánh giá trực tiếp để tự động điền mã xác nhận.
                 </span>
               </div>
 

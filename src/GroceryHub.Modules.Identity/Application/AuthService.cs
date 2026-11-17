@@ -104,7 +104,7 @@ public sealed class AuthService
             FullName = request.FullName.Trim(),
             PhoneNumber = phone,
             Status = UserStatus.Active,
-            EmailConfirmed = true,
+            EmailConfirmed = false,
             LockoutEnabled = true,
             AccessFailedCount = 0,
             SecurityStamp = Guid.NewGuid().ToString(),
@@ -132,7 +132,7 @@ public sealed class AuthService
         string verificationToken = GenerateTimedOpaqueToken(user.Id, user.SecurityStamp!, _timeProvider.GetUtcNow().AddHours(24));
         await _emailService.SendVerificationEmailAsync(user.Id, user.Email, verificationToken, ct);
 
-        return Result.Success(new RegisterResponse(user.Id, user.Email, VerificationRequired: false));
+        return Result.Success(new RegisterResponse(user.Id, user.Email, VerificationRequired: true));
     }
 
     public async Task<Result<VerifyEmailResponse>> VerifyEmailAsync(
@@ -256,8 +256,9 @@ public sealed class AuthService
 
         if (!user.EmailConfirmed)
         {
-            user.EmailConfirmed = true;
-            await _dbContext.SaveChangesAsync(ct);
+            return Result.Failure<AuthTokenResponse>(DomainError.Forbidden(
+                ErrorCodes.EmailNotVerified,
+                "Email address has not been verified. Please check your inbox for the verification link."));
         }
 
         if (user.Status != UserStatus.Active || user.DeletedAt is not null)
@@ -581,15 +582,11 @@ public sealed class AuthService
 
     private static void SetRefreshCookie(HttpResponse response, string rawToken, DateTimeOffset expiresAt)
     {
-        HttpRequest request = response.HttpContext.Request;
-        bool isHttps = request.IsHttps ||
-            string.Equals(request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase);
-
         CookieOptions cookieOptions = new()
         {
             HttpOnly = true,
-            Secure = isHttps,
-            SameSite = SameSiteMode.Lax,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
             Path = RefreshCookiePath,
             Expires = expiresAt
         };
@@ -599,15 +596,11 @@ public sealed class AuthService
 
     private static void ClearRefreshCookie(HttpResponse response)
     {
-        HttpRequest request = response.HttpContext.Request;
-        bool isHttps = request.IsHttps ||
-            string.Equals(request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase);
-
         CookieOptions cookieOptions = new()
         {
             HttpOnly = true,
-            Secure = isHttps,
-            SameSite = SameSiteMode.Lax,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
             Path = RefreshCookiePath,
             Expires = DateTimeOffset.UnixEpoch
         };

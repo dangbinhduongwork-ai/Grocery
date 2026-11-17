@@ -1,0 +1,6 @@
+# Gitleaks ignore file
+# False positives in commit b508b0fb: STORAGE_KEY variable names containing 'groceryhub_ui_settings' and 'groceryhub_ai_config'
+b508b0fb9f595417ba56a755a3fcbf8b9bd028bb:web/src/shared/hooks/useUiSettings.ts:generic-api-key:24
+b508b0fb9f595417ba56a755a3fcbf8b9bd028bb:web/src/shared/components/AIChatBot.tsx:generic-api-key:135
+# Mock JWT in frontend unit test in commit c79a1fd
+c79a1fdc7f8dd0b46e91eb685a049599fbd9b5d2:web/tests/authSecurity.test.ts:generic-api-key:62

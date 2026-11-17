@@ -5,7 +5,7 @@ import { Input } from '@/shared/ui/Input'
 import { CaptchaWidget } from '@/shared/components/CaptchaWidget'
 import { vi } from '@/shared/i18n/vi'
 import { useRouter } from '@/app/router'
-import { LogIn, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { LogIn, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, X } from 'lucide-react'
 
 export const LoginPage: React.FC = () => {
   const { navigate, searchParams } = useRouter()
@@ -83,8 +83,9 @@ export const LoginPage: React.FC = () => {
               type="button"
               onClick={clearSessionNotice}
               className="text-amber-500 hover:text-amber-700 text-xs font-bold p-1 cursor-pointer"
+              title="Đóng thông báo"
             >
-              ✕
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}

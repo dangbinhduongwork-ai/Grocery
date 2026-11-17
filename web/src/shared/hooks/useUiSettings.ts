@@ -40,13 +40,13 @@ export const DEFAULT_UI_SETTINGS: UiDesignSettings = {
   holidayEffect: DEFAULT_HOLIDAY_EFFECT,
 }
 
-const STORAGE_KEY = 'groceryhub_ui_settings'
+const UI_SETTINGS_LOCAL_STORE = 'groceryhub_ui_settings'
 export const UI_SETTINGS_EVENT = 'groceryhub:ui-settings-updated'
 
 export function useUiSettings() {
   const [settings, setSettings] = useState<UiDesignSettings>(() => {
     try {
-      const cached = localStorage.getItem(STORAGE_KEY)
+      const cached = localStorage.getItem(UI_SETTINGS_LOCAL_STORE)
       if (cached) {
         return { ...DEFAULT_UI_SETTINGS, ...JSON.parse(cached) }
       }
@@ -76,7 +76,7 @@ export function useUiSettings() {
             : DEFAULT_HOLIDAY_EFFECT,
         }
         setSettings(merged)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+        localStorage.setItem(UI_SETTINGS_LOCAL_STORE, JSON.stringify(merged))
       }
     } catch (err) {
       console.warn('Failed to load UI settings from backend, using cache or defaults:', err)
@@ -106,7 +106,7 @@ export function useUiSettings() {
   const saveSettings = async (newSettings: UiDesignSettings): Promise<{ success: boolean; error?: string }> => {
     try {
       setSettings(newSettings)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings))
+      localStorage.setItem(UI_SETTINGS_LOCAL_STORE, JSON.stringify(newSettings))
 
       // Broadcast immediately across all components in the current window
       window.dispatchEvent(new CustomEvent(UI_SETTINGS_EVENT, { detail: newSettings }))

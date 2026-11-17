@@ -392,7 +392,7 @@ export const AdminSettingsPage: React.FC = () => {
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-leaf/20 focus:border-leaf"
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
-                🔒 Chỉ Quản trị viên mới có thể xem và lưu khóa này. Khách hàng thông thường chưa đăng nhập không thể sử dụng chatbot và không thể truy cập khóa này.
+                Chỉ Quản trị viên mới có thể xem và lưu khóa này. Khách hàng thông thường chưa đăng nhập không thể sử dụng chatbot và không thể truy cập khóa này.
               </span>
             </div>
           </div>

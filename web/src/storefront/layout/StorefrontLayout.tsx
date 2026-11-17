@@ -351,11 +351,11 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                 </div>
 
                 {[
-                  { name: 'Rau củ quả sạch VietGAP', slug: 'rau-cu-qua', icon: '🥦' },
-                  { name: 'Thịt tươi, Cá & Trứng gà', slug: 'thit-ca-trung', icon: '🥩' },
-                  { name: 'Sữa & Chế phẩm dinh dưỡng', slug: 'sua-che-pham', icon: '🥛' },
-                  { name: 'Gạo ST25 & Gia vị truyền thống', slug: 'do-kho-gia-vi', icon: '🌾' },
-                  { name: 'Trái cây đặc sản nhiệt đới', slug: 'trai-cay-nhap-khau', icon: '🍎' },
+                  { name: 'Rau củ quả sạch VietGAP', slug: 'rau-cu-qua' },
+                  { name: 'Thịt tươi, Cá & Trứng gà', slug: 'thit-ca-trung' },
+                  { name: 'Sữa & Chế phẩm dinh dưỡng', slug: 'sua-che-pham' },
+                  { name: 'Gạo ST25 & Gia vị truyền thống', slug: 'do-kho-gia-vi' },
+                  { name: 'Trái cây đặc sản nhiệt đới', slug: 'trai-cay-nhap-khau' },
                 ].map((cat) => (
                   <button
                     key={cat.slug}
@@ -367,7 +367,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-ink hover:bg-paper-2 transition-colors text-left cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <span>{cat.icon}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-leaf/60" />
                       <span>{cat.name}</span>
                     </span>
                     <ChevronRight className="w-3.5 h-3.5 opacity-40" />

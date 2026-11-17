@@ -17,6 +17,10 @@ import {
   PartyPopper,
   Eye,
   EyeOff,
+  Check,
+  X,
+  Snowflake,
+  Layers,
 } from 'lucide-react'
 import { api, getAccessToken } from '@/shared/api/client'
 import { useUiSettings, DEFAULT_UI_SETTINGS, type HolidayTheme, type HolidayIntensity } from '@/shared/hooks/useUiSettings'
@@ -917,13 +921,15 @@ export const AdminUiDesignPage: React.FC = () => {
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`}
               >
-                <div className="text-2xl mb-2">🌸</div>
+                <Sparkles className="w-6 h-6 text-amber-500 mb-2" />
                 <div className="font-bold text-xs text-slate-800">Tết Nguyên Đán</div>
                 <div className="text-[11px] text-slate-500 mt-1 leading-normal">
                   Hoa mai vàng & hoa đào hồng rơi rực rỡ, mang sắc xuân và may mắn tài lộc.
                 </div>
                 {holidayTheme === 'tet' && (
-                  <span className="absolute top-2 right-2 text-xs font-bold text-amber-600">✓ Đang chọn</span>
+                  <span className="absolute top-2 right-2 text-xs font-bold text-amber-600 flex items-center gap-1">
+                    <Check className="w-3 h-3 stroke-[2.5]" /> Đang chọn
+                  </span>
                 )}
               </div>
 
@@ -936,13 +942,15 @@ export const AdminUiDesignPage: React.FC = () => {
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`}
               >
-                <div className="text-2xl mb-2">❄️</div>
+                <Snowflake className="w-6 h-6 text-sky-500 mb-2" />
                 <div className="font-bold text-xs text-slate-800">Giáng Sinh & Năm Mới</div>
                 <div className="text-[11px] text-slate-500 mt-1 leading-normal">
                   Bông tuyết trắng rơi êm dịu, không khí mùa đông ấm áp và tươi vui.
                 </div>
                 {holidayTheme === 'christmas' && (
-                  <span className="absolute top-2 right-2 text-xs font-bold text-sky-600">✓ Đang chọn</span>
+                  <span className="absolute top-2 right-2 text-xs font-bold text-sky-600 flex items-center gap-1">
+                    <Check className="w-3 h-3 stroke-[2.5]" /> Đang chọn
+                  </span>
                 )}
               </div>
 
@@ -955,13 +963,15 @@ export const AdminUiDesignPage: React.FC = () => {
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`}
               >
-                <div className="text-2xl mb-2">🎉</div>
+                <PartyPopper className="w-6 h-6 text-rose-500 mb-2" />
                 <div className="font-bold text-xs text-slate-800">Siêu Hội Mua Sắm / Sale</div>
                 <div className="text-[11px] text-slate-500 mt-1 leading-normal">
                   Pháo giấy Confetti đa sắc màu & ngôi sao lấp lánh cho ngày sale lớn.
                 </div>
                 {holidayTheme === 'sale' && (
-                  <span className="absolute top-2 right-2 text-xs font-bold text-rose-600">✓ Đang chọn</span>
+                  <span className="absolute top-2 right-2 text-xs font-bold text-rose-600 flex items-center gap-1">
+                    <Check className="w-3 h-3 stroke-[2.5]" /> Đang chọn
+                  </span>
                 )}
               </div>
 
@@ -974,13 +984,15 @@ export const AdminUiDesignPage: React.FC = () => {
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`}
               >
-                <div className="text-2xl mb-2">🍂</div>
+                <Layers className="w-6 h-6 text-orange-500 mb-2" />
                 <div className="font-bold text-xs text-slate-800">Mùa Thu & Trung Thu</div>
                 <div className="text-[11px] text-slate-500 mt-1 leading-normal">
                   Lá vàng phong rơi nhẹ nhàng, sắc màu ấm áp mùa trăng rằm.
                 </div>
                 {holidayTheme === 'mid_autumn' && (
-                  <span className="absolute top-2 right-2 text-xs font-bold text-orange-600">✓ Đang chọn</span>
+                  <span className="absolute top-2 right-2 text-xs font-bold text-orange-600 flex items-center gap-1">
+                    <Check className="w-3 h-3 stroke-[2.5]" /> Đang chọn
+                  </span>
                 )}
               </div>
             </div>
@@ -1078,8 +1090,9 @@ export const AdminUiDesignPage: React.FC = () => {
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 text-sm font-bold p-1"
+                title="Đóng modal"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

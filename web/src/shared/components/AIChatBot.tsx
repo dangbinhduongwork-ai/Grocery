@@ -114,25 +114,25 @@ function getSmartFallbackReply(input: string): string {
   const lower = input.toLowerCase()
 
   if (lower.includes('thực đơn') || lower.includes('món ngon') || lower.includes('nấu gì') || lower.includes('ăn gì')) {
-    return '🍽️ **Gợi ý thực đơn hôm nay cho gia đình:**\n\n1. **Canh sườn hầm củ quả VietGAP** (cà rốt, khoai tây, bắp ngọt).\n2. **Cá basa áp chảo sốt cà chua** hoặc **Thịt ba chỉ luộc chấm mắm tỏi**.\n3. **Rau muống non xào tỏi** giòn ngọt.\n4. Tráng miệng: **Dưa hấu tươi Long An** mát lạnh.\n\nTất cả nguyên liệu tươi ngon đều đang có sẵn tại các quầy hàng của GroceryHub, giao hỏa tốc 2 giờ đến tận bếp nhà bạn!'
+    return '**Gợi ý thực đơn hôm nay cho gia đình:**\n\n1. **Canh sườn hầm củ quả VietGAP** (cà rốt, khoai tây, bắp ngọt).\n2. **Cá basa áp chảo sốt cà chua** hoặc **Thịt ba chỉ luộc chấm mắm tỏi**.\n3. **Rau muống non xào tỏi** giòn ngọt.\n4. Tráng miệng: **Dưa hấu tươi Long An** mát lạnh.\n\nTất cả nguyên liệu tươi ngon đều đang có sẵn tại các quầy hàng của GroceryHub, giao hỏa tốc 2 giờ đến tận bếp nhà bạn!'
   }
 
   if (lower.includes('freeship') || lower.includes('vận chuyển') || lower.includes('giao hàng') || lower.includes('phí ship') || lower.includes('địa chỉ')) {
-    return '🚚 **Chính sách giao hàng & Địa chỉ GroceryHub:**\n\n• **Địa chỉ cửa hàng:** Thôn 9, Xã Suối Hai, Huyện Ba Vì, Hà Nội.\n• **Phạm vi giao hàng:** Toàn quốc — giao hàng tận nơi tới bất kỳ địa chỉ nào trên toàn lãnh thổ Việt Nam!\n• **Giao siêu tốc 2 giờ** cho khu vực nội thành.\n• **Miễn phí vận chuyển (Freeship 100%)** cho đơn hàng từ **300.000 ₫**.\n• Nhân viên giao hàng có thùng giữ lạnh chuyên dụng, đảm bảo rau thịt luôn tươi rói!'
+    return '**Chính sách giao hàng & Địa chỉ GroceryHub:**\n\n• **Địa chỉ cửa hàng:** Thôn 9, Xã Suối Hai, Huyện Ba Vì, Hà Nội.\n• **Phạm vi giao hàng:** Toàn quốc — giao hàng tận nơi tới bất kỳ địa chỉ nào trên toàn lãnh thổ Việt Nam!\n• **Giao siêu tốc 2 giờ** cho khu vực nội thành.\n• **Miễn phí vận chuyển (Freeship 100%)** cho đơn hàng từ **300.000 ₫**.\n• Nhân viên giao hàng có thùng giữ lạnh chuyên dụng, đảm bảo rau thịt luôn tươi rói!'
   }
 
   if (lower.includes('thanh toán') || lower.includes('vietqr') || lower.includes('sepay') || lower.includes('chuyển khoản') || lower.includes('cod')) {
-    return '💳 **Phương thức thanh toán tiện lợi:**\n\n1. **Chuyển khoản SePay VietQR (Khuyên dùng):** Quét mã QR Napas 24/7 qua bất kỳ app ngân hàng nào (MBBank, Vietcombank, Techcombank...). Hệ thống tự động xác nhận trong 3 giây không cần chụp biên lai!\n2. **Thanh toán tiền mặt khi nhận hàng (COD):** Bạn kiểm tra thực phẩm tươi ngon đúng yêu cầu rồi mới thanh toán cho shipper.'
+    return '**Phương thức thanh toán tiện lợi:**\n\n1. **Chuyển khoản SePay VietQR (Khuyên dùng):** Quét mã QR Napas 24/7 qua bất kỳ app ngân hàng nào (MBBank, Vietcombank, Techcombank...). Hệ thống tự động xác nhận trong 3 giây không cần chụp biên lai!\n2. **Thanh toán tiền mặt khi nhận hàng (COD):** Bạn kiểm tra thực phẩm tươi ngon đúng yêu cầu rồi mới thanh toán cho shipper.'
   }
 
   if (lower.includes('liên hệ') || lower.includes('hotline') || lower.includes('sđt') || lower.includes('email') || lower.includes('hỗ trợ')) {
-    return '📞 **Thông tin hỗ trợ khách hàng GroceryHub:**\n\n• **Địa chỉ shop:** Thôn 9, Xã Suối Hai, Huyện Ba Vì, Hà Nội\n• **Hotline / Zalo:** 0865 087 784 (Hỗ trợ 24/7)\n• **Email:** dangbinhduong.work@gmail.com\n• **Thời gian phục vụ:** 7:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7, Chủ nhật và ngày Lễ).'
+    return '**Thông tin hỗ trợ khách hàng GroceryHub:**\n\n• **Địa chỉ shop:** Thôn 9, Xã Suối Hai, Huyện Ba Vì, Hà Nội\n• **Hotline / Zalo:** 0865 087 784 (Hỗ trợ 24/7)\n• **Email:** dangbinhduong.work@gmail.com\n• **Thời gian phục vụ:** 7:00 - 22:00 tất cả các ngày trong tuần (kể cả Thứ 7, Chủ nhật và ngày Lễ).'
   }
 
   return 'Chào bạn! Em là Trợ lý AI của GroceryHub. Em có thể hỗ trợ bạn tìm kiếm thực phẩm sạch, gợi ý thực đơn món ngon mỗi ngày, kiểm tra tình trạng đơn hàng hoặc hướng dẫn đặt hàng. Bạn cần em tư vấn điều gì ạ?'
 }
 
-const STORAGE_KEY = 'groceryhub_ai_config'
+const AI_CONFIG_LOCAL_STORE = 'groceryhub_ai_config'
 
 function getInitialAIConfig(): AIConfig {
   const envKey = (import.meta.env.VITE_AI_API_KEY as string) || (import.meta.env.VITE_GEMINI_API_KEY as string) || ''
@@ -142,7 +142,7 @@ function getInitialAIConfig(): AIConfig {
   const envModel = (import.meta.env.VITE_AI_MODEL as string) || 'gpt-6.1-sol'
 
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = localStorage.getItem(AI_CONFIG_LOCAL_STORE)
     if (saved) {
       const parsed = JSON.parse(saved)
       const key = parsed.apiKey || envKey
@@ -192,7 +192,7 @@ export const AIChatBot: React.FC = () => {
       {
         id: 'welcome',
         sender: 'bot',
-        text: 'Xin chào! Em là Trợ lý AI của GroceryHub 🥦 (Thôn 9, Suối Hai, Ba Vì, Hà Nội). Em có thể giúp gì cho bạn hôm nay: gợi ý thực đơn món ngon, kiểm tra giao hàng toàn quốc hay tư vấn chọn thực phẩm sạch?',
+        text: 'Xin chào! Em là Trợ lý AI của GroceryHub (Thôn 9, Suối Hai, Ba Vì, Hà Nội). Em có thể giúp gì cho bạn hôm nay: gợi ý thực đơn món ngon, kiểm tra giao hàng toàn quốc hay tư vấn chọn thực phẩm sạch?',
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       },
     ]
@@ -227,7 +227,7 @@ export const AIChatBot: React.FC = () => {
       apiKey: tempConfig.apiKey.trim(),
     }
     setAiConfig(cleanConfig)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanConfig))
+    localStorage.setItem(AI_CONFIG_LOCAL_STORE, JSON.stringify(cleanConfig))
     setIsSettingsOpen(false)
 
     setMessages((prev) => [
@@ -236,7 +236,7 @@ export const AIChatBot: React.FC = () => {
         id: String(Date.now()),
         sender: 'bot',
         text: cleanConfig.apiKey
-          ? `🎉 Đã lưu cấu hình AI (${cleanConfig.provider.toUpperCase()} - ${cleanConfig.model || 'Default'}). Trợ lý ảo sẵn sàng giải đáp và tư vấn thông minh cho khách hàng!`
+          ? `Đã lưu cấu hình AI (${cleanConfig.provider.toUpperCase()} - ${cleanConfig.model || 'Default'}). Trợ lý ảo sẵn sàng giải đáp và tư vấn thông minh cho khách hàng!`
           : 'Đã xóa API Key. Trợ lý ảo sẽ tiếp tục hoạt động với kịch bản trả lời tự động thông minh của GroceryHub.',
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       },
@@ -326,7 +326,7 @@ export const AIChatBot: React.FC = () => {
     setTimeout(() => {
       const fallbackReply = getSmartFallbackReply(text)
       const botText = (isAdmin && apiErrorMsg)
-        ? `⚠️ **[Lưu ý Quản trị viên]:** ${apiErrorMsg}.\n*Vui lòng kiểm tra lại cấu hình Endpoint URL và API Key trong Cài đặt ⚙️!*\n\n---\n\n${fallbackReply}`
+        ? `[Lưu ý Quản trị viên]: ${apiErrorMsg}.\n*Vui lòng kiểm tra lại cấu hình Endpoint URL và API Key trong Cài đặt!*\n\n---\n\n${fallbackReply}`
         : fallbackReply
 
       setMessages((prev) => [
@@ -506,7 +506,7 @@ export const AIChatBot: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[11px] font-semibold text-ink">
-                      🔑 Mã API Key của bạn (Tự điền mã sk-...)
+                      Mã API Key của bạn (Tự điền mã sk-...)
                     </label>
                     <button
                       type="button"

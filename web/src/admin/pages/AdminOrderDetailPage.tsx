@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   ArrowLeft,
+  Check,
   CheckCircle2,
   Package,
   Truck,
@@ -454,7 +455,7 @@ export const AdminOrderDetailPage: React.FC<{ id: string }> = ({ id }) => {
                         : 'bg-slate-100 text-slate-300'
                     }`}
                   >
-                    {isDone ? '✓' : idx + 1}
+                    {isDone ? <Check className="w-3 h-3 stroke-[2.5]" /> : idx + 1}
                   </div>
                   <span className="text-[11px] leading-tight">{step.label}</span>
                 </div>

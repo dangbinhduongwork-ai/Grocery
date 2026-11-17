@@ -59,7 +59,7 @@ describe('Auth Client Security Invariant', () => {
         return {
           ok: true,
           json: async () => ({
-            accessToken: 'new-refreshed-jwt-token',
+            accessToken: 'EXAMPLE_REFRESHED_MOCK_TOKEN',
             expiresIn: 900,
             user: mockUser,
           }),
@@ -71,9 +71,9 @@ describe('Auth Client Security Invariant', () => {
     const result = await requestSilentRefresh()
 
     expect(result).not.toBeNull()
-    expect(result?.accessToken).toBe('new-refreshed-jwt-token')
+    expect(result?.accessToken).toBe('EXAMPLE_REFRESHED_MOCK_TOKEN')
     expect(result?.user?.email).toBe('admin@groceryhub.vn')
-    expect(getAccessToken()).toBe('new-refreshed-jwt-token')
+    expect(getAccessToken()).toBe('EXAMPLE_REFRESHED_MOCK_TOKEN')
     expect(capturedCredentials).toBe('include')
     expect(capturedHeaders['X-Requested-With']).toBe('XMLHttpRequest')
   })

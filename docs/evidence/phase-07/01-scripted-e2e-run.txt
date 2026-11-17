@@ -1,47 +1,47 @@
 ================================================================================
 GROCERYHUB PHASE 07 — SCRIPTED E2E PURCHASING FLOW EXECUTION TRACE
-Executed At: 2026-11-15T17:26:21.8988262+00:00
+Executed At: 2026-11-17T08:30:34.6141025+00:00
 Flow: Customer Register/Login -> Add Cart -> Quote -> Checkout COD -> Staff Confirm
       -> Preparing -> Packed -> Shipping (Commit Stock) -> Delivered (COD Cash)
 ================================================================================
 
-[Step 0] Seeded Product ID: 804fcba4-457c-4fcf-95c3-9847b2e48503, Price: 160,000đ, Cost: 130,000đ, Initial OnHand: 10
+[Step 0] Seeded Product ID: 9d37dfcd-65f8-4522-8d9f-77dbd6de7485, Price: 160,000đ, Cost: 130,000đ, Initial OnHand: 10
 
-[Step 1] Customer Registered & Logged In: customer.scripted.b310129a8fbe40b89f92c39036b3cb08@groceryhub.vn (ID: ec5665ee-6449-4996-920a-0905dba65ccc)
+[Step 1] Customer Registered & Logged In: customer.scripted.514df04b400d449a9210ce6f1267da6b@groceryhub.vn (ID: a1a51c83-4546-4a1e-99ed-1b974f230a97)
          Token acquired: Bearer eyJhbGciOiJIUzI...
 
 [Step 2] POST /api/v1/cart/items
-         Request: {"ProductId":"804fcba4-457c-4fcf-95c3-9847b2e48503","Quantity":2}
-         Response: OK - {"id":"8e98f270-7d8c-4f12-9cc0-82cf5e73788b","items":[{"id":"f134cb5e-0468-4bbc-a56d-64cede9b6df7","productId":"804fcba4-457c-4fcf-95c3-9847b2e48503","sku":"SKU-ST25-7CB440","name":"Gạo ST25 Ông Cua 5kg","unit":"Gói","unitPrice":160000,"listPrice":180000,"quantity":2,"lineSubtotal":320000,"inStock":true,"lowStock":false,"availableQuantity":10}],"subtotal":320000,"couponDiscount":0,"estimatedTotal":320000,"maxQuantityPerLine":20,"warnings":[]}
+         Request: {"ProductId":"9d37dfcd-65f8-4522-8d9f-77dbd6de7485","Quantity":2}
+         Response: OK - {"id":"f4ed634f-ace7-441b-96e8-b12a0be5e29c","items":[{"id":"1cf9361a-2685-4871-8bb2-649ca29fd257","productId":"9d37dfcd-65f8-4522-8d9f-77dbd6de7485","sku":"SKU-ST25-97E242","name":"Gạo ST25 Ông Cua 5kg","unit":"Gói","unitPrice":160000,"listPrice":180000,"quantity":2,"lineSubtotal":320000,"inStock":true,"lowStock":false,"availableQuantity":10}],"subtotal":320000,"couponDiscount":0,"estimatedTotal":320000,"maxQuantityPerLine":20,"warnings":[]}
 
 [Step 3] GET /api/v1/cart
          Response: OK - Subtotal: 320,000đ, Items Count: 1
 
-[Step 4] POST /api/v1/me/addresses -> Created Address ID: 070278e7-4633-428b-92cf-2e28589fbf10 (Province: 79 - TP.HCM)
+[Step 4] POST /api/v1/me/addresses -> Created Address ID: dff44f09-53d1-401c-a7e6-606bafb9a8df (Province: 79 - TP.HCM)
 
 [Step 5] POST /api/v1/checkout/quote
-         Request: {"AddressId":"070278e7-4633-428b-92cf-2e28589fbf10","CouponCode":null,"PaymentMethod":"COD"}
+         Request: {"AddressId":"dff44f09-53d1-401c-a7e6-606bafb9a8df","CouponCode":null,"PaymentMethod":"COD"}
          Response: OK - Subtotal: 320,000đ, Shipping: 0đ, Total: 320,000đ, Available: [SEPAY_QR, COD]
 
 [Step 6] POST /api/v1/checkout/orders (with Idempotency-Key)
-         Idempotency-Key: db6d5cba3c554cbea08dd385aef7b59c
-         Request: {"AddressId":"070278e7-4633-428b-92cf-2e28589fbf10","CouponCode":null,"PaymentMethod":"COD","Note":"Giao gio hanh chinh toa nha Sunwah"}
-         Response: Created - OrderNumber: ORD-20261115-000020, Status: Placed, PaymentStatus: Unpaid
+         Idempotency-Key: a004a2174578494ebbac55a7584ad59e
+         Request: {"AddressId":"dff44f09-53d1-401c-a7e6-606bafb9a8df","CouponCode":null,"PaymentMethod":"COD","Note":"Giao gio hanh chinh toa nha Sunwah"}
+         Response: Created - OrderNumber: ORD-20261117-000020, Status: Placed, PaymentStatus: Unpaid
 
          [DB State Verification] StockItems: OnHand = 10, Reserved = 2; StockReservations: Status = Active
 
-[Step 7] Operations Staff Logged In: staff.scripted.87a4651c57cd4a579fee949da452440b@groceryhub.vn (ID: c6cd9bfb-83a3-48a8-a3aa-115fe9fed2ef) with orders.process + orders.ship
+[Step 7] Operations Staff Logged In: staff.scripted.5be685e46cde4fa5ac8315812aafa102@groceryhub.vn (ID: 009bdbe0-2af8-4a78-88a0-4ca7a3f8246b) with orders.process + orders.ship
 
-[Step 8] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Confirmed
+[Step 8] POST /api/v1/admin/orders/d7db23e1-d5b5-4703-a06a-d7a0f7a823d7/transition -> Confirmed
          Response: OK
 
-[Step 9] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Preparing
+[Step 9] POST /api/v1/admin/orders/d7db23e1-d5b5-4703-a06a-d7a0f7a823d7/transition -> Preparing
          Response: OK
 
-[Step 10] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Packed
+[Step 10] POST /api/v1/admin/orders/d7db23e1-d5b5-4703-a06a-d7a0f7a823d7/transition -> Packed
           Response: OK
 
-[Step 11] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Shipping
+[Step 11] POST /api/v1/admin/orders/d7db23e1-d5b5-4703-a06a-d7a0f7a823d7/transition -> Shipping
           Response: OK
 
          [DB State Verification on Shipping]
@@ -50,14 +50,14 @@ Flow: Customer Register/Login -> Add Cart -> Quote -> Checkout COD -> Staff Conf
          StockMovements: Type = Sale, Qty = -2, UnitCost = 130,000đ
          OrderItem: UnitCostSnapshot = 130,000đ
 
-[Step 12] POST /api/v1/admin/orders/944a85c9-91ee-41fb-8446-d9b9e3483d0b/transition -> Delivered (COD Collection)
+[Step 12] POST /api/v1/admin/orders/d7db23e1-d5b5-4703-a06a-d7a0f7a823d7/transition -> Delivered (COD Collection)
           Collected COD Amount: 320,000đ
           Response: OK
 
          [DB State Verification on Delivered]
          Order Status: Delivered, PaymentStatus: Paid
          Payment Status: Paid
-         payments.CodCollections: Amount = 320,000đ, CollectedBy = c6cd9bfb-83a3-48a8-a3aa-115fe9fed2ef
+         payments.CodCollections: Amount = 320,000đ, CollectedBy = 009bdbe0-2af8-4a78-88a0-4ca7a3f8246b
 ================================================================================
 PURCHASING LIFECYCLE COMPLETED SUCCESSFULLY WITH ZERO INVARIANT VIOLATIONS.
 ================================================================================
