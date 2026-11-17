@@ -48,6 +48,7 @@ web/playwright/.cache/
 secrets/
 
 # Docker & Local Runtime Data
+cookies.txt
 docker-data/
 sql-data/
 product-images/
