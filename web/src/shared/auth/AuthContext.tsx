@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { api, setAccessToken, setOnAuthFailure } from '@/shared/api/client'
-import type { paths } from '@/shared/api/schema'
+import { api, setAccessToken, setOnAuthFailure, requestSilentRefresh, type AuthUser } from '@/shared/api/client'
 
-export type AuthUser = paths['/api/v1/auth/me']['get']['responses'][200]['content']['application/json']
+export type { AuthUser }
 
 interface AuthContextValue {
   user: AuthUser | null
@@ -44,10 +43,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     async function initAuth() {
       try {
-        const { data, error } = await api.POST('/api/v1/auth/refresh')
-        if (isMounted && data && !error && data.accessToken) {
-          setAccessToken(data.accessToken)
-          await fetchProfile()
+        const refreshResult = await requestSilentRefresh()
+        if (isMounted && refreshResult?.accessToken) {
+          if (refreshResult.user) {
+            setUser(refreshResult.user)
+          } else {
+            await fetchProfile()
+          }
+        } else if (isMounted) {
+          setUser(null)
         }
       } catch {
         if (isMounted) {

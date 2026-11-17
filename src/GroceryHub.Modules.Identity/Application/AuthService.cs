@@ -319,12 +319,16 @@ public sealed class AuthService
         ArgumentNullException.ThrowIfNull(httpRequest);
         ArgumentNullException.ThrowIfNull(httpResponse);
 
-        if (!httpRequest.Headers.TryGetValue("X-Requested-With", out var xrw) ||
-            !string.Equals(xrw.ToString(), "XMLHttpRequest", StringComparison.OrdinalIgnoreCase))
+        bool hasXrw = httpRequest.Headers.TryGetValue("X-Requested-With", out var xrw) &&
+            string.Equals(xrw.ToString(), "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+        bool hasJsonHeader = httpRequest.Headers.TryGetValue("Content-Type", out var ctHeader) &&
+            ctHeader.ToString().Contains("application/json", StringComparison.OrdinalIgnoreCase);
+
+        if (!hasXrw && !hasJsonHeader)
         {
             return Result.Failure<AuthTokenResponse>(DomainError.BadRequest(
                 ErrorCodes.BadRequest,
-                "Missing or invalid X-Requested-With header."));
+                "Missing or invalid X-Requested-With or Content-Type header."));
         }
 
         if (!httpRequest.Cookies.TryGetValue(RefreshCookieName, out string? rawRefreshToken) ||
@@ -577,11 +581,15 @@ public sealed class AuthService
 
     private static void SetRefreshCookie(HttpResponse response, string rawToken, DateTimeOffset expiresAt)
     {
+        HttpRequest request = response.HttpContext.Request;
+        bool isHttps = request.IsHttps ||
+            string.Equals(request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase);
+
         CookieOptions cookieOptions = new()
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = isHttps,
+            SameSite = SameSiteMode.Lax,
             Path = RefreshCookiePath,
             Expires = expiresAt
         };
@@ -591,11 +599,15 @@ public sealed class AuthService
 
     private static void ClearRefreshCookie(HttpResponse response)
     {
+        HttpRequest request = response.HttpContext.Request;
+        bool isHttps = request.IsHttps ||
+            string.Equals(request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase);
+
         CookieOptions cookieOptions = new()
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = isHttps,
+            SameSite = SameSiteMode.Lax,
             Path = RefreshCookiePath,
             Expires = DateTimeOffset.UnixEpoch
         };

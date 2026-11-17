@@ -26,6 +26,7 @@ using GroceryHub.Modules.Reviews.Api;
 using GroceryHub.Persistence;
 using GroceryHub.SharedKernel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
@@ -173,6 +174,14 @@ builder.Services
     .AddAuditModule(builder.Configuration);
 
 WebApplication app = builder.Build();
+
+ForwardedHeadersOptions forwardedHeadersOptions = new()
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardedHeadersOptions.KnownIPNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseExceptionHandler();
