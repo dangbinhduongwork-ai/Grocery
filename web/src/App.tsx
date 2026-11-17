@@ -23,6 +23,7 @@ const OrderDetailPage = lazy(() => import('@/storefront/pages/OrderDetailPage').
 const AccountPage = lazy(() => import('@/storefront/pages/AccountPage').then((m) => ({ default: m.AccountPage })))
 const LoginPage = lazy(() => import('@/storefront/pages/LoginPage').then((m) => ({ default: m.LoginPage })))
 const RegisterPage = lazy(() => import('@/storefront/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })))
+const VerifyEmailPage = lazy(() => import('@/storefront/pages/VerifyEmailPage').then((m) => ({ default: m.VerifyEmailPage })))
 const DesignRoute = lazy(() => import('@/app/routes/DesignRoute').then((m) => ({ default: m.DesignRoute })))
 
 // Code-split Admin Back-Office route pages
@@ -319,6 +320,10 @@ const AppContent: React.FC = () => {
 
     if (pathname === '/register') {
       return <RegisterPage />
+    }
+
+    if (pathname === '/verify-email') {
+      return <VerifyEmailPage />
     }
 
     // Match /c/:slug

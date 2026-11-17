@@ -25,6 +25,10 @@ public static class IdentityModuleExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services
+            .AddOptions<SmtpOptions>()
+            .Bind(configuration.GetSection(SmtpOptions.SectionName));
+
         services.AddMemoryCache();
 
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
