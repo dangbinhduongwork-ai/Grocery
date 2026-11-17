@@ -17,4 +17,8 @@ public sealed class JwtOptions
     public int AccessTokenExpirationMinutes { get; set; } = 15;
 
     public int RefreshTokenExpirationDays { get; set; } = 14;
+
+    public int MaxSessionLifetimeDays { get; set; } = 7;
+
+    public int IdleTimeoutHours { get; set; } = 48;
 }

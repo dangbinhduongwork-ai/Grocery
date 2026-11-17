@@ -9,7 +9,7 @@ import { LogIn, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide
 
 export const LoginPage: React.FC = () => {
   const { navigate, searchParams } = useRouter()
-  const { login } = useAuth()
+  const { login, sessionNotice, clearSessionNotice } = useAuth()
 
   const [email, setEmail] = useState(() => searchParams.get('email') || '')
   const [password, setPassword] = useState('')
@@ -70,6 +70,22 @@ export const LoginPage: React.FC = () => {
           <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 stroke-[1.5]" />
             <span>Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.</span>
+          </div>
+        )}
+
+        {sessionNotice && !error && (
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 stroke-[1.5]" />
+              <span>{sessionNotice}</span>
+            </div>
+            <button
+              type="button"
+              onClick={clearSessionNotice}
+              className="text-amber-500 hover:text-amber-700 text-xs font-bold p-1 cursor-pointer"
+            >
+              ✕
+            </button>
           </div>
         )}
 

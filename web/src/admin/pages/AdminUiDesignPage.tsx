@@ -14,9 +14,13 @@ import {
   Upload,
   RefreshCw,
   Store,
+  PartyPopper,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { api, getAccessToken } from '@/shared/api/client'
-import { useUiSettings, DEFAULT_UI_SETTINGS } from '@/shared/hooks/useUiSettings'
+import { useUiSettings, DEFAULT_UI_SETTINGS, type HolidayTheme, type HolidayIntensity } from '@/shared/hooks/useUiSettings'
+import { HolidayEffectOverlay } from '@/shared/components/HolidayEffectOverlay'
 import { useRouter } from '@/app/router'
 
 interface AdminBanner {
@@ -57,7 +61,7 @@ export const AdminUiDesignPage: React.FC = () => {
   const router = useRouter()
   const { settings: uiSettings, saveSettings } = useUiSettings()
 
-  const [activeTab, setActiveTab] = useState<'banners' | 'marquee' | 'slogans'>('banners')
+  const [activeTab, setActiveTab] = useState<'banners' | 'marquee' | 'slogans' | 'holiday'>('banners')
   const [banners, setBanners] = useState<AdminBanner[]>([])
   const [loadingBanners, setLoadingBanners] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -79,6 +83,13 @@ export const AdminUiDesignPage: React.FC = () => {
   const [heroBadge, setHeroBadge] = useState('')
   const [heroTitle, setHeroTitle] = useState('')
   const [heroSubtitle, setHeroSubtitle] = useState('')
+
+  // Holiday Festival Effects State
+  const [holidayEnabled, setHolidayEnabled] = useState(uiSettings.holidayEffect?.enabled ?? true)
+  const [holidayTheme, setHolidayTheme] = useState<HolidayTheme>(uiSettings.holidayEffect?.theme ?? 'tet')
+  const [holidayIntensity, setHolidayIntensity] = useState<HolidayIntensity>(uiSettings.holidayEffect?.intensity ?? 'medium')
+  const [holidayBannerText, setHolidayBannerText] = useState(uiSettings.holidayEffect?.bannerText || '')
+  const [previewEffect, setPreviewEffect] = useState(false)
 
   // Notifications
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
@@ -122,6 +133,12 @@ export const AdminUiDesignPage: React.FC = () => {
     setHeroBadge(uiSettings.heroBadge || DEFAULT_UI_SETTINGS.heroBadge)
     setHeroTitle(uiSettings.heroTitle || DEFAULT_UI_SETTINGS.heroTitle)
     setHeroSubtitle(uiSettings.heroSubtitle || DEFAULT_UI_SETTINGS.heroSubtitle)
+    if (uiSettings.holidayEffect) {
+      setHolidayEnabled(uiSettings.holidayEffect.enabled)
+      setHolidayTheme(uiSettings.holidayEffect.theme)
+      setHolidayIntensity(uiSettings.holidayEffect.intensity)
+      setHolidayBannerText(uiSettings.holidayEffect.bannerText || '')
+    }
   }, [uiSettings])
 
   // Open modal for Create or Edit
@@ -314,6 +331,7 @@ export const AdminUiDesignPage: React.FC = () => {
     try {
       setIsSaving(true)
       const res = await saveSettings({
+        ...uiSettings,
         announcements: announcements.length > 0 ? announcements : DEFAULT_UI_SETTINGS.announcements,
         heroBadge: heroBadge.trim() || DEFAULT_UI_SETTINGS.heroBadge,
         heroTitle: heroTitle.trim() || DEFAULT_UI_SETTINGS.heroTitle,
@@ -327,6 +345,32 @@ export const AdminUiDesignPage: React.FC = () => {
       }
     } catch (err: any) {
       showError(err.message || 'Lỗi khi lưu cài đặt.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Save Holiday Festival Effects
+  const handleSaveHolidaySettings = async () => {
+    try {
+      setIsSaving(true)
+      const res = await saveSettings({
+        ...uiSettings,
+        holidayEffect: {
+          enabled: holidayEnabled,
+          theme: holidayTheme,
+          intensity: holidayIntensity,
+          bannerText: holidayBannerText.trim(),
+        },
+      })
+
+      if (res.success) {
+        showSuccess('Đã lưu hiệu ứng ngày lễ thành công! Cửa hàng đã hiển thị hiệu ứng mới.')
+      } else {
+        showError(res.error || 'Không thể lưu hiệu ứng ngày lễ.')
+      }
+    } catch (err: any) {
+      showError(err.message || 'Lỗi khi lưu hiệu ứng.')
     } finally {
       setIsSaving(false)
     }
@@ -414,6 +458,22 @@ export const AdminUiDesignPage: React.FC = () => {
         >
           <Palette className="w-4 h-4" />
           <span>Slogan & Thông Điệp</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('holiday')}
+          className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+            activeTab === 'holiday'
+              ? 'border-leaf text-leaf'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <PartyPopper className="w-4 h-4 text-amber-500" />
+          <span>Hiệu Ứng Ngày Lễ & Ngày Hội</span>
+          {holidayEnabled && holidayTheme !== 'none' && (
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+          )}
         </button>
       </div>
 
@@ -783,6 +843,224 @@ export const AdminUiDesignPage: React.FC = () => {
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi & Cập Nhật Lên Shop'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Holiday & Festival Effects */}
+      {activeTab === 'holiday' && (
+        <div className="space-y-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
+          {previewEffect && (
+            <HolidayEffectOverlay forceTheme={holidayTheme} forceIntensity={holidayIntensity} />
+          )}
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <PartyPopper className="w-4 h-4 text-amber-500" />
+                Hiệu Ứng Ngày Hội, Ngày Lễ & Mùa Sự Kiện
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Tạo không khí lễ hội vui tươi trên toàn bộ website với hiệu ứng hạt rơi nghệ thuật (hoa mai/đào Tết, tuyết rơi Giáng sinh, pháo giấy siêu hội sale).
+              </p>
+            </div>
+
+            {/* Quick Preview Toggle */}
+            <button
+              type="button"
+              onClick={() => setPreviewEffect(!previewEffect)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                previewEffect
+                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+              }`}
+            >
+              {previewEffect ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              <span>{previewEffect ? 'Đang bật xem thử (Tắt)' : 'Xem thử hiệu ứng ngay'}</span>
+            </button>
+          </div>
+
+          {/* Master Enable/Disable Switch */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">Kích hoạt hiệu ứng trên cửa hàng</span>
+              <span className="text-[11px] text-slate-500">
+                {holidayEnabled
+                  ? 'Hiệu ứng đang được bật và hiển thị cho toàn bộ khách hàng khi ghé thăm shop.'
+                  : 'Hiệu ứng đang tạm tắt trên shop.'}
+              </span>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={holidayEnabled}
+                onChange={(e) => setHolidayEnabled(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-leaf"></div>
+            </label>
+          </div>
+
+          {/* Theme Selection Cards */}
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-2">
+              Chọn chủ đề ngày hội / ngày lễ:
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {/* Option 1: Tet */}
+              <div
+                onClick={() => setHolidayTheme('tet')}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden ${
+                  holidayTheme === 'tet'
+                    ? 'border-amber-500 bg-amber-50/50 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="text-2xl mb-2">🌸</div>
+                <div className="font-bold text-xs text-slate-800">Tết Nguyên Đán</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-normal">
+                  Hoa mai vàng & hoa đào hồng rơi rực rỡ, mang sắc xuân và may mắn tài lộc.
+                </div>
+                {holidayTheme === 'tet' && (
+                  <span className="absolute top-2 right-2 text-xs font-bold text-amber-600">✓ Đang chọn</span>
+                )}
+              </div>
+
+              {/* Option 2: Christmas */}
+              <div
+                onClick={() => setHolidayTheme('christmas')}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden ${
+                  holidayTheme === 'christmas'
+                    ? 'border-sky-500 bg-sky-50/50 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="text-2xl mb-2">❄️</div>
+                <div className="font-bold text-xs text-slate-800">Giáng Sinh & Năm Mới</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-normal">
+                  Bông tuyết trắng rơi êm dịu, không khí mùa đông ấm áp và tươi vui.
+                </div>
+                {holidayTheme === 'christmas' && (
+                  <span className="absolute top-2 right-2 text-xs font-bold text-sky-600">✓ Đang chọn</span>
+                )}
+              </div>
+
+              {/* Option 3: Sale */}
+              <div
+                onClick={() => setHolidayTheme('sale')}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden ${
+                  holidayTheme === 'sale'
+                    ? 'border-rose-500 bg-rose-50/50 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="text-2xl mb-2">🎉</div>
+                <div className="font-bold text-xs text-slate-800">Siêu Hội Mua Sắm / Sale</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-normal">
+                  Pháo giấy Confetti đa sắc màu & ngôi sao lấp lánh cho ngày sale lớn.
+                </div>
+                {holidayTheme === 'sale' && (
+                  <span className="absolute top-2 right-2 text-xs font-bold text-rose-600">✓ Đang chọn</span>
+                )}
+              </div>
+
+              {/* Option 4: Mid-Autumn */}
+              <div
+                onClick={() => setHolidayTheme('mid_autumn')}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden ${
+                  holidayTheme === 'mid_autumn'
+                    ? 'border-orange-500 bg-orange-50/50 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="text-2xl mb-2">🍂</div>
+                <div className="font-bold text-xs text-slate-800">Mùa Thu & Trung Thu</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-normal">
+                  Lá vàng phong rơi nhẹ nhàng, sắc màu ấm áp mùa trăng rằm.
+                </div>
+                {holidayTheme === 'mid_autumn' && (
+                  <span className="absolute top-2 right-2 text-xs font-bold text-orange-600">✓ Đang chọn</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Intensity Selection */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 block">
+              Mật độ hạt rơi (Cường độ hiệu ứng):
+            </label>
+            <div className="grid grid-cols-3 gap-3 max-w-md">
+              <button
+                type="button"
+                onClick={() => setHolidayIntensity('low')}
+                className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-colors cursor-pointer text-center ${
+                  holidayIntensity === 'low'
+                    ? 'border-leaf bg-leaf/10 text-leaf'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Nhẹ nhàng (Low)
+              </button>
+              <button
+                type="button"
+                onClick={() => setHolidayIntensity('medium')}
+                className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-colors cursor-pointer text-center ${
+                  holidayIntensity === 'medium'
+                    ? 'border-leaf bg-leaf/10 text-leaf'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Vừa phải (Medium)
+              </button>
+              <button
+                type="button"
+                onClick={() => setHolidayIntensity('high')}
+                className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-colors cursor-pointer text-center ${
+                  holidayIntensity === 'high'
+                    ? 'border-leaf bg-leaf/10 text-leaf'
+                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Rộn ràng (High)
+              </button>
+            </div>
+          </div>
+
+          {/* Festive Banner Text (Optional) */}
+          <div className="space-y-1.5 max-w-xl">
+            <label className="text-xs font-bold text-slate-700 block">
+              Khẩu hiệu ngày lễ (Banner text):
+            </label>
+            <input
+              type="text"
+              value={holidayBannerText}
+              onChange={(e) => setHolidayBannerText(e.target.value)}
+              placeholder="Ví dụ: Tết Nguyên Đán 2026 - Rộn Ràng Đón Xuân Tài Lộc"
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-leaf focus:ring-1 focus:ring-leaf"
+            />
+          </div>
+
+          {/* Action buttons */}
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>Xem Shop thực tế</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={() => void handleSaveHolidaySettings()}
+              className="px-5 py-2.5 rounded-xl bg-leaf text-white font-bold text-xs hover:bg-leaf/90 transition-all shadow-2xs cursor-pointer flex items-center gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{isSaving ? 'Đang lưu...' : 'Lưu & Kích Hoạt Hiệu Ứng Lên Shop'}</span>
             </button>
           </div>
         </div>

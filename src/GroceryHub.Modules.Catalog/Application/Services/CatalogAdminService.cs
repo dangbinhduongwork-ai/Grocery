@@ -1287,7 +1287,13 @@ public sealed class CatalogAdminService
             ],
             HeroBadge: "Nông sản tươi sạch mỗi ngày",
             HeroTitle: "Nông Sản Tươi Ngon Chuẩn VietGAP",
-            HeroSubtitle: "Hệ thống cung cấp thực phẩm an toàn, rõ nguồn gốc cho bữa ăn gia đình tràn đầy sức khỏe."
+            HeroSubtitle: "Hệ thống cung cấp thực phẩm an toàn, rõ nguồn gốc cho bữa ăn gia đình tràn đầy sức khỏe.",
+            HolidayEffect: new HolidayEffectSettingsDto(
+                Enabled: true,
+                Theme: "tet",
+                Intensity: "medium",
+                BannerText: "Chúc Mừng Năm Mới 2026 - An Khang Thịnh Vượng"
+            )
         );
     }
 

@@ -9,6 +9,8 @@ interface AuthContextValue {
   isAuthenticated: boolean
   isStaff: boolean
   isAdmin: boolean
+  sessionNotice: string | null
+  clearSessionNotice: () => void
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (email: string, password: string, fullName: string, phone: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [sessionNotice, setSessionNotice] = useState<string | null>(null)
 
   const fetchProfile = useCallback(async (): Promise<boolean> => {
     try {
@@ -67,7 +70,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setOnAuthFailure(() => {
       if (isMounted) {
-        setUser(null)
+        setUser((prev) => {
+          if (prev) {
+            setSessionNotice('Phiên đăng nhập đã hết hạn để đảm bảo an toàn. Vui lòng đăng nhập lại.')
+          }
+          return null
+        })
       }
     })
 
@@ -90,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       setAccessToken(data.accessToken)
+      setSessionNotice(null)
       if (data.user) {
         setUser(data.user)
       } else {
@@ -147,6 +156,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: !!user,
     isStaff,
     isAdmin,
+    sessionNotice,
+    clearSessionNotice: () => setSessionNotice(null),
     login,
     register,
     logout,

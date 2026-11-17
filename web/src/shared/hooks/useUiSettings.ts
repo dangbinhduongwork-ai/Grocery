@@ -1,11 +1,29 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '@/shared/api/client'
 
+export type HolidayTheme = 'none' | 'tet' | 'christmas' | 'sale' | 'mid_autumn'
+export type HolidayIntensity = 'low' | 'medium' | 'high'
+
+export interface HolidayEffectSettings {
+  enabled: boolean
+  theme: HolidayTheme
+  intensity: HolidayIntensity
+  bannerText?: string
+}
+
 export interface UiDesignSettings {
   announcements: string[]
   heroBadge: string
   heroTitle: string
   heroSubtitle: string
+  holidayEffect?: HolidayEffectSettings
+}
+
+export const DEFAULT_HOLIDAY_EFFECT: HolidayEffectSettings = {
+  enabled: true,
+  theme: 'tet',
+  intensity: 'medium',
+  bannerText: 'Tết Nguyên Đán 2026 - Rộn Ràng Đón Xuân Tài Lộc',
 }
 
 export const DEFAULT_UI_SETTINGS: UiDesignSettings = {
@@ -19,6 +37,7 @@ export const DEFAULT_UI_SETTINGS: UiDesignSettings = {
   heroBadge: 'Nông sản tươi sạch mỗi ngày',
   heroTitle: 'Nông Sản Tươi Ngon Chuẩn VietGAP',
   heroSubtitle: 'Hệ thống cung cấp thực phẩm an toàn, rõ nguồn gốc cho bữa ăn gia đình tràn đầy sức khỏe.',
+  holidayEffect: DEFAULT_HOLIDAY_EFFECT,
 }
 
 const STORAGE_KEY = 'groceryhub_ui_settings'
@@ -52,6 +71,9 @@ export function useUiSettings() {
           heroBadge: remoteData.heroBadge || DEFAULT_UI_SETTINGS.heroBadge,
           heroTitle: remoteData.heroTitle || DEFAULT_UI_SETTINGS.heroTitle,
           heroSubtitle: remoteData.heroSubtitle || DEFAULT_UI_SETTINGS.heroSubtitle,
+          holidayEffect: remoteData.holidayEffect
+            ? { ...DEFAULT_HOLIDAY_EFFECT, ...remoteData.holidayEffect }
+            : DEFAULT_HOLIDAY_EFFECT,
         }
         setSettings(merged)
         localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
@@ -99,15 +121,10 @@ export function useUiSettings() {
       }
 
       return { success: true }
-    } catch (err: any) {
-      return { success: false, error: err?.message || 'Lỗi kết nối khi lưu' }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : 'Lỗi kết nối máy chủ' }
     }
   }
 
-  return {
-    settings,
-    loading,
-    refresh: loadSettings,
-    saveSettings,
-  }
+  return { settings, loading, saveSettings, reload: loadSettings }
 }

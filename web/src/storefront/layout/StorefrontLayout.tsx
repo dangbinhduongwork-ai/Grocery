@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { DeliveryStrip } from '@/shared/components/DeliveryStrip'
 import { ZaloContactButton } from '@/shared/components/ZaloContactButton'
 import { AIChatBot } from '@/shared/components/AIChatBot'
+import { HolidayEffectOverlay } from '@/shared/components/HolidayEffectOverlay'
+import { StorefrontSearchBar } from './StorefrontSearchBar'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { useCart } from '@/shared/cart/CartContext'
 import { vi } from '@/shared/i18n/vi'
@@ -42,18 +44,13 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 }) => {
   const { user, isAuthenticated, isStaff, logout } = useAuth()
   const { itemCount } = useCart()
-  const [searchQuery, setSearchQuery] = useState('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      onNavigate?.(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
-    }
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-paper text-ink selection:bg-sprout/40">
+      {/* Holiday Festival Particle Effects Overlay */}
+      <HolidayEffectOverlay />
+
       {/* Top Banner & Promise */}
       <DeliveryStrip />
 
@@ -78,20 +75,12 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
             </div>
           </div>
 
-          {/* Search Bar (Desktop) */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="hidden md:flex flex-1 max-w-md relative"
-          >
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={vi.nav.searchPlaceholder}
-              className="w-full h-10 pl-10 pr-4 rounded-full border border-rule bg-paper-2 text-sm text-ink placeholder:text-ink-2/60 focus:outline-none focus:border-leaf focus:bg-white focus:ring-1 focus:ring-leaf transition-all"
+          {/* Live Suggestion Search Bar (Desktop) */}
+          <div className="hidden md:flex flex-1 max-w-md relative">
+            <StorefrontSearchBar
+              onNavigate={onNavigate}
             />
-            <Search className="w-4 h-4 text-ink-2 absolute left-3.5 top-3 pointer-events-none stroke-[1.5]" />
-          </form>
+          </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
@@ -226,18 +215,12 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
+        {/* Mobile Live Suggestion Search Bar */}
         <div className="md:hidden px-4 pb-3">
-          <form onSubmit={handleSearchSubmit} className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={vi.nav.searchPlaceholder}
-              className="w-full h-9 pl-9 pr-4 rounded-full border border-rule bg-paper-2 text-xs text-ink placeholder:text-ink-2/60 focus:outline-none focus:border-leaf focus:bg-white"
-            />
-            <Search className="w-3.5 h-3.5 text-ink-2 absolute left-3 top-2.5 pointer-events-none stroke-[1.5]" />
-          </form>
+          <StorefrontSearchBar
+            isMobile
+            onNavigate={onNavigate}
+          />
         </div>
       </header>
 

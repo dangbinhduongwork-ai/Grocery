@@ -312,4 +312,40 @@ public sealed class TokenServiceTests : IDisposable
             .CountAsync();
         Assert.Equal(0, activeCount);
     }
+
+    [Fact]
+    public async Task RotateRefreshTokenAsync_WhenMaxSessionLifetimeExceeded_FailsAndRevokesFamily()
+    {
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "session-test@groceryhub.vn",
+            FullName = "Session Test User",
+            Status = UserStatus.Active
+        };
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
+
+        // 1. User logs in at T=0
+        var tokens = await _tokenService.GenerateTokensAsync(user.Id, user.Email, user.FullName, ["Customer"], "127.0.0.1", "Browser");
+
+        // 2. Advance time by 3 days (within 7-day max session) -> rotation succeeds
+        _timeProvider.Advance(TimeSpan.FromDays(3));
+        var rotate1 = await _tokenService.RotateRefreshTokenAsync(tokens.RawRefreshToken, "127.0.0.1", "Browser");
+        Assert.True(rotate1.IsSuccess);
+
+        // 3. Advance time by another 5 days (total 8 days since initial login, exceeding 7-day MaxSessionLifetimeDays)
+        _timeProvider.Advance(TimeSpan.FromDays(5));
+        var rotate2 = await _tokenService.RotateRefreshTokenAsync(rotate1.Value.Tokens.RawRefreshToken, "127.0.0.1", "Browser");
+
+        // Must fail with RefreshTokenInvalid
+        Assert.True(rotate2.IsFailure);
+        Assert.Equal(ErrorCodes.RefreshTokenInvalid, rotate2.Error.Code);
+
+        // Family tokens must be revoked
+        var activeTokens = await _dbContext.RefreshTokens
+            .Where(t => t.FamilyId == tokens.FamilyId && t.RevokedAt == null)
+            .CountAsync();
+        Assert.Equal(0, activeTokens);
+    }
 }

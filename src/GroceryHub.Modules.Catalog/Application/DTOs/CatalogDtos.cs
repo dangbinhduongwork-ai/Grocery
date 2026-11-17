@@ -127,11 +127,18 @@ public record BannerImageUploadResponse(
     string ImageKey,
     string ImageUrl);
 
+public record HolidayEffectSettingsDto(
+    bool Enabled,
+    string Theme,
+    string Intensity,
+    string? BannerText);
+
 public record UiDesignSettingsDto(
     IReadOnlyList<string> Announcements,
     string? HeroBadge,
     string? HeroTitle,
-    string? HeroSubtitle);
+    string? HeroSubtitle,
+    HolidayEffectSettingsDto? HolidayEffect = null);
 
 public record HomeStorefrontDto(
     IReadOnlyList<BannerDto> Banners,

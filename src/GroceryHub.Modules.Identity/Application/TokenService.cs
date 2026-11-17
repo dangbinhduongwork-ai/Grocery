@@ -92,6 +92,11 @@ public sealed class TokenService : ITokenService
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
         DateTimeOffset refreshExpiresAt = now.AddDays(_options.RefreshTokenExpirationDays);
+        DateTimeOffset maxAbsoluteExpiry = now.AddDays(_options.MaxSessionLifetimeDays);
+        if (refreshExpiresAt > maxAbsoluteExpiry)
+        {
+            refreshExpiresAt = maxAbsoluteExpiry;
+        }
         Guid familyId = Guid.NewGuid();
 
         RefreshToken refreshToken = new()
@@ -163,10 +168,35 @@ public sealed class TokenService : ITokenService
                 DomainError.Unauthorized(ErrorCodes.RefreshTokenInvalid, "Refresh token reuse detected."));
         }
 
-        if (existingToken.ExpiresAt <= now)
+        // Check absolute maximum session lifetime for the token family or expired token
+        DateTimeOffset familyCreatedAt = await _dbContext.RefreshTokens
+            .Where(r => r.FamilyId == existingToken.FamilyId)
+            .OrderBy(r => r.CreatedAt)
+            .Select(r => r.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+
+        if (familyCreatedAt == default)
         {
+            familyCreatedAt = existingToken.CreatedAt;
+        }
+
+        DateTimeOffset absoluteExpiry = familyCreatedAt.AddDays(_options.MaxSessionLifetimeDays);
+        if (now >= absoluteExpiry || existingToken.ExpiresAt <= now)
+        {
+            // Session exceeded absolute max duration or expired - revoke family tokens
+            List<RefreshToken> familyTokens = await _dbContext.RefreshTokens
+                .Where(r => r.FamilyId == existingToken.FamilyId && r.RevokedAt == null)
+                .ToListAsync(ct);
+
+            foreach (RefreshToken token in familyTokens)
+            {
+                token.RevokedAt = now;
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
+
             return Result.Failure<RefreshResult>(
-                DomainError.Unauthorized(ErrorCodes.RefreshTokenInvalid, "Refresh token has expired."));
+                DomainError.Unauthorized(ErrorCodes.RefreshTokenInvalid, "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để đảm bảo an toàn."));
         }
 
         if (existingToken.User.Status != UserStatus.Active || existingToken.User.DeletedAt is not null)
@@ -175,10 +205,14 @@ public sealed class TokenService : ITokenService
                 DomainError.Forbidden(ErrorCodes.AccountLocked, "User account is locked or disabled."));
         }
 
-        // Issue replacement token in the same family
+        // Issue replacement token in the same family with bounded expiration
         string newRawRefreshToken = GenerateSecureRandomToken();
         string newTokenHash = HashToken(newRawRefreshToken);
         DateTimeOffset newExpiresAt = now.AddDays(_options.RefreshTokenExpirationDays);
+        if (newExpiresAt > absoluteExpiry)
+        {
+            newExpiresAt = absoluteExpiry;
+        }
 
         RefreshToken replacementToken = new()
         {
