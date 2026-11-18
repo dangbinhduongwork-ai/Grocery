@@ -202,9 +202,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlu
           {error || 'Sản phẩm không tồn tại'}
         </h3>
         <p className="text-sm text-ink-2 mb-6">Sản phẩm có thể đã ngừng kinh doanh hoặc đường dẫn không đúng.</p>
-        <Button variant="primary" onClick={() => navigate('/c/tat-ca')}>
-          Về danh mục sản phẩm
-        </Button>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Button variant="outline" onClick={() => navigate(`/search?q=${encodeURIComponent(productSlug.replace(/-/g, ' '))}`)}>
+            Tìm kiếm &ldquo;{productSlug.replace(/-/g, ' ')}&rdquo;
+          </Button>
+          <Button variant="primary" onClick={() => navigate('/c/tat-ca')}>
+            Về danh mục sản phẩm
+          </Button>
+        </div>
       </div>
     )
   }

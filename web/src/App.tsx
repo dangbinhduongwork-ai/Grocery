@@ -326,16 +326,22 @@ const AppContent: React.FC = () => {
       return <VerifyEmailPage />
     }
 
-    // Match /c/:slug
+    // Match Category: /c/:slug, /category/:slug, /categories/:slug
     const catMatch = matchPath('/c/:slug', pathname)
-    if (catMatch.matched && catMatch.params.slug) {
-      return <CategoryPage categorySlug={catMatch.params.slug} />
+    const categoryMatch = matchPath('/category/:slug', pathname)
+    const categoriesMatch = matchPath('/categories/:slug', pathname)
+    const activeCatSlug = catMatch.params.slug || categoryMatch.params.slug || categoriesMatch.params.slug
+    if ((catMatch.matched || categoryMatch.matched || categoriesMatch.matched) && activeCatSlug) {
+      return <CategoryPage categorySlug={activeCatSlug} />
     }
 
-    // Match /p/:slug
+    // Match Product: /p/:slug, /product/:slug, /products/:slug
     const prodMatch = matchPath('/p/:slug', pathname)
-    if (prodMatch.matched && prodMatch.params.slug) {
-      return <ProductDetailPage productSlug={prodMatch.params.slug} />
+    const productMatch = matchPath('/product/:slug', pathname)
+    const productsMatch = matchPath('/products/:slug', pathname)
+    const activeProdSlug = prodMatch.params.slug || productMatch.params.slug || productsMatch.params.slug
+    if ((prodMatch.matched || productMatch.matched || productsMatch.matched) && activeProdSlug) {
+      return <ProductDetailPage productSlug={activeProdSlug} />
     }
 
     // Match /payment/:paymentCode

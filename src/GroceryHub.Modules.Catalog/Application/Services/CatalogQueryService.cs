@@ -275,6 +275,17 @@ public sealed class CatalogQueryService
 
         if (product == null)
         {
+            string cleanSlug = slug.Trim().ToLowerInvariant();
+            product = await _dbContext.Products
+                .AsNoTracking()
+                .Include(static p => p.Category)
+                .Include(static p => p.Brand)
+                .Include(static p => p.Images)
+                .FirstOrDefaultAsync(p => p.Status == ProductStatus.Active && (p.Slug.StartsWith(cleanSlug + "-") || p.Slug.StartsWith(cleanSlug)), ct);
+        }
+
+        if (product == null)
+        {
             return Result.Failure<StorefrontProductDetailDto>(
                 DomainError.NotFound(ErrorCodes.NotFound, $"Product with slug '{slug}' not found."));
         }

@@ -39,17 +39,32 @@ function FormattedMessage({ text, onNavigate }: { text: string; onNavigate: (url
 
           if (match[2] && match[3]) {
             const linkText = match[2]
-            const linkUrl = match[3]
+            const rawUrl = match[3].trim()
+            let targetUrl = rawUrl
+
+            if (targetUrl.startsWith('/product/')) {
+              targetUrl = '/p/' + targetUrl.slice('/product/'.length)
+            } else if (targetUrl.startsWith('/products/')) {
+              targetUrl = '/p/' + targetUrl.slice('/products/'.length)
+            } else if (targetUrl.startsWith('/category/') || targetUrl.startsWith('/categories/')) {
+              const prefix = targetUrl.startsWith('/category/') ? '/category/' : '/categories/'
+              targetUrl = '/c/' + targetUrl.slice(prefix.length)
+            } else if (!targetUrl.startsWith('/') && !targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+              targetUrl = targetUrl.includes('?') || targetUrl.includes('/')
+                ? '/' + targetUrl
+                : `/p/${targetUrl}`
+            }
+
             parts.push(
               <a
                 key={match.index}
-                href={linkUrl}
+                href={targetUrl}
                 onClick={(e) => {
                   e.preventDefault()
-                  if (linkUrl.startsWith('/')) {
-                    onNavigate(linkUrl)
+                  if (targetUrl.startsWith('/')) {
+                    onNavigate(targetUrl)
                   } else {
-                    window.open(linkUrl, '_blank', 'noopener,noreferrer')
+                    window.open(targetUrl, '_blank', 'noopener,noreferrer')
                   }
                 }}
                 className="text-leaf underline font-semibold hover:opacity-80 inline-flex items-center gap-0.5 cursor-pointer"

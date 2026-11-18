@@ -107,7 +107,7 @@ public static class AiEndpoints
 
                     QUY TẮC TƯ VẤN VÀ GIỚI THIỆU SẢN PHẨM:
                     1. BẮT BUỘC sử dụng các sản phẩm ĐANG CÓ SẴN trong danh sách sản phẩm ở trên khi khách hàng hỏi về hàng hóa, gợi ý món ăn hay thực đơn.
-                    2. Với mỗi sản phẩm giới thiệu, hãy nêu rõ: **Tên sản phẩm**, **Giá bán** (VND) và **Đơn vị tính** (ví dụ: 48.000 ₫/Kg), đồng thời chèn link Markdown dẫn tới sản phẩm dạng [Tên sản phẩm](/product/slug).
+                    2. Với mỗi sản phẩm giới thiệu, hãy nêu rõ: **Tên sản phẩm**, **Giá bán** (VND) và **Đơn vị tính** (ví dụ: 48.000 ₫/Kg), đồng thời chèn link Markdown dẫn tới sản phẩm dạng [Tên sản phẩm](/p/slug) (ví dụ: [Chuối cau chín tự nhiên](/p/chuoi-cau-chin-tu-nhien-024)).
                     3. Nếu khách hàng hỏi một món siêu thị không có sẵn, hãy khéo léo thông báo và gợi ý các món tương tự đang có sẵn tại quầy.
                     4. Khi khách hỏi về mã giảm giá / khuyến mãi, hãy báo các mã đang có hiệu lực ở trên.
                     5. Luôn trả lời ngắn gọn, lịch sự, ân cần, định dạng Markdown đẹp mắt (in đậm, gạch đầu dòng) bằng tiếng Việt tự nhiên.
@@ -268,7 +268,7 @@ public static class AiEndpoints
                 sb.AppendLine("SẢN PHẨM KHỚP NHẤT VỚI YÊU CẦU CỦA KHÁCH:");
                 foreach (var p in matchedProducts)
                 {
-                    sb.AppendLine($"- **{p.Name}** ({p.CategoryName}): {p.SellingPrice:N0} ₫ / {p.Unit} — Link: [Xem chi tiết](/product/{p.Slug})");
+                    sb.AppendLine($"- **{p.Name}** ({p.CategoryName}): {p.SellingPrice:N0} ₫ / {p.Unit} — Link: [{p.Name}](/p/{p.Slug})");
                     if (!string.IsNullOrWhiteSpace(p.ShortDescription))
                     {
                         sb.AppendLine($"  *Mô tả:* {p.ShortDescription}");
@@ -282,7 +282,7 @@ public static class AiEndpoints
             var groups = allProducts.GroupBy(p => p.CategoryName);
             foreach (var grp in groups)
             {
-                var itemsStr = string.Join("; ", grp.Take(15).Select(p => $"{p.Name} ({p.SellingPrice:N0} ₫/{p.Unit}, link: [Xem](/product/{p.Slug}))"));
+                var itemsStr = string.Join("; ", grp.Take(15).Select(p => $"{p.Name} ({p.SellingPrice:N0} ₫/{p.Unit}, link: [{p.Name}](/p/{p.Slug}))"));
                 sb.AppendLine($"• **{grp.Key}**: {itemsStr}");
             }
         }
