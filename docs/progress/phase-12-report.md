@@ -30,7 +30,7 @@ In consultation with the user, all key production parameters were established an
 
 ### 3.1. Containerization & Reverse Proxy
 - `Dockerfile.api`: Multi-stage build (.NET 10 noble SDK $\rightarrow$ aspnet:10.0 noble runtime). Non-root user `app` (UID 1654), health check `/health/live`, separate `migrator` target for one-off bundle execution.
-- `web/Dockerfile` & `Dockerfile.web`: Multi-stage build (Node 22 alpine $\rightarrow$ `nginxinc/nginx-unprivileged:1.27-alpine`). Non-root user `nginx` (UID 101), SPA fallback, security headers, unprivileged port 8080.
+- `web/Dockerfile`: Multi-stage build (Node 22 alpine $\rightarrow$ `nginxinc/nginx-unprivileged:1.27-alpine`). Non-root user `nginx` (UID 101), SPA fallback, security headers, unprivileged port 8080.
 - `web/nginx/default.conf`: Hardened reverse proxy configuration:
   - Strict Content-Security-Policy with `img-src 'self' data: https://qr.sepay.vn`.
   - Rate-limited `/api/` (60r/s) and `/api/v1/payments/sepay/webhook` (10r/m, burst 5).
