@@ -98,6 +98,37 @@ internal static class AuthEndpoints
         .AllowAnonymous()
         .RequireRateLimiting("auth");
 
+        group.MapPost("/activate", async (
+            [FromBody] LoginRequest request,
+            AuthService authService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            string? ip = context.Connection.RemoteIpAddress?.ToString();
+            string? userAgent = context.Request.Headers.UserAgent;
+            string? guestCartToken = context.Request.Cookies["gh_cart"];
+
+            Result<AuthTokenResponse> result = await authService.ActivateAndLoginAsync(
+                request,
+                context.Response,
+                ip,
+                userAgent,
+                guestCartToken,
+                ct);
+
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : IdentityResults.Problem(context, result.Error);
+        })
+        .WithName("ActivateAndLogin")
+        .WithSummary("Activate user account with credentials and return auth token")
+        .Produces<AuthTokenResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(423)
+        .AllowAnonymous()
+        .RequireRateLimiting("auth");
+
         group.MapPost("/refresh", async (
             AuthService authService,
             HttpContext context,

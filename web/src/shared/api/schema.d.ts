@@ -89,6 +89,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AiChatQuery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/sepay/simulate": {
         parameters: {
             query?: never;
@@ -168,6 +184,23 @@ export interface paths {
         put?: never;
         /** Authenticate user credentials */
         post: operations["Login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Activate user account with credentials and return auth token */
+        post: operations["ActivateAndLogin"];
         delete?: never;
         options?: never;
         head?: never;
@@ -706,6 +739,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/ui": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get active UI design settings, marquee announcements and slogans */
+        get: operations["GetStorefrontUiSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/catalog/images/{key}": {
         parameters: {
             query?: never;
@@ -753,7 +803,8 @@ export interface paths {
         /** Update product information */
         put: operations["UpdateAdminProduct"];
         post?: never;
-        delete?: never;
+        /** Soft delete a product from the catalog */
+        delete: operations["DeleteAdminProduct"];
         options?: never;
         head?: never;
         patch?: never;
@@ -928,6 +979,78 @@ export interface paths {
         post?: never;
         /** Delete brand (blocked if products reference it) */
         delete: operations["DeleteAdminBrand"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/banners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all promotional banners for administration */
+        get: operations["GetAdminBanners"];
+        put?: never;
+        /** Create promotional banner */
+        post: operations["CreateAdminBanner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/banners/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get banner by ID */
+        get: operations["GetAdminBannerById"];
+        /** Update banner */
+        put: operations["UpdateAdminBanner"];
+        post?: never;
+        /** Delete banner */
+        delete: operations["DeleteAdminBanner"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/banners/upload-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload and sanitize banner image */
+        post: operations["UploadAdminBannerImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/ui": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get UI design settings for administration */
+        get: operations["GetAdminUiSettings"];
+        /** Update UI design settings (announcements, slogans) */
+        put: operations["UpdateAdminUiSettings"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4092,6 +4215,27 @@ export interface components {
             delta: number | string;
             reason: string;
         };
+        AdminBannerDto: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            subtitle: null | string;
+            imageKey: string;
+            imageUrl: string;
+            linkUrl: null | string;
+            placement: string;
+            /** Format: int32 */
+            sortOrder: number | string;
+            isActive: boolean;
+            /** Format: date-time */
+            startsAt: null | string;
+            /** Format: date-time */
+            endsAt: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: null | string;
+        };
         AdminBrandDto: {
             /** Format: uuid */
             id: string;
@@ -4283,6 +4427,7 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             rowVersion: string;
+            primaryImageUrl?: null | string;
         };
         AdminReviewDto: {
             /** Format: uuid */
@@ -4330,6 +4475,13 @@ export interface components {
             /** Format: int64 */
             costPrice: null | number | string;
             rowVersion: string;
+        };
+        AiChatQueryRequest: {
+            message: string;
+            model?: null | string;
+            endpoint?: null | string;
+            apiKey?: null | string;
+            provider?: null | string;
         };
         AnonymizeCustomerRequest: {
             reason: string;
@@ -4392,6 +4544,10 @@ export interface components {
             placement: string;
             /** Format: int32 */
             sortOrder: number | string;
+        };
+        BannerImageUploadResponse: {
+            imageKey: string;
+            imageUrl: string;
         };
         BrandDto: {
             /** Format: uuid */
@@ -4601,6 +4757,20 @@ export interface components {
             street: string;
             note: null | string;
             isDefault: boolean;
+        };
+        CreateBannerRequest: {
+            title: string;
+            subtitle: null | string;
+            imageKey: string;
+            linkUrl: null | string;
+            placement: null | string;
+            /** Format: int32 */
+            sortOrder: number | string;
+            isActive: boolean;
+            /** Format: date-time */
+            startsAt: null | string;
+            /** Format: date-time */
+            endsAt: null | string;
         };
         CreateBrandRequest: {
             name: string;
@@ -4938,6 +5108,12 @@ export interface components {
         };
         HealthStatusResponse: {
             status: string;
+        };
+        HolidayEffectSettingsDto: {
+            enabled: boolean;
+            theme: string;
+            intensity: string;
+            bannerText: null | string;
         };
         HomeStorefrontDto: {
             banners: components["schemas"]["BannerDto"][];
@@ -5733,6 +5909,13 @@ export interface components {
             /** Format: int64 */
             codAmount: null | number | string;
         };
+        UiDesignSettingsDto: {
+            announcements: string[];
+            heroBadge: null | string;
+            heroTitle: null | string;
+            heroSubtitle: null | string;
+            holidayEffect?: null | components["schemas"]["HolidayEffectSettingsDto"];
+        };
         UpdateAddressRequest: {
             recipientName: string;
             phone: string;
@@ -5741,6 +5924,20 @@ export interface components {
             street: string;
             note: null | string;
             isDefault: boolean;
+        };
+        UpdateBannerRequest: {
+            title: string;
+            subtitle: null | string;
+            imageKey: string;
+            linkUrl: null | string;
+            placement: null | string;
+            /** Format: int32 */
+            sortOrder: number | string;
+            isActive: boolean;
+            /** Format: date-time */
+            startsAt: null | string;
+            /** Format: date-time */
+            endsAt: null | string;
         };
         UpdateBrandRequest: {
             name: string;
@@ -5966,6 +6163,28 @@ export interface operations {
             };
         };
     };
+    AiChatQuery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiChatQueryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     SimulateSePayWebhook: {
         parameters: {
             query?: never;
@@ -6097,6 +6316,57 @@ export interface operations {
         };
     };
     Login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthTokenResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Locked */
+            423: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ActivateAndLogin: {
         parameters: {
             query?: never;
             header?: never;
@@ -7394,8 +7664,11 @@ export interface operations {
         parameters: {
             query?: {
                 q?: string;
+                search?: string;
                 categorySlug?: string;
+                categoryId?: string;
                 brandSlug?: string;
+                brandId?: string;
                 minPrice?: number | string;
                 maxPrice?: number | string;
                 inStockOnly?: boolean;
@@ -7512,6 +7785,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HomeStorefrontDto"];
+                };
+            };
+        };
+    };
+    GetStorefrontUiSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiDesignSettingsDto"];
                 };
             };
         };
@@ -7728,6 +8021,44 @@ export interface operations {
             };
             /** @description Unprocessable Entity */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteAdminProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8409,6 +8740,314 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetAdminBanners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminBannerDto"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateAdminBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBannerRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminBannerDto"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetAdminBannerById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminBannerDto"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateAdminBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBannerRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminBannerDto"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteAdminBanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UploadAdminBannerImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    file: components["schemas"]["IFormFile"];
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BannerImageUploadResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetAdminUiSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiDesignSettingsDto"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateAdminUiSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UiDesignSettingsDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiDesignSettingsDto"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

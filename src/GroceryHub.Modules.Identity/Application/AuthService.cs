@@ -310,6 +310,110 @@ public sealed class AuthService
         return Result.Success(new AuthTokenResponse(tokens.AccessToken, tokens.ExpiresIn, authUser));
     }
 
+    public async Task<Result<AuthTokenResponse>> ActivateAndLoginAsync(
+        LoginRequest request,
+        HttpResponse httpResponse,
+        string? ipAddress = null,
+        string? userAgent = null,
+        string? guestCartToken = null,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(httpResponse);
+
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return Result.Failure<AuthTokenResponse>(DomainError.Unauthorized(
+                ErrorCodes.Unauthenticated,
+                "Invalid email or password."));
+        }
+
+        string normalizedEmail = request.Email.Trim().ToUpperInvariant();
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+
+        User? user = await _dbContext.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail, ct);
+
+        if (user is null)
+        {
+            return Result.Failure<AuthTokenResponse>(DomainError.Unauthorized(
+                ErrorCodes.Unauthenticated,
+                "Invalid email or password."));
+        }
+
+        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > now)
+        {
+            return Result.Failure<AuthTokenResponse>(new DomainError(
+                ErrorCodes.AccountLocked,
+                "Account is locked due to too many failed attempts. Please try again later.",
+                (ErrorType)423));
+        }
+
+        PasswordVerificationResult verifyResult = _passwordHasher.VerifyHashedPassword(
+            user,
+            user.PasswordHash,
+            request.Password);
+
+        if (verifyResult == PasswordVerificationResult.Failed)
+        {
+            user.AccessFailedCount++;
+            if (user.LockoutEnabled && user.AccessFailedCount >= 5)
+            {
+                user.LockoutEnd = now.AddMinutes(15);
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
+
+            return Result.Failure<AuthTokenResponse>(DomainError.Unauthorized(
+                ErrorCodes.Unauthenticated,
+                "Invalid email or password."));
+        }
+
+        user.EmailConfirmed = true;
+        user.AccessFailedCount = 0;
+        user.LockoutEnd = null;
+        await _dbContext.SaveChangesAsync(ct);
+
+        IReadOnlyList<string> roles = user.UserRoles
+            .Select(ur => ur.Role.Name)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        GeneratedTokens tokens = await _tokenService.GenerateTokensAsync(
+            user.Id,
+            user.Email,
+            user.FullName,
+            roles,
+            ipAddress,
+            userAgent,
+            ct);
+
+        Result<IReadOnlySet<string>> permissionsResult = await _permissionService.GetEffectivePermissionsAsync(user.Id, ct);
+        IReadOnlyList<string> permissions = permissionsResult.IsSuccess
+            ? permissionsResult.Value.OrderBy(p => p, StringComparer.Ordinal).ToList()
+            : [];
+
+        SetRefreshCookie(httpResponse, tokens.RawRefreshToken, tokens.RefreshTokenExpiresAt);
+
+        if (!string.IsNullOrWhiteSpace(guestCartToken) && _cartMergeService != null)
+        {
+            await _cartMergeService.MergeGuestCartOnLoginAsync(user.Id, guestCartToken, ct);
+            httpResponse.Cookies.Delete("gh_cart");
+        }
+
+        AuthUserDto authUser = new(
+            user.Id,
+            user.Email,
+            user.FullName,
+            user.PhoneNumber,
+            roles,
+            permissions);
+
+        return Result.Success(new AuthTokenResponse(tokens.AccessToken, tokens.ExpiresIn, authUser));
+    }
+
     public async Task<Result<AuthTokenResponse>> RefreshAsync(
         HttpRequest httpRequest,
         HttpResponse httpResponse,

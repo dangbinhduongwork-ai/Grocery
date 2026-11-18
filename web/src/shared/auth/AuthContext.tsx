@@ -13,6 +13,7 @@ interface AuthContextValue {
   clearSessionNotice: () => void
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (email: string, password: string, fullName: string, phone: string) => Promise<{ success: boolean; error?: string }>
+  activateAndLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   hasPermission: (permission: string) => boolean
   refreshProfile: () => Promise<void>
@@ -133,6 +134,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const activateAndLogin = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await api.POST('/api/v1/auth/activate', {
+        body: { email, password },
+      })
+
+      if (res && res.data) {
+        setAccessToken(res.data.accessToken)
+        setUser(res.data.user)
+        setSessionNotice(null)
+        return { success: true }
+      }
+
+      const errorMsg = (res?.error as any)?.detail || 'Kích hoạt không thành công. Mật khẩu không chính xác.'
+      return { success: false, error: errorMsg }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : 'Lỗi kết nối máy chủ.' }
+    }
+  }
+
   const logout = async (): Promise<void> => {
     try {
       await api.POST('/api/v1/auth/logout')
@@ -160,6 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     clearSessionNotice: () => setSessionNotice(null),
     login,
     register,
+    activateAndLogin,
     logout,
     hasPermission,
     refreshProfile: async () => {

@@ -10,7 +10,7 @@ import { UserPlus, Lock, Mail, Phone, User, AlertCircle, ArrowRight, Check, X } 
 
 export const RegisterPage: React.FC = () => {
   const { navigate, searchParams } = useRouter()
-  const { register } = useAuth()
+  const { register, activateAndLogin } = useAuth()
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -59,6 +59,13 @@ export const RegisterPage: React.FC = () => {
     try {
       const result = await register(email.trim(), password, fullName.trim(), phone.trim())
       if (result.success) {
+        // Tự động kích hoạt tài khoản ngay sau khi đăng ký
+        try {
+          await activateAndLogin(email.trim(), password)
+        } catch {
+          // ignore, user can log in or activate on login page
+        }
+
         // Tự động chuyển hướng sang giao diện đăng nhập với thông tin email đã điền sẵn
         const loginUrl = `/login?registered=1&email=${encodeURIComponent(email.trim())}${
           redirectUrl !== '/' ? `&redirect=${encodeURIComponent(redirectUrl)}` : ''

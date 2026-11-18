@@ -9,17 +9,46 @@ import { LogIn, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, X } from 'luc
 
 export const LoginPage: React.FC = () => {
   const { navigate, searchParams } = useRouter()
-  const { login, sessionNotice, clearSessionNotice } = useAuth()
+  const { login, activateAndLogin, sessionNotice, clearSessionNotice } = useAuth()
 
   const [email, setEmail] = useState(() => searchParams.get('email') || '')
   const [password, setPassword] = useState('')
   const [captchaInput, setCaptchaInput] = useState('')
   const [isCaptchaValid, setIsCaptchaValid] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isActivating, setIsActivating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const redirectUrl = searchParams.get('redirect') || '/'
   const isRegisteredSuccess = searchParams.get('registered') === '1'
+
+  const isEmailNotVerified =
+    error?.toLowerCase().includes('verified') ||
+    error?.includes('EMAIL_NOT_VERIFIED') ||
+    error?.toLowerCase().includes('xác thực')
+
+  const handleQuickActivate = async () => {
+    if (!email || !password) {
+      setError('Vui lòng nhập đầy đủ email và mật khẩu bên dưới rồi bấm Kích hoạt.')
+      return
+    }
+
+    setIsActivating(true)
+    setError(null)
+
+    try {
+      const res = await activateAndLogin(email.trim(), password)
+      if (res.success) {
+        navigate(redirectUrl)
+      } else {
+        setError(res.error || 'Kích hoạt không thành công. Vui lòng kiểm tra lại mật khẩu.')
+      }
+    } catch {
+      setError('Đã có lỗi xảy ra khi kết nối máy chủ')
+    } finally {
+      setIsActivating(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,9 +120,29 @@ export const LoginPage: React.FC = () => {
         )}
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-[#FDECE8] border border-[#FADCD5] text-xs text-tomato flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 stroke-[1.5]" />
-            <span>{error}</span>
+          <div className="space-y-3">
+            <div className="p-3.5 rounded-xl bg-[#FDECE8] border border-[#FADCD5] text-xs text-tomato flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 stroke-[1.5]" />
+              <div className="space-y-1">
+                <span>
+                  {isEmailNotVerified
+                    ? 'Tài khoản của bạn chưa được kích hoạt email. Bạn có thể bấm nút bên dưới để kích hoạt ngay mà không cần chờ email.'
+                    : error}
+                </span>
+              </div>
+            </div>
+
+            {isEmailNotVerified && (
+              <Button
+                type="button"
+                onClick={handleQuickActivate}
+                disabled={isActivating || !email || !password}
+                className="w-full h-10 bg-leaf hover:bg-leaf/90 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <span>{isActivating ? 'Đang kích hoạt...' : 'Kích hoạt tài khoản & Đăng nhập ngay'}</span>
+                <ArrowRight className="w-4 h-4 stroke-[2]" />
+              </Button>
+            )}
           </div>
         )}
 
